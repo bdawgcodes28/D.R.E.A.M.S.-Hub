@@ -8,8 +8,11 @@ const Login = () => {
   const [password, setPassword] = useState("");
   const navigate = useNavigate()
 
-  const submit = () =>{
-
+  const signInWithEmailAndPassword = () =>{
+    navigate('/')
+  }
+  
+  const signInWithGoogle= () =>{
     navigate('/')
   }
 
@@ -29,7 +32,7 @@ const Login = () => {
             Admin Login
           </h1>
 
-          <form className="w-full flex flex-col gap-4 text-gray-400">
+          <form className="w-full flex flex-col gap-4 text-gray-400 text-sm">
             <div className="relative">
               <input
                 type="email"
@@ -55,7 +58,7 @@ const Login = () => {
             <button
               type="submit"
               className="w-full bg-purple-600 text-sm text-white py-3 rounded-lg hover:bg-purple-700 transition tracking-widest"
-              onClick={submit}
+              onClick={signInWithEmailAndPassword}
             >
               LOGIN
             </button>
@@ -67,7 +70,7 @@ const Login = () => {
 
             <div className="w-full flex justify-center items-center">
 
-            <GoogleButton/>
+            <GoogleButton onClick={signInWithGoogle} />
             </div>
             
           </form>
