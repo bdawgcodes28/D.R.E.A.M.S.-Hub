@@ -2,6 +2,7 @@ import { useState } from "react";
 import { FiUser, FiLock } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import GoogleButton from "../components/GoogleButton";
+import './Login.css'
 
 const Login = () => {
   const [email, setEmail] = useState("");
@@ -57,7 +58,7 @@ const Login = () => {
 
             <button
               type="submit"
-              className="w-full bg-purple-600 text-sm text-white py-3 rounded-lg hover:bg-purple-700 transition tracking-widest"
+              className="w-full bg-indigo-600/80 text-sm text-white py-3 rounded-lg hover:bg-indigo-700 transition tracking-widest"
               onClick={signInWithEmailAndPassword}
             >
               LOGIN
