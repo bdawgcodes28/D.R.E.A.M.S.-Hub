@@ -15,7 +15,7 @@ client_server_side="${client_app}/server_side"
 cd "${admin_server_side}"
 
 # install node.js dependencies (only what's needed)
-dependencies="express body-parser"
+dependencies="express body-parser url path fs dotenv"
 
 # initialize node runtime environment if needed
 if [ ! -f package.json ]; then
