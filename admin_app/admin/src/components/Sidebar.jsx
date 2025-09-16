@@ -2,7 +2,6 @@ import { useState } from "react";
 import { FiUser } from "react-icons/fi";
 import { NavLink } from "react-router-dom";
 
-// Reusable Link component
 const Link = ({ to, children }) => {
   return (
     <NavLink
@@ -43,25 +42,25 @@ const Sidebar = () => {
       </div>
 
       <div className="w-full h-full overflow-y-auto flex flex-col scrollbar-thin scrollbar-thumb-gray-300 scrollbar-track-gray-100">
-        <Section title="Database Management">
-            <Link to="/tables">Tables</Link>
+        <Section title="Management">
+            <Link to="/events">Events</Link>
             <Link to="/schemas">Schemas</Link>
-            <Link to="/schemas">Fuctions</Link>
-            <Link to="/schemas">Enumerated Types</Link>
-            <Link to="/schemas">Extensions</Link>
-            <Link to="/schemas">Indexes</Link>
-            <Link to="/schemas">Publications</Link>
+            <Link to="/function">Fuctions</Link>
+            <Link to="/types">Enumerated Types</Link>
+            <Link to="/extensions">Extensions</Link>
+            <Link to="/indexes">Indexes</Link>
+            <Link to="/publications">Publications</Link>
         </Section>
         <Section title="Configuration">
-            <Link to="/tables">Roles</Link>
-            <Link to="/schemas">Policies</Link>
-            <Link to="/schemas">Settings</Link>
+            <Link to="/roles">Roles</Link>
+            <Link to="/policies">Policies</Link>
+            <Link to="/settins">Settings</Link>
         </Section>
         <Section title="Platform">
-            <Link to="/tables">Backups</Link>
-            <Link to="/schemas">Migrations</Link>
-            <Link to="/schemas">Wrappers</Link>
-            <Link to="/schemas">Webhooks</Link>
+            <Link to="/backups">Backups</Link>
+            <Link to="/migrations">Migrations</Link>
+            <Link to="/wrappers">Wrappers</Link>
+            <Link to="/webhooks">Webhooks</Link>
         </Section>
       </div>
     </aside>
