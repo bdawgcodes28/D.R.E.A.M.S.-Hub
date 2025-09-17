@@ -15,154 +15,41 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
-
-/* ✅ make it a class */
-.cube_backgroun {
-  --s: 50px; /* control the size*/
-  --c1: hsl(276, 40%, 57%);
-  --c2: #87cea6;
-  
-  --c:#0000 75%,var(--c1) 0;
-  --g1:conic-gradient(at 78% 3%,var(--c));
-  --g2:conic-gradient(at 3% 78%,var(--c));
-  background:
-    var(--g1),
-    var(--g1) var(--s) var(--s),
-    var(--g1) calc(2*var(--s)) calc(2*var(--s)),
-    var(--g1) calc(3*var(--s)) calc(3*var(--s)),
-    var(--g2) 0 calc(3*var(--s)),
-    var(--g2) var(--s) 0,
-    var(--g2) calc(2*var(--s)) var(--s),
-    var(--g2) calc(3*var(--s)) calc(2*var(--s))
-    var(--c2);
-  background-size: calc(4*var(--s)) calc(4*var(--s));
-}
-.cube_background {
- 
-  overflow: hidden;
-  background: repeating-linear-gradient(
-    135deg,
-    #33735e 0px,
-    #49ac8b 60px,
-    #2d6955 70px,
-    #33735e 130px
-  );
-}
-
-.gsi-material-button {
-  -moz-user-select: none;
-  -webkit-user-select: none;
-  -ms-user-select: none;
-  -webkit-appearance: none;
-  background-color: WHITE;
-  background-image: none;
-  border: 1px solid #747775;
-  -webkit-border-radius: 20px;
-  border-radius: 20px;
-  -webkit-box-sizing: border-box;
-  box-sizing: border-box;
-  color: #1f1f1f;
+button {
   cursor: pointer;
-  font-family: 'Roboto', arial, sans-serif;
-  font-size: 14px;
-  height: 40px;
-  letter-spacing: 0.25px;
-  outline: none;
-  overflow: hidden;
-  padding: 0 12px;
-  position: relative;
-  text-align: center;
-  -webkit-transition: background-color .218s, border-color .218s, box-shadow .218s;
-  transition: background-color .218s, border-color .218s, box-shadow .218s;
-  vertical-align: middle;
-  white-space: nowrap;
-  width: 100%;
-  max-width: 400px;
-  min-width: min-content;
 }
 
-.gsi-material-button .gsi-material-button-icon {
-  height: 20px;
-  margin-right: 12px;
-  min-width: 20px;
-  width: 20px;
+/* Works for Chrome, Edge, Safari */
+::-webkit-scrollbar {
+  width: 12px;              /* scrollbar width */
 }
 
-.gsi-material-button .gsi-material-button-content-wrapper {
-  -webkit-align-items: center;
-  align-items: center;
-  display: flex;
-  -webkit-flex-direction: row;
-  flex-direction: row;
-  -webkit-flex-wrap: nowrap;
-  flex-wrap: nowrap;
-  height: 100%;
-  justify-content: space-between;
-  position: relative;
-  width: 100%;
+::-webkit-scrollbar-track {
+  background: #f3f4f6;     /* Tailwind gray-100 */
 }
 
-.gsi-material-button .gsi-material-button-contents {
-  -webkit-flex-grow: 1;
-  flex-grow: 1;
-  font-family: 'Roboto', arial, sans-serif;
-  font-weight: 500;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  vertical-align: top;
+::-webkit-scrollbar-thumb {
+  background: #d1d5db;     /* Tailwind gray-300 */
+  border-radius: 9999px;   /* fully rounded */
 }
 
-.gsi-material-button .gsi-material-button-state {
-  -webkit-transition: opacity .218s;
-  transition: opacity .218s;
-  bottom: 0;
-  left: 0;
-  opacity: 0;
-  position: absolute;
-  right: 0;
-  top: 0;
+::-webkit-scrollbar-thumb:hover {
+  background: #9ca3af;     /* Tailwind gray-400 */
 }
 
-.gsi-material-button:disabled {
-  cursor: default;
-  background-color: #ffffff61;
-  border-color: #1f1f1f1f;
+/* Works for Firefox */
+* {
+  scrollbar-width: thin;
+  scrollbar-color: #a6a8ac rgb(255, 255, 255); /* thumb track */
 }
 
-.gsi-material-button:disabled .gsi-material-button-contents {
-  opacity: 38%;
+/* scrollbar_hide.css */
+.scrollbar_hide {
+  -ms-overflow-style: none;  /* IE and Edge */
+  scrollbar-width: none;     /* Firefox */
 }
 
-.gsi-material-button:disabled .gsi-material-button-icon {
-  opacity: 38%;
+.scrollbar_hide::-webkit-scrollbar {
+  display: none; /* Chrome, Safari, Opera */
 }
 
-.gsi-material-button:not(:disabled):active .gsi-material-button-state, 
-.gsi-material-button:not(:disabled):focus .gsi-material-button-state {
-  background-color: #303030;
-  opacity: 12%;
-}
-
-.gsi-material-button:not(:disabled):hover {
-  -webkit-box-shadow: 0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15);
-  box-shadow: 0 1px 2px 0 rgba(60, 64, 67, .30), 0 1px 3px 1px rgba(60, 64, 67, .15);
-}
-
-.gsi-material-button:not(:disabled):hover .gsi-material-button-state {
-  background-color: #303030;
-  opacity: 8%;
-}
-
-
-@media (prefers-color-scheme: light) {
-  :root {
-    color: #213547;
-    background-color: #ffffff;
-  }
-  a:hover {
-    color: #747bff;
-  }
-  button {
-    background-color: #f9f9f9;
-  }
-}

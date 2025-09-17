@@ -2,14 +2,18 @@ import { useState } from "react";
 import { FiUser, FiLock } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import GoogleButton from "../components/GoogleButton";
+import './Login.css'
 
 const Login = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate()
 
-  const submit = () =>{
-
+  const signInWithEmailAndPassword = () =>{
+    navigate('/')
+  }
+  
+  const signInWithGoogle= () =>{
     navigate('/')
   }
 
@@ -29,7 +33,7 @@ const Login = () => {
             Admin Login
           </h1>
 
-          <form className="w-full flex flex-col gap-4 text-gray-400">
+          <form className="w-full flex flex-col gap-4 text-gray-400 text-sm">
             <div className="relative">
               <input
                 type="email"
@@ -54,8 +58,8 @@ const Login = () => {
 
             <button
               type="submit"
-              className="w-full bg-purple-600 text-sm text-white py-3 rounded-lg hover:bg-purple-700 transition tracking-widest"
-              onClick={submit}
+              className="w-full bg-indigo-600/80 text-sm text-white py-3 rounded-lg hover:bg-indigo-700 transition tracking-widest"
+              onClick={signInWithEmailAndPassword}
             >
               LOGIN
             </button>
@@ -67,7 +71,7 @@ const Login = () => {
 
             <div className="w-full flex justify-center items-center">
 
-            <GoogleButton/>
+            <GoogleButton onClick={signInWithGoogle} />
             </div>
             
           </form>
