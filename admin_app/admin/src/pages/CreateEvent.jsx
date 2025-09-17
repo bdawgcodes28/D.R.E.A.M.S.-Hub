@@ -4,9 +4,8 @@
 const CreateEvent = () =>{
 
     return(
-        <div>
-
-            
+        <div className="text-gray-500 ">
+dsfsdf
         </div>
     )
 

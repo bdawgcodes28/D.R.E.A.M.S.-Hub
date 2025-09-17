@@ -7,6 +7,7 @@ import { CiEdit } from "react-icons/ci";
 import { FaRegTrashCan } from "react-icons/fa6";
 import Tooltip from "../components/Tooltip";
 import { LuExternalLink } from "react-icons/lu";
+import { Link, NavLink } from "react-router-dom";
 
 const Events = () => {
   const events = [
@@ -44,10 +45,9 @@ const Events = () => {
           className="grow h-10 border rounded-full p-2 px-4"
         />
         <Tooltip position="bottom" element={<h1>Add Event</h1>}>
-
-        <button className="h-10 w-12 text-center border rounded-full border-gray-500">
+        <NavLink to={"create"} className="h-10 w-12 flex items-center justify-center text-center border rounded-full border-gray-500">
             +
-        </button>
+        </NavLink>
         </Tooltip>
         <div className="w-48 h-10 border rounded-full overflow-clip flex items-center justify-center text-gray-500">
           Filter

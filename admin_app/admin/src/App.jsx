@@ -9,18 +9,14 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        {/* Login */}
         <Route path="/login" element={<Login />} />
 
-        {/* Dashboard wrapper */}
         <Route path="/" element={<Dashboard />}>
           <Route index element={<Home />} />
           <Route path="*" element={<Home />} />
+          <Route path="events" element={<Events />} />
+          <Route path="events/create" element={<CreateEvent />} />
 
-          {/* Events + nested route */}
-          <Route path="events" element={<Events />}>
-            <Route path="create-event" element={<CreateEvent />} />
-          </Route>
         </Route>
       </Routes>
     </BrowserRouter>
