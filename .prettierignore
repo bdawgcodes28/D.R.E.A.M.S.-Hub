@@ -1,0 +1,4 @@
+# this prettier ignore command will contain folders/files that should
+# not be reformatted when running prettier commands
+
+node_modules
