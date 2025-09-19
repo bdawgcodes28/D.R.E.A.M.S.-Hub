@@ -1,19 +1,62 @@
-import { useState } from "react";
+import { useState, useContext } from "react";
+import { UserContext } from "../components/user_context/context_provider.jsx";
 import { FiUser, FiLock } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import GoogleButton from "../components/GoogleButton";
+import * as SUPABASE_CLIENT from "../supabase/supabase_client.jsx"
 import './Login.css'
 
 const Login = () => {
+  // user input variables
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const navigate = useNavigate()
 
-  const signInWithEmailAndPassword = () =>{
-    navigate('/')
+
+  // global context for user
+  const {user, setUser} = useContext(UserContext);
+
+  const signInWithEmailAndPassword = async (e) => {
+    e.preventDefault();
+
+    // verify fields have been filled
+    if (email.trim() === ""){
+      // show error pop up
+      console.error("Email is empty");
+      return;
+    }
+    if (password.trim() === ""){
+      // show error pop up
+      console.error("Password is empty");
+      return;
+    }
+
+    const credentials = {
+      email:    email,
+      password: password
+    };
+
+    try {
+      // check if user is inside database and is authorized to login
+      const user = await SUPABASE_CLIENT.validUser(credentials);
+      if (user){
+        console.log("Login successful:");
+        setUser(user);
+        navigate('/');
+      } else {
+
+        console.error("Invalid credentials");
+        // TODO: Show error message to user
+      }
+    } catch (error) {
+      console.error("Login error:", error);
+      // TODO: Show error message to user
+    }
   }
   
-  const signInWithGoogle= () =>{
+  const signInWithGoogle= (e) =>{
+    e.preventDefault();
+
     navigate('/')
   }
 
