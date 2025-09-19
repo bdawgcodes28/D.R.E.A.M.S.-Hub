@@ -18,7 +18,7 @@ const Tooltip = ({ children, element, position = "top" }) => {
       {children}
       {visible && (
         <div
-          className={`absolute ${positionClasses[position]} px-2 py-1 text-xs text-white bg-gray-600 rounded-md shadow-md whitespace-nowrap`}
+          className={`absolute ${positionClasses[position]}  z-50 px-2 py-1 text-xs text-white bg-gray-600 rounded-md shadow-md whitespace-nowrap`}
         >
           {element}
         </div>

@@ -3,7 +3,7 @@ import Login from "./pages/Login";
 import Dashboard from "./components/Dashboard";
 import Home from "./pages/Home";
 import Events from "./pages/Events";
-import CreateEvent from "./pages/CreateEvent";
+import EventEdit from "./pages/EventEdit";
 
 function App() {
   return (
@@ -15,7 +15,8 @@ function App() {
           <Route index element={<Home />} />
           <Route path="*" element={<Home />} />
           <Route path="events" element={<Events />} />
-          <Route path="events/create" element={<CreateEvent />} />
+          <Route path="events/create" element={<EventEdit />} />
+          <Route path="events/edit" element={<EventEdit />} />
 
         </Route>
       </Routes>
