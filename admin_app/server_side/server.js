@@ -56,32 +56,27 @@ app.use(express.json());                                        // allows for js
 
 
 // -----------------------------------------------------------------------------------------------------------------------
-
-const REACT_BUILD = path.join(__dirname, "../admin/dist/index.html");
+const BUILD_PATH   = path.join(__dirname, "../admin/dist");
 
 
 // initial route that serves the webpage
 app.get("/", (req, res)=>{
     // home route, initial request
-    res.sendFile(REACT_BUILD);
+    res.sendFile(path.join(BUILD_PATH, "index.html"));
 });
 
 
 
 
-
-// final 404 handler (catch-all)
-app.use((req, res)=>{
-    res.status(404).type(".html");
-    res.send(`
-        <h1>404 request couldnt be completed</h1>
-    `);
+// catch all route
+app.use((req, res) => {
+    res.sendFile(path.join(BUILD_PATH, "index.html"));
 });
 
 
 // -----------------------------------------------------------------------------------------------------------------------
 
 // node server listener at PORT
-app.listen(PORT, ()=>{
+app.listen(PORT, async ()=>{
     console.log("Server is listening at PORT:", PORT);
 });

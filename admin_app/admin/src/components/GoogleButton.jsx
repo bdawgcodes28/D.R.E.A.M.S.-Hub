@@ -1,6 +1,19 @@
 const GoogleButton = (props) => {
+  const handleClick = (e) => {
+    e.preventDefault(); // Prevent form submission
+    e.stopPropagation(); // Stop event bubbling
+    if (props.onClick && !props.disabled) {
+      props.onClick();
+    }
+  };
+
   return (
-    <button onClick={props.onClick} className="gsi-material-button">
+    <button 
+      type="button" 
+      onClick={handleClick} 
+      disabled={props.disabled}
+      className={`gsi-material-button ${props.disabled ? 'opacity-50 cursor-not-allowed' : ''}`}
+    >
       <div className="gsi-material-button-state"></div>
       <div className="gsi-material-button-content-wrapper">
         <div className="gsi-material-button-icon">

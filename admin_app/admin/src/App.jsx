@@ -10,13 +10,11 @@ function App() {
     <BrowserRouter>
       <Routes>
         <Route path="/login" element={<Login />} />
-
         <Route path="/" element={<Dashboard />}>
           <Route index element={<Home />} />
           <Route path="*" element={<Home />} />
           <Route path="events" element={<Events />} />
           <Route path="events/create" element={<CreateEvent />} />
-
         </Route>
       </Routes>
     </BrowserRouter>
