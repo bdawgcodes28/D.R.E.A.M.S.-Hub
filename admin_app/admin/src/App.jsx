@@ -19,6 +19,8 @@ function App() {
           <Route path="events/edit" element={<EventEdit />} />
 
         </Route>
+        <Route path='/' element= {<Login/>}/>
+        <Route path='/login' element={<Login/>} />
       </Routes>
     </BrowserRouter>
   );
