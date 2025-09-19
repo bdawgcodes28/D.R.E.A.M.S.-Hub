@@ -1,10 +1,11 @@
 import { useState } from "react";
 import { FiX, FiMenu } from "react-icons/fi";
 import { FiBell } from "react-icons/fi";
+import { useUser } from "./user_context/context_provider";
 
 const Navbar = ({toggleNotifications, ...props}) => {
   const [isOpen, setIsOpen] = useState(false);
-  const [user, setUser] = useState({ name: "Rocklyn Clarke" });
+  const {user} = useUser(null);
 
   return (
     <nav className=" bg-white w-full h-12 border-b text-gray-500 border-gray-300 flex items-center justify-between px-6 py-3">
@@ -15,8 +16,8 @@ const Navbar = ({toggleNotifications, ...props}) => {
         <button onClick={toggleNotifications} className="transition-all duration-200 bg-white active:bg-gray-200 hover:bg-gray-100 p-1 w-12 items-center justify-center flex border rounded-full">
           <FiBell />
         </button>
-        <button className=" transition-all duration-200 bg-white active:bg-gray-200 hover:bg-gray-100 p-1 w-12 border rounded-full">
-          {user?.name[0]}
+        <button className=" capitalize transition-all duration-200 bg-white active:bg-gray-200 hover:bg-gray-100 p-1 w-12 border rounded-full">
+          {user?.first_name[0]}
         </button>
       </div>
     </nav>

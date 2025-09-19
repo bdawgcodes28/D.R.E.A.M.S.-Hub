@@ -4,24 +4,26 @@ import Dashboard from "./components/Dashboard";
 import Home from "./pages/Home";
 import Events from "./pages/Events";
 import EventEdit from "./pages/EventEdit";
+import { UserProvider } from "./components/user_context/context_provider";
+import ProtectedRoute from "./components/user_context/Protected_Routes";
 
 function App() {
   return (
-    <BrowserRouter>
-      <Routes>
-        <Route path="/login" element={<Login />} />
-        <Route path="/" element={<Dashboard />}>
-          <Route index element={<Home />} />
-          <Route path="*" element={<Home />} />
-          <Route path="events" element={<Events />} />
-          <Route path="events/create" element={<EventEdit />} />
-          <Route path="events/edit" element={<EventEdit />} />
+      <BrowserRouter>
+        <Routes>
+          {/* Public Routes */}
+          <Route path="/login" element={<Login />} />
 
-        </Route>
-        <Route path='/' element= {<Login/>}/>
-        <Route path='/login' element={<Login/>} />
-      </Routes>
-    </BrowserRouter>
+          {/* Protected Dashboard Routes */}
+          <Route path="/" element={ <ProtectedRoute> <Dashboard /></ProtectedRoute>}>
+            <Route index element={<Home />} />
+            <Route path="events" element={<Events />} />
+            <Route path="events/create" element={<EventEdit />} />
+            <Route path="events/edit/:id" element={<EventEdit />} />
+            <Route path="*" element={<Home />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
   );
 }
 

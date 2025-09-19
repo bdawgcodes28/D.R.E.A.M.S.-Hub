@@ -1,6 +1,7 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { FiUser } from "react-icons/fi";
 import { NavLink } from "react-router-dom";
+import { useUser } from "./user_context/context_provider";
 
 const Link = ({ to, children }) => {
   return (
@@ -29,8 +30,13 @@ const Section = ({ title, children }) => {
 };
 
 const Sidebar = () => {
-  const [user] = useState({ name: "Rocklyn Clarke", email : "rocklyn.clarke1@gmail.com" });
+  const {user} = useUser()
+  //const [user] = useState({ name: "Rocklyn Clarke", email : "rocklyn.clarke1@gmail.com" });
+  useEffect(() =>
+  {
+    console.log(user)
 
+  }, [user])
   return (
     <aside className="text-gray-600 w-72 h-full border-r border-gray-300 bg-white flex flex-col">
       
@@ -63,7 +69,10 @@ const Sidebar = () => {
         <FiUser size={24}/>
         </button>
         <div className=" truncate grow">
-          <h1 className="text-sm font-semibold truncate">{user?.name}</h1>
+          <div className="capitalize flex gap-1">
+          <h1 className="text-sm font-semibold truncate">{user?.first_name} </h1>
+          <h1 className="text-sm font-semibold truncate">{user?.last_name}</h1>
+          </div>
           <h1 className="text-xs truncate">{user?.email}</h1>
         </div>
         
