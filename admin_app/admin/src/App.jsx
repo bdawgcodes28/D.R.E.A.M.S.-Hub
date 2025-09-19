@@ -3,6 +3,7 @@ import Login from "./pages/Login";
 import Dashboard from "./components/Dashboard";
 import Home from "./pages/Home";
 import Events from "./pages/Events";
+import EventEdit from "./pages/EventEdit";
 import CreateEvent from "./pages/CreateEvent";
 
 function App() {
@@ -15,6 +16,7 @@ function App() {
           <Route path="*" element={<Home />} />
           <Route path="events" element={<Events />} />
           <Route path="events/create" element={<CreateEvent />} />
+          <Route path="events/edit" element={<EventEdit />} />
         </Route>
       </Routes>
     </BrowserRouter>
