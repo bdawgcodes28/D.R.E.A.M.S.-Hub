@@ -6,8 +6,6 @@ import {UserContext } from "./user_context/context_provider";
 import NotificationPanel from "./NotifsPanel";
 
 const Dashboard = () => {
-  
-  const [notifPanelOpen, setNotifPanelOpen] = useState()
 
   const {user, setUser} = useContext(UserContext);
   const [notifPanelOpen, setNotifPanelOpen] = useState(false);

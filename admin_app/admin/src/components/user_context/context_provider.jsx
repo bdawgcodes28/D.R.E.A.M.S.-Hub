@@ -7,13 +7,15 @@
  */
 
 import { useState, createContext, useContext } from 'react';
+import {useLocalStorage} from "usehooks-ts"
 
 // global context component
 export const UserContext = createContext();
 
 export function UserProvider({children}){
     // user state variables for user context
-    const [user, setUser] = useState(null);
+    const [user, setUser] = useLocalStorage("user", null);
+
 
     // represents the provider at top of tree allowing accessing
     // to global variables to children components
