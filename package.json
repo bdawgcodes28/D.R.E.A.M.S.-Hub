@@ -1,5 +1,12 @@
 {
+  "scripts": {
+    "lint": "eslint"
+  },
   "devDependencies": {
+    "@eslint/js": "^9.36.0",
+    "eslint": "^9.36.0",
+    "eslint-plugin-react": "^7.37.5",
+    "globals": "^16.4.0",
     "prettier": "3.6.2"
   },
   "prettier": {
@@ -9,5 +16,9 @@
     "semi": true,
     "trailingComma": "es5",
     "bracketSpacing": false
+  },
+  "dependencies": {
+    "react": "^19.1.1",
+    "react-dom": "^19.1.1"
   }
 }
