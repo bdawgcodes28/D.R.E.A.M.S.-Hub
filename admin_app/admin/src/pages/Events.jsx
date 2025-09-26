@@ -11,23 +11,31 @@ import { Link, NavLink } from "react-router-dom";
 import { CiSearch } from "react-icons/ci";
 import { FaFileDownload } from "react-icons/fa";
 import { Reorder } from "motion/react";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 
 const Events = () => {
-  const [events, setEvents] = useState([
-    { id: 1, title: "Hackathon", date: "2025-09-20", location: "Tech Center" },
-    { id: 2, title: "AI Workshop", date: "2025-09-25", location: "Room 204" },
-    { id: 3, title: "Startup Pitch", date: "2025-10-01", location: "Auditorium",},
-    { id: 4, title: "Networking Night", date: "2025-10-05", location: "Cafe Hub",},
-    { id: 1, title: "Hackathon", date: "2025-09-20", location: "Tech Center" },
-    { id: 2, title: "AI Workshop", date: "2025-09-25", location: "Room 204" },
-    { id: 3, title: "Startup Pitch", date: "2025-10-01", location: "Auditorium",},
-    { id: 4, title: "Networking Night", date: "2025-10-05", location: "Cafe Hub",},
-    { id: 1, title: "Hackathon", date: "2025-09-20", location: "Tech Center" },
-    { id: 2, title: "AI Workshop", date: "2025-09-25", location: "Room 204" },
-    { id: 3, title: "Startup Pitch", date: "2025-10-01", location: "Auditorium",},
-    { id: 4, title: "Networking Night", date: "2025-10-05", location: "Cafe Hub",},
-  ]);
+  const [events, setEvents] = useState([]);
+
+  useEffect(() =>{
+    const fetchEvents = async () =>{
+      try{
+
+        const response = await fetch(`${BASE_URL}/api/events/fetchEvents`);
+        
+        return response;
+
+      }
+      catch(error){
+        console.error("Couldn't load Events:", error)
+        return [];
+      }
+
+    };
+    const data = fetchEvents();
+    setEvents(data);
+
+  }, [events])
+
 
   return (
     <div className="px-8 gap-2 flex flex-col py-8">
