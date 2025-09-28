@@ -1,21 +1,89 @@
-import { useState, useContext } from "react";
+import { useState, useContext, useEffect } from "react";
 import { UserContext } from "../components/user_context/context_provider.jsx";
 import { FiUser, FiLock } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
-import GoogleButton from "../components/GoogleButton";
 import * as SUPABASE_CLIENT from "../supabase/supabase_client.jsx"
 import './Login.css'
 
 const Login = () => {
+  
   // user input variables
-  const [email, setEmail] = useState("");
+  const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
-  const navigate = useNavigate()
-
+  const navigate                = useNavigate()
 
   // global context for user
-  const {user, setUser} = useContext(UserContext);
+  const {user, setUser}   = useContext(UserContext);
 
+  // Google client secret
+  const BASE_URL     = import.meta.env.VITE_BASE_URL;
+  const GOOGLE_CLIENT_ID  = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+
+  // google authentication
+  useEffect(() => {
+    // Wait for Google script to load
+    const initializeGoogleAuth = () => {
+      if (typeof google !== 'undefined' && google.accounts) {
+        google.accounts.id.initialize({
+          client_id: GOOGLE_CLIENT_ID, 
+          callback: handleCredentialResponse,
+          use_fedcm_for_prompt: false, // Enable FedCM as required by Google
+        });
+
+        // Add fallback button rendering
+        try {
+          google.accounts.id.renderButton(
+            document.getElementById("google-signin-button"),
+            {
+              theme: "outline",
+              size: "large",
+              type: "standard",
+              text: "signin_with"
+            }
+          );
+        } catch (error) {
+          console.log("Could not render Google button:", error);
+        }
+      } else {
+        // If Google script not loaded yet, try again in 100ms
+        setTimeout(initializeGoogleAuth, 100);
+      }
+    };
+
+    initializeGoogleAuth();
+  }, [GOOGLE_CLIENT_ID]);
+
+  // takes JWT from google and sends it it NODEJS server to get verified and decoded
+  async function handleCredentialResponse(response) {
+  
+    try {
+      const serverResponse = await fetch(`${BASE_URL}/api/google/auth`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ token: response.credential }),
+      });
+  
+      console.log("Raw server response:", serverResponse);
+  
+      const data = await serverResponse.json();
+      console.log("Parsed server JSON:", data);
+  
+      if (data.status === 200) {
+        setUser({ token: data.userToken });
+        navigate('/'); // go to dashboard
+      } else {
+        console.error("Login failed:", data.message);
+      }
+  
+    } catch (err) {
+      console.error("Fetch error:", err);
+    }
+  }
+  
+
+
+
+  // standard sign in with USERNAME AND PASSWORD
   const signInWithEmailAndPassword = async (e) => {
     e.preventDefault();
 
@@ -52,12 +120,6 @@ const Login = () => {
       console.error("Login error:", error);
       // TODO: Show error message to user
     }
-  }
-  
-  const signInWithGoogle= (e) =>{
-    e.preventDefault();
-
-    navigate('/')
   }
 
   return (
@@ -113,8 +175,7 @@ const Login = () => {
             </div>
 
             <div className="w-full flex justify-center items-center">
-
-            <GoogleButton onClick={signInWithGoogle} />
+              <div id="google-signin-button"></div>
             </div>
             
           </form>

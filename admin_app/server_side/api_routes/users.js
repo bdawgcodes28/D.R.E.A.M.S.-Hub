@@ -19,7 +19,7 @@ const supabase  = require("../utils/supabase.js");
 /**
  * Fetches all users from users table
  */
-router.get("/fetchUsers", async (req, res)=>{
+router.post("/fetchUsers", async (req, res)=>{
     // set response type
     res.type("json");
 

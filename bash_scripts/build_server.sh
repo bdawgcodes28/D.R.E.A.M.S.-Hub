@@ -14,8 +14,8 @@ client_server_side="${client_app}/server_side"
 # this shell script call all commands relative to the actuall .sh file
 cd "${admin_server_side}"
 
-# install node.js dependencies (only what's needed)
-dependencies="express body-parser url path fs dotenv"
+# install node.js dependencies list
+dependencies="express body-parser url path fs dotenv cors google-auth-library jsonwebtoken cors"
 
 # initialize node runtime environment if needed
 if [ ! -f package.json ]; then

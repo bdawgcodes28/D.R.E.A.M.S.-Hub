@@ -40,6 +40,7 @@ const url        = require("url");
 const fs         = require("fs");
 const path       = require("path");
 const bodyParser = require("body-parser");
+const cors = require('cors');
 
 // load all environment variables FIRST
 const envPath    = path.join(__dirname, ".env");
@@ -48,6 +49,7 @@ const PORT       = process.env.PORT;
 
 // import all route modules AFTER environment variables are loaded
 const eventsRoutes = require("./api_routes/events.js");
+const googleRoutes = require("./utils/google.js");
 
 // create server runtime
 const app        = express();
@@ -56,6 +58,36 @@ const app        = express();
 app.use(bodyParser.urlencoded({extended:true}));                // allows for passing info through url
 app.use(express.json());                                        // allows for json request and responces
 
+const allowedOrigins = [
+    'http://localhost:8080', // nodejs dev server
+    'http://localhost:5173',                     
+    'http://localhost:3000',                      
+  ];
+  
+  app.use(cors({
+    origin: function(origin, callback) {
+      // Allow requests with no origin (like mobile apps or curl)
+      if (!origin) return callback(null, true);
+  
+      if (allowedOrigins.includes(origin)) {
+        callback(null, true);
+      } else {
+        callback(new Error('Not allowed by CORS'));
+      }
+    },
+    methods: ['POST', 'GET', 'OPTIONS'],
+    credentials: true
+  }));
+  
+
+
+app.use((req, res, next) => {
+    res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
+    res.setHeader("Cross-Origin-Embedder-Policy", "same-origin-allow-popups"); 
+    next();
+  });
+  
+
 // -----------------------------------------------------------------------------------------------------------------------
 const BUILD_PATH   = path.join(__dirname, "../admin/dist");
 
@@ -63,6 +95,9 @@ const BUILD_PATH   = path.join(__dirname, "../admin/dist");
 
 // event routes
 app.use("/api/events", eventsRoutes);
+
+// google routes
+app.use("/api/google", googleRoutes);
 
 // END add routes for modules ------------------------
 
