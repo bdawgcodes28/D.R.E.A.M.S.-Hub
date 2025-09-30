@@ -100,6 +100,8 @@ async function userExists(req, res, next){
         if (users && users.length > 0){
             const user = users[0];
             req.found_user = user;
+            req.user.uid   = user.id;
+            req.user.role  = user.role;
             console.log("\nFound user:", user);
             // sends to next callback()
             next();
@@ -127,21 +129,24 @@ async function userExists(req, res, next){
  * @param {*} token 
  * @returns custom JWT for user
  */
-function createJwtForUser(googlePayload, account){
+function createJwtForUser(googlePayload){
     if (!googlePayload)
         return null;
 
     // create json token
     const userData = {
-        id: googlePayload.sub,
-        email: googlePayload.email,
-        name: googlePayload.name,
-        picture: googlePayload.picture,
+        googleId:       googlePayload.googleId,
+        uid:            googlePayload.uid,
+        email:          googlePayload.email,
+        name:           googlePayload.name,
+        first_name:     googlePayload.firstName,
+        lastName:       googlePayload.lastName,
+        picture:        googlePayload.picture,
       };
-      
-    return jwt.sign(userData, process.env.JWT_SECRET, { 
-        expiresIn: '7d' // 7 days until expiration
-    });
+
+    const secret = process.env.JWT_SECRET || "development_secret";
+    console.log("Using JWT secret:", secret);
+    return jwt.sign(userData, secret, { expiresIn: '7d' });
 }
 
 
@@ -150,23 +155,16 @@ function createJwtForUser(googlePayload, account){
 router.post("/auth", decodeToken, userExists, (req, res)=>{
     try {
         console.log('creating token');
-        const customToken = createJwtForUser({
-            sub: req.user.googleId,
-            email: req.found_user.email,
-            name: `${req.found_user.first_name} ${req.found_user.last_name}`,
-            picture: req.user.picture || null
-        });
+
+        const payload = req.user || null; // user found
+        const customToken = createJwtForUser(payload);
         console.log('token completed');
 
         // send back response
         res.json({
             status: 200,
-            userToken: "sjhsshj"
+            userToken: customToken
         });
-        // res.json({
-        //     status: 200,
-        //     userToken: customToken
-        // });
     } catch(err){
         console.error("Error in /auth route:", err);
         res.status(500).json({ status:-1, message:"Server error" });

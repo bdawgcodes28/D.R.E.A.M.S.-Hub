@@ -3,6 +3,7 @@ import { UserContext } from "../components/user_context/context_provider.jsx";
 import { FiUser, FiLock } from "react-icons/fi";
 import { useNavigate } from "react-router-dom";
 import * as SUPABASE_CLIENT from "../supabase/supabase_client.jsx"
+import { jwtDecode } from 'jwt-decode'
 import './Login.css'
 
 const Login = () => {
@@ -69,7 +70,8 @@ const Login = () => {
       console.log("Parsed server JSON:", data);
   
       if (data.status === 200) {
-        setUser({ token: data.userToken });
+        const user = jwtDecode(data.userToken);
+        setUser({ token: user });
         navigate('/'); // go to dashboard
       } else {
         console.error("Login failed:", data.message);
