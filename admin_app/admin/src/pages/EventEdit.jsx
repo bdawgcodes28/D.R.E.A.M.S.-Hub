@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { FaCirclePlus } from "react-icons/fa6";
 import { Reorder } from "motion/react";
-
+import { FaRegTrashCan } from "react-icons/fa6";
 const EventEdit = () => {
   const [id, setId] = useState(null)
   const [title, setTitle] = useState("");
@@ -21,6 +21,26 @@ const EventEdit = () => {
     }));
     setMedia((prev) => [...prev, ...newMedia]);
   };
+
+  const updateEvent = () =>{
+    try{
+      const values = {
+        id: id,
+        title: title,
+        date: date,
+        location: location,
+        description: description,
+        media: media,
+        starttime: starttime,
+        endtime: endtime,
+      }
+      
+
+    }
+    catch{
+
+    }
+  }
 
   return (
     <div className="text-gray-700 flex h-full bg-gray-50 text-sm">
@@ -108,7 +128,7 @@ const EventEdit = () => {
 
         <label
           htmlFor="fileUpload"
-          className="fixed bottom-2 right-2 cursor-pointer hover:text-gray-400 transition bg-white rounded-full "
+          className="fixed z-10 bottom-2 right-2 cursor-pointer hover:text-gray-400 transition bg-white rounded-full "
         >
           <FaCirclePlus size={40} />
         </label>
@@ -119,9 +139,10 @@ const EventEdit = () => {
           onReorder={setMedia}
         >
           {media.length > 0 ? (
-            media.map((item) => (
+            media.map((item,idx) => (
               <Reorder.Item key={item.id} value={item}>
-                <div className="bg-gray-100 rounded-2xl w-full h-48 flex items-center justify-center">
+                <div className="bg-gray-100 rounded-2xl w-full h-48 flex items-center justify-center relative">
+                  <button onClick={(e) =>{setMedia((prev) => prev.filter((_, i) => i !== idx));}} className="absolute hover:text-red-400 hover:rotate-12 -top-4 -right-4 bg-white text-gray-500  rounded-full p-2 text-lg"> <FaRegTrashCan/> </button>
                   {item.file.type.startsWith("image/") ? (
                     <img
                       draggable = {false}

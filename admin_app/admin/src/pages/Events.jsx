@@ -12,29 +12,22 @@ import { CiSearch } from "react-icons/ci";
 import { FaFileDownload } from "react-icons/fa";
 import { Reorder } from "motion/react";
 import { useEffect, useState } from "react";
-
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 const Events = () => {
   const [events, setEvents] = useState([]);
 
-  useEffect(() =>{
-    const fetchEvents = async () =>{
-      try{
-
+  useEffect(() => {
+    const fetchEvents = async () => {
+      try {
         const response = await fetch(`${BASE_URL}/api/events/fetchEvents`);
-        
-        return response;
-
+        const data = await response.json(); // ✅ parse JSON
+        setEvents(data);
+      } catch (error) {
+        console.error("Couldn't load Events:", error);
       }
-      catch(error){
-        console.error("Couldn't load Events:", error)
-        return [];
-      }
-
     };
-    const data = fetchEvents();
-    setEvents(data);
-
-  }, [events])
+    fetchEvents();
+  }, []);
 
 
   return (

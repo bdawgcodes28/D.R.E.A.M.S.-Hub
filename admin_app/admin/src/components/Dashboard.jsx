@@ -10,8 +10,6 @@ const Dashboard = () => {
   const {user, setUser} = useContext(UserContext);
   const [notifPanelOpen, setNotifPanelOpen] = useState(false);
 
-  console.log("made it to dashboard", user);
-
   return (
     <div className="w-full h-screen flex flex-col">
       <Navbar toggleNotifications={() => setNotifPanelOpen((prev) => !prev)} />
