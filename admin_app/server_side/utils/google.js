@@ -142,6 +142,7 @@ function createJwtForUser(googlePayload){
         first_name:     googlePayload.firstName,
         lastName:       googlePayload.lastName,
         picture:        googlePayload.picture,
+        role:           googlePayload.role
       };
 
     const secret = process.env.JWT_SECRET || "development_secret";
@@ -165,6 +166,7 @@ router.post("/auth", decodeToken, userExists, (req, res)=>{
             status: 200,
             userToken: customToken
         });
+
     } catch(err){
         console.error("Error in /auth route:", err);
         res.status(500).json({ status:-1, message:"Server error" });

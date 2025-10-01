@@ -63,16 +63,15 @@ const Login = () => {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token: response.credential }),
       });
-  
-      console.log("Raw server response:", serverResponse);
-  
+
+      // get custom token from server
       const data = await serverResponse.json();
-      console.log("Parsed server JSON:", data);
   
       if (data.status === 200) {
         const user = jwtDecode(data.userToken);
         setUser({ token: user });
         navigate('/'); // go to dashboard
+        
       } else {
         console.error("Login failed:", data.message);
       }

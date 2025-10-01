@@ -11,23 +11,22 @@ import { Link, NavLink } from "react-router-dom";
 import { CiSearch } from "react-icons/ci";
 import { FaFileDownload } from "react-icons/fa";
 import { Reorder } from "motion/react";
-import { useState } from "react";
+import { useContext, useEffect, useState } from "react";
+import { UserContext } from "../components/user_context/context_provider.jsx";
+import * as EVENT_MIDDLEWARE from "../middleware/events_middleware.js"
 
 const Events = () => {
-  const [events, setEvents] = useState([
-    { id: 1, title: "Hackathon", date: "2025-09-20", location: "Tech Center" },
-    { id: 2, title: "AI Workshop", date: "2025-09-25", location: "Room 204" },
-    { id: 3, title: "Startup Pitch", date: "2025-10-01", location: "Auditorium",},
-    { id: 4, title: "Networking Night", date: "2025-10-05", location: "Cafe Hub",},
-    { id: 1, title: "Hackathon", date: "2025-09-20", location: "Tech Center" },
-    { id: 2, title: "AI Workshop", date: "2025-09-25", location: "Room 204" },
-    { id: 3, title: "Startup Pitch", date: "2025-10-01", location: "Auditorium",},
-    { id: 4, title: "Networking Night", date: "2025-10-05", location: "Cafe Hub",},
-    { id: 1, title: "Hackathon", date: "2025-09-20", location: "Tech Center" },
-    { id: 2, title: "AI Workshop", date: "2025-09-25", location: "Room 204" },
-    { id: 3, title: "Startup Pitch", date: "2025-10-01", location: "Auditorium",},
-    { id: 4, title: "Networking Night", date: "2025-10-05", location: "Cafe Hub",},
-  ]);
+
+  const [events, setEvents] = useState([]);
+  const {user, setUser} = useContext(UserContext);
+
+  
+  // load events from server on render and on add to 
+  useEffect(async ()=>{
+
+    setEvents(await EVENT_MIDDLEWARE.fetchEvents(user));
+
+  }, []);
 
   return (
     <div className="px-8 gap-2 flex flex-col py-8">
@@ -72,7 +71,7 @@ const Events = () => {
               value={event}
               className="group grid grid-cols-4 border-b items-center px-4 p-2 shadow-md hover:shadow-lg  text-gray-500 bg-white"
             >
-              <p className="text-xs w-fit">{event.title}</p>
+              <p className="text-xs w-fit">{event.name}</p>
               <p className="text-xs text-gray-600">{event.date}</p>
               <p className="text-xs text-gray-500">{event.location}</p>
               <div className="flex">
