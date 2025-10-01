@@ -56,25 +56,7 @@ async function fetchEvent(active_only=false, use_limit=null){
  * @returns created event row
  */
 async function addEvent(event){
-    // returns unsuccessfuly
-    if (!event)
-        return null;
-
-    // attempts to add event to the event table
-    try {
-        // add row to table
-        const { data, error } = await supabase
-            .from('events')
-            .insert([
-            { some_column: 'someValue', other_column: 'otherValue' },
-            ])
-            .select();
-        return data;
-        
-    } catch (error) {   
-        console.error("Unable to add event to table:", error);
-        return null;
-    }
+    
 }
 
 /**
@@ -140,19 +122,7 @@ router.post("/fetchEvents", authorizeUse(allowList= [],hasReqBody=true), async (
 
 
 router.post("/addEvent", (req, res)=>{
-    const request_body = req.body;
-    try {
-        // add event to table
-        const new_event = addEvent(request_body);
-        res.json(new_event);
-        console.log("New event was made successfully");
-
-    } catch (error) {
-        // catch request error
-        console.error("Unable to add event:", error);
-        res.json(null);
-    }
-
+    return res.json({status: 200});
 });
 
 
