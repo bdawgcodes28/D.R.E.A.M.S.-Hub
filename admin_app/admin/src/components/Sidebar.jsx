@@ -57,8 +57,14 @@ const Sidebar = () => {
       </div>
       <div className=" transform hover:bg-gray-200 duration-300 hover:cursor-pointer h-18 py-2 px-4 gap-4 items-center w-full border-t  border-gray-300 flex">
         <button className="p-1 border rounded-full">
-
-        <FiUser size={4}/>
+            <img
+              className="w-10 h-10 rounded-full object-cover"
+              onError={(e) => {
+                console.log("Image failed to load");
+              }}
+              src={user.token.picture || 'https://www.svgrepo.com/show/522440/profile.svg'}
+              crossOrigin="anonymous"
+            />
         </button>
         <div className=" truncate grow">
           <div className="capitalize flex gap-1">

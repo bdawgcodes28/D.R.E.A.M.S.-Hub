@@ -1,50 +1,80 @@
 import { useState } from "react";
 import { FaCirclePlus } from "react-icons/fa6";
-import { Reorder } from "motion/react";
+import { Reorder } from "framer-motion";
+import * as EVENT_MIDDLEWARE from "../middleware/events_middleware.js"
+import { useNavigate } from "react-router-dom";
 import { FaRegTrashCan } from "react-icons/fa6";
 import { LuCloudUpload } from "react-icons/lu";
 import { RiCalendarScheduleFill } from "react-icons/ri";
 import { GrDocumentUpload } from "react-icons/gr";
 
 const EventEdit = () => {
-  const [id, setId] = useState(null)
-  const [title, setTitle] = useState("");
-  const [date, setDate] = useState("");
-  const [location, setLocation] = useState("");
-  const [description, setDescription] = useState("");
-  const [media, setMedia] = useState([]);
-  const [starttime, setStartTime] = useState("");
-  const [endtime, setEndTime] = useState("");
+  const navigate = useNavigate();
 
+  const [event, setEvent] = useState({
+    id: null,
+    name: "",
+    date: "",
+    location: "",
+    description: "",
+    media: [],
+    starttime: "",
+    endtime: ""
+  });
+
+  // handle input changes
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    setEvent(prev => ({
+      ...prev,
+      [name]: value
+    }));
+
+    console.log(event)
+  };
+
+  // handle media uploads
   const handleImageChange = (e) => {
     const files = Array.from(e.target.files);
     const newMedia = files.map((file) => ({
-      id: crypto.randomUUID(), // unique id
+      id: crypto.randomUUID(),
       file,
-      preview: URL.createObjectURL(file),
+      preview: URL.createObjectURL(file)
     }));
-    setMedia((prev) => [...prev, ...newMedia]);
+
+    setEvent(prev => ({
+      ...prev,
+      media: [...prev.media, ...newMedia]
+    }));
   };
 
-  const updateEvent = () =>{
-    try{
-      const values = {
-        id: id,
-        title: title,
-        date: date,
-        location: location,
-        description: description,
-        media: media,
-        starttime: starttime,
-        endtime: endtime,
+  // request to add event 
+  async function handleAppendEvent(){
+      try {
+          // attempt to add is event is valid
+          console.log("checking event");
+          if (EVENT_MIDDLEWARE.isValidEvent(event)){
+
+            console.log("Event is valid");
+            const response = await EVENT_MIDDLEWARE.appendEvent(event);
+
+            if (response && response?.status === 200)
+              navigate("/events"); // return to events page
+
+            else
+              console.error("Error when adding event"); // swap with rendering a pop up error telling user the issue
+            
+          }else{
+            //FIXME: have a rendered pop up to let user whats is wrong with event form, what fields are incorrect/missing
+            console.log("Event is not valid");
+          }
+      } catch (error) {
+        console.error("Could not fulfill request:", error);
       }
-      
-
-    }
-    catch{
-
-    }
   }
+
+  // request to edit existing event 
+  async function handleEditEvent(){}
 
   return (
     <div className="text-gray-700 flex h-full bg-gray-50 text-sm">
@@ -54,10 +84,11 @@ const EventEdit = () => {
             <label className="font-medium mb-1">Title</label>
             <input
               type="text"
-              value={title}
-              onChange={(e) => setTitle(e.target.value)}
+              name="name"
+              value={event.name}
+              onChange={handleInputChange}
               placeholder="Enter event title"
-              className="border rounded-lg px-3 py-2 focus:ring-2  outline-none"
+              className="border rounded-lg px-3 py-2 focus:ring-2 outline-none"
             />
           </div>
 
@@ -65,9 +96,10 @@ const EventEdit = () => {
             <label className="font-medium mb-1">Date</label>
             <input
               type="date"
-              value={date}
-              onChange={(e) => setDate(e.target.value)}
-              className="border rounded-lg px-3 py-2 focus:ring-2  outline-none"
+              name="date"
+              value={event.date}
+              onChange={handleInputChange}
+              className="border rounded-lg px-3 py-2 focus:ring-2 outline-none"
             />
           </div>
 
@@ -75,9 +107,10 @@ const EventEdit = () => {
             <label className="font-medium mb-1">Location</label>
             <input
               type="text"
-              value={location}
-              onChange={(e) => setLocation(e.target.value)}
-              className="border rounded-lg px-3 py-2 focus:ring-2  outline-none"
+              name="location"
+              value={event.location}
+              onChange={handleInputChange}
+              className="border rounded-lg px-3 py-2 focus:ring-2 outline-none"
             />
           </div>
 
@@ -86,18 +119,20 @@ const EventEdit = () => {
               <label className="font-medium mb-1">Start Time</label>
               <input
                 type="time"
-                value={starttime}
-                onChange={(e) => setStartTime(e.target.value)}
-                className="border rounded-lg px-3 py-2 focus:ring-2  outline-none"
+                name="starttime"
+                value={event.starttime}
+                onChange={handleInputChange}
+                className="border rounded-lg px-3 py-2 focus:ring-2 outline-none"
               />
             </div>
             <div className="flex flex-col">
               <label className="font-medium mb-1">End Time</label>
               <input
                 type="time"
-                value={endtime}
-                onChange={(e) => setEndTime(e.target.value)}
-                className="border rounded-lg px-3 py-2 focus:ring-2  outline-none"
+                name="endtime"
+                value={event.endtime}
+                onChange={handleInputChange}
+                className="border rounded-lg px-3 py-2 focus:ring-2 outline-none"
               />
             </div>
           </div>
@@ -105,10 +140,11 @@ const EventEdit = () => {
           <div className="flex flex-col">
             <label className="font-medium mb-1">Description</label>
             <textarea
-              value={description}
-              onChange={(e) => setDescription(e.target.value)}
+              name="description"
+              value={event.description}
+              onChange={handleInputChange}
               placeholder="Write a short description..."
-              className="border rounded-lg px-3 py-2 focus:ring-2  outline-none h-28 resize-none"
+              className="border rounded-lg px-3 py-2 focus:ring-2 outline-none h-28 resize-none"
             />
           </div>
           <div className="w-full gap-4 flex">
@@ -117,8 +153,10 @@ const EventEdit = () => {
   
             </div>
         </form>
+        <button onClick={handleAppendEvent} className="mt-10 border-2 p-[10px]">Add Event</button>
       </div>
 
+      {/* Media Section */}
       <div className="w-72 p-4 bg-white relative text-gray-500 overflow-y-scroll scrollbar_hide">
         <input
           id="fileUpload"
@@ -128,34 +166,34 @@ const EventEdit = () => {
           onChange={handleImageChange}
           multiple
         />
-
         <label
           htmlFor="fileUpload"
-          className="fixed z-10 bottom-2 right-2 cursor-pointer hover:text-gray-400 transition bg-white rounded-full "
+          className="fixed bottom-2 right-2 cursor-pointer hover:text-gray-400 transition bg-white rounded-full"
         >
           <FaCirclePlus size={40} />
         </label>
 
         <Reorder.Group
           className="space-y-4"
-          values={media}
-          onReorder={setMedia}
+          values={event.media}
+          onReorder={(newMedia) =>
+            setEvent(prev => ({ ...prev, media: newMedia }))
+          }
         >
-          {media.length > 0 ? (
-            media.map((item,idx) => (
+          {event.media.length > 0 ? (
+            event.media.map((item) => (
               <Reorder.Item key={item.id} value={item}>
                 <div className="bg-gray-100 rounded-2xl w-full h-48 flex items-center justify-center relative">
                   <button onClick={(e) =>{setMedia((prev) => prev.filter((_, i) => i !== idx));}} className="absolute hover:text-red-400 hover:rotate-12 -top-4 -right-4 bg-white text-gray-500  rounded-full p-2 text-lg"> <FaRegTrashCan/> </button>
                   {item.file.type.startsWith("image/") ? (
                     <img
-                      draggable = {false}
+                      draggable={false}
                       src={item.preview}
                       alt="preview"
                       className="object-cover w-full h-full rounded-2xl"
                     />
                   ) : (
                     <video
-
                       src={item.preview}
                       muted
                       controls

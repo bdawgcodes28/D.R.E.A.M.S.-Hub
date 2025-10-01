@@ -7,7 +7,7 @@ import { CiEdit } from "react-icons/ci";
 import { FaRegTrashCan } from "react-icons/fa6";
 import Tooltip from "../components/Tooltip";
 import { LuExternalLink } from "react-icons/lu";
-import { Link, NavLink } from "react-router-dom";
+import { Link, NavLink, useNavigate } from "react-router-dom";
 import { CiSearch } from "react-icons/ci";
 import { FaFileDownload } from "react-icons/fa";
 import { Reorder } from "motion/react";
@@ -18,18 +18,29 @@ import * as EVENT_MIDDLEWARE from "../middleware/events_middleware.js"
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 const Events = () => {
 
+  // usestate vars
   const [events, setEvents] = useState([]);
   const {user, setUser} = useContext(UserContext);
 
+  // navigator
+  const navigate = useNavigate();
   
   // load events from server on render and on add to 
-  useEffect( () =>{
+  useEffect(() => {
 
-    const loadEvents = async ()=>{
+    const loadEvents = async () => {
       setEvents(await EVENT_MIDDLEWARE.fetchEvents(user));
-    }
+    };
+    setTimeout(()=> {}, 1000)
+    
     loadEvents();
   }, []);
+
+  // send user to creat events page
+  const handleAddEventClick = (e) => {
+    e.preventDefault();
+    navigate("/events/create");
+  }
 
   return (
     <div className="px-8 gap-2 flex flex-col py-8">
@@ -50,12 +61,12 @@ const Events = () => {
           />
         </div>
         <Tooltip position="bottom" element={<h1>Add Event</h1>}>
-          <NavLink
-            to={"create"}
+          <h1
+            onClick={handleAddEventClick}
             className="h-8 w-10 flex items-center justify-center text-center border rounded-lg border-gray-500"
           >
             +
-          </NavLink>
+          </h1>
         </Tooltip>
         <div className=" text-xs w-48 h-8 border rounded-lg overflow-clip flex items-center justify-center text-gray-500">
           Filter
@@ -126,7 +137,9 @@ const Events = () => {
             </Reorder.Item>
           ))
         :
-        <div className="text-gray-600 w-full h-full items-center justify-center flex text-sm"> <Link to={'create'} className="p-2 px-4 shadow hover:shadow-gray-500 transition shadow-gray-300 border-gray-600  rounded-lg flex"> + Add Event </Link> </div>
+        <div className="text-gray-600 w-full h-full items-center justify-center flex text-sm">
+           <Link to={'create'} className="p-2 px-4 shadow hover:shadow-gray-500 transition shadow-gray-300 border-gray-600  rounded-lg flex"> + Add Event 
+           </Link> </div>
         }
         </Reorder.Group>
       </div>

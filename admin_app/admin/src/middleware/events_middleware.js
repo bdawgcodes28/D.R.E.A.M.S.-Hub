@@ -9,6 +9,28 @@
 //------------------------------------------------------------------
 
 /**
+ * checks if minimum fields
+ * are filled out before event is added
+ * @param {*} event 
+ * @returns bool
+ */
+export function isValidEvent(event){
+    if (!event) return false;
+
+    switch(event){
+      case (!event.name || event.name.length == 0):
+        return false;
+      case (!event.description || event.description.length == 0):
+        return false;
+      case (!event.location || event.location.length == 0):
+        return false;
+    }
+
+    return true;
+}
+
+
+/**
  * Fetches event from database
  */
 export async function fetchEvents(user){
@@ -20,32 +42,12 @@ export async function fetchEvents(user){
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ session: user })
       });
-
-      // If server responded with non-OK status, log and return empty
-      if (!serverResponse.ok) {
-        console.error('Server returned non-OK status:', serverResponse.status, await serverResponse.text());
-        return [];
-      }
-
-      // Make sure the response is JSON before parsing
-      const contentType = serverResponse.headers.get('content-type') || '';
-      if (!contentType.includes('application/json')) {
-        // If HTML (likely index.html), log it for debugging
-        const text = await serverResponse.text();
-        console.error('Expected JSON but received:', contentType, text.slice(0, 200));
-        return [];
-      }
-
+    
+      // set events array
       let data = await serverResponse.json();
 
-      // normalize to array
-      if (!Array.isArray(data)) {
-        try {
-          data = Array.from(data) || [];
-        } catch (err) {
-          data = [];
-        }
-      }
+      // convert to array if not array
+      if (!data || !(data instanceof Array)) data = Array.from(data || []);
 
       return data;
 
@@ -54,3 +56,46 @@ export async function fetchEvents(user){
       return [];
     }
   }
+
+/**
+ * adds a new event to the database
+ * @param {*} event 
+ * @returns status of request
+ */
+export async function appendEvent(event) {
+  if (!event) return {status: 404, message: "No event was given"};
+  try {
+
+    const BASE_URL = import.meta.env.VITE_BASE_URL;
+    const serverResponse = await fetch(`${BASE_URL}/api/events/addEvent`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ session: user })
+    });
+
+    const data = await serverResponse.json();
+
+    if (data.status && data.status == 200){
+      // return request success status
+      return {
+        status: 200,
+        message: "Event was added successfully"
+      };
+      
+    }else{
+        return {
+          status: 404,
+          message: "Error when attempting to add event"
+        };
+    }
+
+  } catch (error) {
+
+    console.error("Could not fulfill request:", error);
+    // return request fail status
+    return {
+      status: 404,
+      message: "Error when attempting to add event"
+    };
+  }
+}
