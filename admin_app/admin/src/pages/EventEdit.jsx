@@ -1,11 +1,21 @@
-import { useState } from "react";
+import { useContext, useState } from "react";
 import { FaCirclePlus } from "react-icons/fa6";
 import { Reorder } from "framer-motion";
 import * as EVENT_MIDDLEWARE from "../middleware/events_middleware.js"
 import { useNavigate } from "react-router-dom";
+import { UserContext } from "../components/user_context/context_provider.jsx";
+import { useLocation } from "react-router-dom";
 
 const EventEdit = () => {
+
+  // get mode of page
+  const location = useLocation();
+  const { editMode, eventObj } = location.state || { editMode: false, event: null };
+
+  // naviagtion hook
   const navigate = useNavigate();
+  // user context
+  const {user, setUser} = useContext(UserContext);
 
   const [event, setEvent] = useState({
     id: null,
@@ -14,8 +24,8 @@ const EventEdit = () => {
     location: "",
     description: "",
     media: [],
-    starttime: "",
-    endtime: ""
+    start_time: "",
+    end_time: ""
   });
 
   // handle input changes
@@ -44,6 +54,17 @@ const EventEdit = () => {
     }));
   };
 
+  // utility to format time string for <input type="time">
+  function formatTimeForInput(timeString) {
+    if (!timeString) return "";
+    // split at the decimal if present and take first 3 decimals (milliseconds)
+    const [time, fraction] = timeString.split(".");
+    if (!fraction) return time; // already HH:mm:ss
+    const ms = fraction.slice(0, 3); // take first 3 digits for milliseconds
+    return `${time}.${ms}`; // HH:mm:ss.SSS
+  }
+
+
   // request to add event 
   async function handleAppendEvent(){
       try {
@@ -52,14 +73,15 @@ const EventEdit = () => {
           if (EVENT_MIDDLEWARE.isValidEvent(event)){
 
             console.log("Event is valid");
-            const response = await EVENT_MIDDLEWARE.appendEvent(event);
+            const response = await EVENT_MIDDLEWARE.appendEvent(event, user);
+            console.log(response);
 
             if (response && response?.status === 200)
               navigate("/events"); // return to events page
 
             else
               console.error("Error when adding event"); // swap with rendering a pop up error telling user the issue
-            
+
           }else{
             //FIXME: have a rendered pop up to let user whats is wrong with event form, what fields are incorrect/missing
             console.log("Event is not valid");
@@ -83,7 +105,7 @@ const EventEdit = () => {
             <input
               type="text"
               name="name"
-              value={event.name}
+              value={editMode ? eventObj.name : event.name}
               onChange={handleInputChange}
               placeholder="Enter event title"
               className="border rounded-lg px-3 py-2 focus:ring-2 outline-none"
@@ -96,7 +118,7 @@ const EventEdit = () => {
             <input
               type="date"
               name="date"
-              value={event.date}
+              value={editMode ? eventObj.date : event.date}
               onChange={handleInputChange}
               className="border rounded-lg px-3 py-2 focus:ring-2 outline-none"
             />
@@ -108,7 +130,7 @@ const EventEdit = () => {
             <input
               type="text"
               name="location"
-              value={event.location}
+              value={editMode ? eventObj.location : event.location}
               onChange={handleInputChange}
               className="border rounded-lg px-3 py-2 focus:ring-2 outline-none"
             />
@@ -121,7 +143,7 @@ const EventEdit = () => {
               <input
                 type="time"
                 name="starttime"
-                value={event.starttime}
+                value={editMode ? formatTimeForInput(eventObj.start_time) : event.start_time}
                 onChange={handleInputChange}
                 className="border rounded-lg px-3 py-2 focus:ring-2 outline-none"
               />
@@ -131,7 +153,7 @@ const EventEdit = () => {
               <input
                 type="time"
                 name="endtime"
-                value={event.endtime}
+                value={editMode ? formatTimeForInput(eventObj.end_time) : event.end_time}
                 onChange={handleInputChange}
                 className="border rounded-lg px-3 py-2 focus:ring-2 outline-none"
               />
@@ -143,7 +165,7 @@ const EventEdit = () => {
             <label className="font-medium mb-1">Description</label>
             <textarea
               name="description"
-              value={event.description}
+              value={editMode ? eventObj.description : event.description}
               onChange={handleInputChange}
               placeholder="Write a short description..."
               className="border rounded-lg px-3 py-2 focus:ring-2 outline-none h-28 resize-none"
@@ -177,6 +199,7 @@ const EventEdit = () => {
             setEvent(prev => ({ ...prev, media: newMedia }))
           }
         >
+          {/* FIXME: ADD logic for adding edit event media or empty media section if in create mode */}
           {event.media.length > 0 ? (
             event.media.map((item) => (
               <Reorder.Item key={item.id} value={item}>

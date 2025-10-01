@@ -36,9 +36,19 @@ const Events = () => {
   // send user to creat events page
   const handleAddEventClick = (e) => {
     e.preventDefault();
-    navigate("/events/create");
+    navigate("/events/create", { 
+      state: { editMode: false, eventObj: null } 
+    });
   }
 
+  // nevigate in edit mode
+  const handleEditEventClick = (event) => {
+    navigate("/events/create", { 
+      state: { editMode: true, eventObj: event } 
+    });
+  }
+
+ 
   return (
     <div className="px-8 gap-2 flex flex-col py-8">
       <div className="w-full flex items-center text-gray-800">
@@ -104,12 +114,13 @@ const Events = () => {
                   <Tooltip
                     position="bottom"
                     element={
-                      <h1 className="flex gap-2 justify-center items-center">
+                      <h1
+                        className="flex gap-2 justify-center items-center">
                         Edit{" "}
                       </h1>
                     }
                   >
-                    <button>
+                    <button onClick={()=> handleEditEventClick(event)}>
                       {" "}
                       <CiEdit />
                     </button>{" "}
