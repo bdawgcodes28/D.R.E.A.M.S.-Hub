@@ -2,6 +2,10 @@ import { useState } from "react";
 import { FaCirclePlus } from "react-icons/fa6";
 import { Reorder } from "motion/react";
 import { FaRegTrashCan } from "react-icons/fa6";
+import { LuCloudUpload } from "react-icons/lu";
+import { RiCalendarScheduleFill } from "react-icons/ri";
+import { GrDocumentUpload } from "react-icons/gr";
+
 const EventEdit = () => {
   const [id, setId] = useState(null)
   const [title, setTitle] = useState("");
@@ -44,10 +48,8 @@ const EventEdit = () => {
 
   return (
     <div className="text-gray-700 flex h-full bg-gray-50 text-sm">
-      {/* Main Form */}
       <div className="flex flex-col grow border-r border-gray-300 h-full p-10 overflow-y-scroll">
         <form className="space-y-6 max-w-2xl">
-          {/* Title */}
           <div className="flex flex-col">
             <label className="font-medium mb-1">Title</label>
             <input
@@ -59,7 +61,6 @@ const EventEdit = () => {
             />
           </div>
 
-          {/* Date */}
           <div className="flex flex-col">
             <label className="font-medium mb-1">Date</label>
             <input
@@ -70,7 +71,6 @@ const EventEdit = () => {
             />
           </div>
 
-          {/* Location */}
           <div className="flex flex-col">
             <label className="font-medium mb-1">Location</label>
             <input
@@ -81,7 +81,6 @@ const EventEdit = () => {
             />
           </div>
 
-          {/* Time */}
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col">
               <label className="font-medium mb-1">Start Time</label>
@@ -103,7 +102,6 @@ const EventEdit = () => {
             </div>
           </div>
 
-          {/* Description */}
           <div className="flex flex-col">
             <label className="font-medium mb-1">Description</label>
             <textarea
@@ -113,6 +111,11 @@ const EventEdit = () => {
               className="border rounded-lg px-3 py-2 focus:ring-2  outline-none h-28 resize-none"
             />
           </div>
+          <div className="w-full gap-4 flex">
+            <button className=" transition gap-4 text-md rounded-lg border hover:bg-gray-500 hover:text-white text-gray-500 border-gray-500 flex items-center p-3 w-full justify-center"> Schedule <RiCalendarScheduleFill/> </button>
+            <button className=" transition gap-4 text-md rounded-lg border hover:bg-blue-500 hover:text-white text-blue-500 border-blue-500 flex items-center p-3 w-full justify-center"> Upload <GrDocumentUpload/> </button>
+  
+            </div>
         </form>
       </div>
 

@@ -12,23 +12,11 @@ import { CiSearch } from "react-icons/ci";
 import { FaFileDownload } from "react-icons/fa";
 import { Reorder } from "motion/react";
 import { useEffect, useState } from "react";
+import { MdEvent } from "react-icons/md";
+
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 const Events = () => {
   const [events, setEvents] = useState([]);
-
-  useEffect(() => {
-    const fetchEvents = async () => {
-      try {
-        const response = await fetch(`${BASE_URL}/api/events/fetchEvents`);
-        const data = await response.json(); // ✅ parse JSON
-        setEvents(data);
-      } catch (error) {
-        console.error("Couldn't load Events:", error);
-      }
-    };
-    fetchEvents();
-  }, []);
-
 
   return (
     <div className="px-8 gap-2 flex flex-col py-8">
@@ -67,7 +55,10 @@ const Events = () => {
           <h1>Date</h1>
         </div>
         <Reorder.Group values={events} onReorder={setEvents} className="w-full h-full flex flex-col overflow-y-scroll  ">
-          {events.map((event) => (
+
+          { 
+          events.length > 0 ? 
+          events.map((event) => (
             <Reorder.Item
               key={event.id}
               value={event}
@@ -120,7 +111,10 @@ const Events = () => {
                 </div>
               </div>
             </Reorder.Item>
-          ))}
+          ))
+        :
+        <div className="text-gray-600 w-full h-full items-center justify-center flex text-sm"> <Link to={'create'} className="p-2 px-4 shadow hover:shadow-gray-500 transition shadow-gray-300 border-gray-600  rounded-lg flex"> + Add Event </Link> </div>
+        }
         </Reorder.Group>
       </div>
     </div>

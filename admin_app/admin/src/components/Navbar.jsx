@@ -6,7 +6,6 @@ import { useUser } from "./user_context/context_provider";
 const Navbar = ({toggleNotifications, ...props}) => {
   const [isOpen, setIsOpen] = useState(false);
   const {user} = useUser(null);
-
   return (
     <nav className=" bg-white w-full h-12 border-b text-gray-500 border-gray-300 flex items-center justify-between px-6 py-3">
       <div className="flex items-center h-full grow">
@@ -17,7 +16,7 @@ const Navbar = ({toggleNotifications, ...props}) => {
           <FiBell />
         </button>
         <button className=" capitalize transition-all duration-200 bg-white active:bg-gray-200 hover:bg-gray-100 p-1 w-12 border rounded-full">
-          {user?.first_name[0]}
+          {user.token? user.token.first_name.charAt(0) : "D"}
         </button>
       </div>
     </nav>
