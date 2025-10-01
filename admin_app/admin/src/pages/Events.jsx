@@ -11,12 +11,25 @@ import { Link, NavLink } from "react-router-dom";
 import { CiSearch } from "react-icons/ci";
 import { FaFileDownload } from "react-icons/fa";
 import { Reorder } from "motion/react";
-import { useEffect, useState } from "react";
-import { MdEvent } from "react-icons/md";
+import { useContext, useEffect, useState } from "react";
+import { UserContext } from "../components/user_context/context_provider.jsx";
+import * as EVENT_MIDDLEWARE from "../middleware/events_middleware.js"
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 const Events = () => {
+
   const [events, setEvents] = useState([]);
+  const {user, setUser} = useContext(UserContext);
+
+  
+  // load events from server on render and on add to 
+  useEffect( () =>{
+
+    const loadEvents = async ()=>{
+      setEvents(await EVENT_MIDDLEWARE.fetchEvents(user));
+    }
+    loadEvents();
+  }, []);
 
   return (
     <div className="px-8 gap-2 flex flex-col py-8">
@@ -54,7 +67,7 @@ const Events = () => {
           <h1>Location</h1>
           <h1>Date</h1>
         </div>
-        <Reorder.Group values={events} onReorder={setEvents} className="w-full h-full flex flex-col overflow-y-scroll  ">
+        <Reorder.Group values={events || []} onReorder={setEvents} className="w-full h-full flex flex-col overflow-y-scroll  ">
 
           { 
           events.length > 0 ? 
@@ -64,7 +77,7 @@ const Events = () => {
               value={event}
               className="group grid grid-cols-4 border-b items-center px-4 p-2 shadow-md hover:shadow-lg  text-gray-500 bg-white"
             >
-              <p className="text-xs w-fit">{event.title}</p>
+              <p className="text-xs w-fit">{event.name}</p>
               <p className="text-xs text-gray-600">{event.date}</p>
               <p className="text-xs text-gray-500">{event.location}</p>
               <div className="flex">

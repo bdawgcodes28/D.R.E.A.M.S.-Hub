@@ -77,19 +77,60 @@ async function addEvent(event){
     }
 }
 
+/**
+ * makes sure that user session
+ * has permission to do certain 
+ * operations and access certain 
+ * API requests
+ * @param {*} allowList 
+ * @returns 
+ */
+function authorizeUse(allowList=[], hasReqBody=true){
+
+    return (req, res, next)=>{
+        // no restriction on permissons
+        if (allowList.length == 0)
+            return next();
+
+        let session;
+        // access session data
+        if (hasReqBody)
+            session = req.body.session;
+        else
+            session = req.headers["session"];
+
+        // checks if user exists
+        if (session)
+            // if user has permission
+            if (allowList.includes(session.role))
+                return next();
+            // handle user not permitted
+            else
+                res.json({
+                    status: 403, // not permitted to access route,
+                    message: "User not permitted to access route"
+                });
+        // handle user not found error
+        else
+            res.json({
+                status: 404, // not permitted to access route,
+                message: "User not found"
+            });
+    }
+}
+
 
 
 // --------------------------------------------------------------------------------
 // REST API routes
-
-router.get("/fetchEvents", (req, res)=>{
+router.post("/fetchEvents", authorizeUse(allowList= [],hasReqBody=true), async (req, res)=>{
 
     try {
         // fetch data from supabase
-        const data = fetchEvent();
-        
+        const data = await fetchEvent();
+        console.log("Found events:", data);
         // return as json array
-        res.json(data);
+        return res.json(data);
     }catch(error){
         console.error("Unable to fulfill request:", error);
         // return empty results

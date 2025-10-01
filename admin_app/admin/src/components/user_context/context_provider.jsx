@@ -16,7 +16,6 @@ export function UserProvider({children}){
     // user state variables for user context
     const [user, setUser] = useLocalStorage("user", null);
 
-
     // represents the provider at top of tree allowing accessing
     // to global variables to children components
     return(
