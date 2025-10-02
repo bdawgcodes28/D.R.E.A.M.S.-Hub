@@ -172,18 +172,19 @@ const Events = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleAddEventClick = (e) => {
-    e.preventDefault();
-    navigate("/events/create", {
-      state: { editMode: false, eventObj: null },
-    });
-  };
+const handleAddEventClick = (e) => {
+  e.preventDefault();
+  navigate("/events/create", { 
+    state: { editMode: false, eventObj: null } 
+  });
+};
 
-  const handleEditEventClick = (event) => {
-    navigate(`/events/edit/${event.id}`, {
-      state: { editMode: true, eventObj: event },
-    });
-  };
+// navigate in edit mode
+const handleEditEventClick = (event) => {
+  navigate("/events/create", { 
+    state: { editMode: true, eventObj: event } 
+  });
+};
 
   const handleApplyFilters = () => {
     let filtered = allEvents.slice();
@@ -237,7 +238,7 @@ const Events = () => {
   };
 
   return (
-    <div className="px-8 gap-2 flex flex-col py-8">
+    <div className="px-8 gap-2 flex flex-col py-8  h-full">
       <div className="w-full flex items-center text-gray-800">
         <h1 className="text-4xl font-semibold grow"> Events</h1>
         <button className="flex items-center text-white text-sm gap-2 p-2 border border-gray-500 bg-gray-400 rounded-lg">
@@ -295,7 +296,7 @@ const Events = () => {
       </div>
 
       {/* Events list */}
-      <div className="w-full h-96 border rounded-xl border-gray-500 overflow-hidden">
+      <div className="w-full h-[100%] border rounded-xl border-gray-500 overflow-hidden">
         <div className="text-sm grid font-semibold grid-cols-4 px-4 py-2 shadow-md text-gray-100 bg-gray-600">
           <h1>Name</h1>
           <h1>Date</h1>

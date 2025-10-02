@@ -62,7 +62,7 @@ export async function fetchEvents(user){
  * @param {*} event 
  * @returns status of request
  */
-export async function appendEvent(event) {
+export async function appendEvent(event, user) {
   if (!event) return {status: 404, message: "No event was given"};
   try {
 
@@ -70,7 +70,7 @@ export async function appendEvent(event) {
     const serverResponse = await fetch(`${BASE_URL}/api/events/addEvent`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ session: user })
+        body: JSON.stringify({ session: user, event: event })
     });
 
     const data = await serverResponse.json();
@@ -81,10 +81,10 @@ export async function appendEvent(event) {
         status: 200,
         message: "Event was added successfully"
       };
-      
+
     }else{
         return {
-          status: 404,
+          status: data.status || 404,
           message: "Error when attempting to add event"
         };
     }

@@ -18,8 +18,17 @@ const supabase  = require("../utils/supabase.js");
 
 
 // -----------------------------------------------------------------------
-//implement supabase client fucntions
 
+// custom http responses
+function STANDARD_RESPONSE(status, message){
+    return {
+        status: status,
+        message: message
+    };
+} 
+
+// -----------------------------------------------------------------------
+//implement supabase client fucntions
 
 /**
  * fetches all events given a 
@@ -55,8 +64,41 @@ async function fetchEvent(active_only=false, use_limit=null){
  * @param {*} event 
  * @returns created event row
  */
-async function addEvent(event){
+async function addEvent(req, res, next){
+    console.log("Adding event!");
     
+        const event = req.body.event;
+
+        if (!event) return null;
+        // attempt to add to database
+        try {
+            const { data, error } = await supabase
+                    .from("events")
+                    .insert([
+                        {
+                        name: event.name || "",
+                        date: event.date || null,
+                        location: event.location || "",
+                        description: event.description || "",
+                        active: false,
+                        media_id: event.media_id || null,
+                        start_time: event.start_time || null,
+                        end_time: event.end_time || null
+                        },
+                    ])
+                    .select();
+
+            if (data){
+                req.inserted_event = data;
+                next();
+            }else{
+                return res.json(STANDARD_RESPONSE(404, "Unable to add event to database: No row returned"));
+            }   
+
+        } catch (error) {
+            console.error("Unable to add event to database:", error);
+            return res.json(STANDARD_RESPONSE(404, "Unable to add event to database"));
+        }
 }
 
 /**
@@ -68,7 +110,6 @@ async function addEvent(event){
  * @returns 
  */
 function authorizeUse(allowList=[], hasReqBody=true){
-
     return (req, res, next)=>{
         // no restriction on permissons
         if (allowList.length == 0)
@@ -77,9 +118,9 @@ function authorizeUse(allowList=[], hasReqBody=true){
         let session;
         // access session data
         if (hasReqBody)
-            session = req.body.session;
+            session = req.body.session.token;
         else
-            session = req.headers["session"];
+            session = req.headers["session"]["token"];
 
         // checks if user exists
         if (session)
@@ -88,16 +129,10 @@ function authorizeUse(allowList=[], hasReqBody=true){
                 return next();
             // handle user not permitted
             else
-                res.json({
-                    status: 403, // not permitted to access route,
-                    message: "User not permitted to access route"
-                });
+                return res.json(STANDARD_RESPONSE(403, "User not permitted to access route")); // not permitted to access route
         // handle user not found error
         else
-            res.json({
-                status: 404, // not permitted to access route,
-                message: "User not found"
-            });
+            return res.json(STANDARD_RESPONSE(404, "User not found")); // user not found
     }
 }
 
@@ -106,23 +141,25 @@ function authorizeUse(allowList=[], hasReqBody=true){
 // --------------------------------------------------------------------------------
 // REST API routes
 router.post("/fetchEvents", authorizeUse(allowList= [],hasReqBody=true), async (req, res)=>{
-
     try {
         // fetch data from supabase
         const data = await fetchEvent();
         console.log("Found events:", data);
         // return as json array
-        return res.json(data);
+        return res.json(data || []);
     }catch(error){
         console.error("Unable to fulfill request:", error);
         // return empty results
-        res.json([]);
+        return res.json([]);
     }
 });
 
 
-router.post("/addEvent", (req, res)=>{
-    return res.json({status: 200});
+router.post("/addEvent", authorizeUse(allowList=["General"], hasReqBody=true), addEvent,(req, res)=>{
+    return res.json({
+        ...STANDARD_RESPONSE(200, "Event was added successfully"),
+        new_event: req.inserted_event || null
+    });
 });
 
 
