@@ -1,4 +1,4 @@
-import Sidebar from "./SideBar";
+import Sidebar from "./Sidebar";
 import Content from "./Content";
 import Navbar from "./Navbar";
 import { useContext, useState } from "react";
@@ -10,12 +10,10 @@ const Dashboard = () => {
   const {user, setUser} = useContext(UserContext);
   const [notifPanelOpen, setNotifPanelOpen] = useState(false);
 
-  console.log("made it to dashboard", user);
-
   return (
-    <div className="w-full h-screen flex flex-col">
+    <div className="w-full h-screen flex flex-col bg-amber-400">
       <Navbar toggleNotifications={() => setNotifPanelOpen((prev) => !prev)} />
-      <div className="flex overflow-hidden relative">
+      <div className="flex overflow-hidden relative h-full">
         <Sidebar />
         <Content />
         <NotificationPanel setOpen = {() => setNotifPanelOpen((prev) => !prev)} isOpen ={notifPanelOpen} />

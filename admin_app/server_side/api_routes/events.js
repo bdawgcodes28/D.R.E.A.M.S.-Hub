@@ -102,6 +102,87 @@ async function addEvent(req, res, next){
 }
 
 /**
+ * updates an event at a certain 
+ * id, in the database
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ * @returns status, event, message
+ */
+async function updateEvent(req, res, next){
+    // get new event details
+    const event = req.body.event;
+    // check if event exists
+    if (!event) return res.json(STANDARD_RESPONSE(404, "No event was passed"));
+
+    try {
+        // sql code to update the row
+        const { data, error } = await supabase
+        .from('events')
+        .update({
+            name: event.name || "",
+            date: event.date || null,
+            location: event.location || "",
+            description: event.description || "",
+            active: false,
+            media_id: event.media_id || null,
+            start_time: event.start_time || null,
+            end_time: event.end_time || null
+        })
+        .eq('id', event.id) // filter by the specific UUID
+        .select();  
+
+        // add row to HTTP request
+        if (data){
+            req.updated_event = data;
+            next();
+        }else{
+            console.log("Unable to update row");
+            return res.json(STANDARD_RESPONSE(403, "Unable to update row"));
+        }
+    } catch (error) {
+        console.log("Unable to update row:", error);
+        return res.json(STANDARD_RESPONSE(404, "Unable to update row"));
+    }
+}
+
+/**
+ * removes an event from the
+ * database by id
+ * @param {*} req 
+ * @param {*} res 
+ * @param {*} next 
+ * @returns
+ */
+async function deleteEvent(req, res, next){
+    const event = req.body.event;
+    // no event was passed to HTTP body
+    if (!event || !event.id) return res.json(STANDARD_RESPONSE(403, "No event was passed to be deleted"));
+
+    try {
+        // uses supabase client to delete row at a specific uid
+        const { error } = await supabase
+            .from('events')
+            .delete()
+            .eq('id', event.id);
+
+        // handle database errors
+        if (error) {
+            console.error("Supabase error:", error);
+            return res.json(STANDARD_RESPONSE(403, "Unable to delete row"));
+        }
+        // send to next route handler
+        next();
+
+    } catch (error) {
+        console.error("Error when attempting to delete event:", error);
+        return res.json(STANDARD_RESPONSE(403, "Error when attempting to delete event"));
+    }
+}
+
+//-----------------------------------------------------------------------------------------
+
+/**
  * makes sure that user session
  * has permission to do certain 
  * operations and access certain 
@@ -154,12 +235,22 @@ router.post("/fetchEvents", authorizeUse(allowList= [],hasReqBody=true), async (
     }
 });
 
-
 router.post("/addEvent", authorizeUse(allowList=["General"], hasReqBody=true), addEvent,(req, res)=>{
     return res.json({
         ...STANDARD_RESPONSE(200, "Event was added successfully"),
         new_event: req.inserted_event || null
     });
+});
+
+router.put("/updateEvent", authorizeUse(allowList=["General", "Admin"], hasReqBody=true), updateEvent, (req, res)=>{
+    return res.json({
+        ...STANDARD_RESPONSE(200, "Event was updated successfully"),
+        updated_event: req.updated_event || null
+    });
+});
+
+router.delete("/deleteEvent", authorizeUse(allowList=['General',"Admin"], hasReqBody=true), deleteEvent, (req, res)=>{
+    return res.json( STANDARD_RESPONSE(200, "Event was updated successfully") );
 });
 
 

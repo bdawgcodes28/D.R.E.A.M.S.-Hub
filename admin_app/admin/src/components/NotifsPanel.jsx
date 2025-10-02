@@ -58,7 +58,7 @@ const NotificationPanel = ({ setOpen, isOpen }) => {
                 </h1>
                 <h1 className="text-gray-400 tracking-widest text-xs line-clamp-2">
                   {" "}
-                  Hi! My name is GiggaNigga, I wanted to know what you program
+                  Hi! My name is Joe, I wanted to know what you program
                   has to offer in terms of stem services.{" "}
                 </h1>
                 <button

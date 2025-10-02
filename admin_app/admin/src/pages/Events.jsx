@@ -15,6 +15,7 @@ import { useContext, useEffect, useState } from "react";
 import { UserContext } from "../components/user_context/context_provider.jsx";
 import * as EVENT_MIDDLEWARE from "../middleware/events_middleware.js"
 
+const BASE_URL = import.meta.env.VITE_BASE_URL;
 const Events = () => {
 
   // usestate vars
@@ -24,11 +25,18 @@ const Events = () => {
   // navigator
   const navigate = useNavigate();
   
+  // helper functions
+  function popEvent(idx) {
+    setEvents(prev => prev.filter((_, i) => i !== idx));
+  }
+
+
   // load events from server on render and on add to 
   useEffect(() => {
     const loadEvents = async () => {
       setEvents(await EVENT_MIDDLEWARE.fetchEvents(user));
     };
+    setTimeout(()=> {}, 1000)
     
     loadEvents();
   }, []);
@@ -46,6 +54,24 @@ const Events = () => {
     navigate("/events/create", { 
       state: { editMode: true, eventObj: event } 
     });
+  }
+
+  // deleting events
+  const handleDeleteEvent = async (event, idx) =>{
+    try {
+      // make request to database
+      const response = await EVENT_MIDDLEWARE.deleteEvent(event, user);
+
+      if (response && response.status === 200){
+        // remove from local array only if deletion was successful
+        popEvent(idx);
+      } else {
+        console.log("Unable to complete request:", response);
+      }
+
+    } catch (error) {
+        console.error("Couldnt fulfill request:", error);
+    }
   }
 
  
@@ -85,8 +111,10 @@ const Events = () => {
           <h1>Location</h1>
           <h1>Date</h1>
         </div>
-        <Reorder.Group values={events} onReorder={setEvents} className="w-full h-full flex flex-col overflow-y-scroll  ">
-          {events.map((event) => (
+        <Reorder.Group values={events || []} onReorder={setEvents} className="w-full h-full flex flex-col overflow-y-scroll  ">
+          { 
+          events.length > 0 ? 
+          events.map((event, idx) => (
             <Reorder.Item
               key={event.id}
               value={event}
@@ -133,14 +161,21 @@ const Events = () => {
                       </h1>
                     }
                   >
-                    <button className="hover:text-red-600 hover:rotate-12 transition">
+                    <button 
+                    onClick={()=> handleDeleteEvent(event, idx)} 
+                    className="hover:text-red-600 hover:rotate-12 transition">
                       <FaRegTrashCan />
                     </button>{" "}
                   </Tooltip>
                 </div>
               </div>
             </Reorder.Item>
-          ))}
+          ))
+        :
+        <div className="text-gray-600 w-full h-full items-center justify-center flex text-sm">
+           <Link to={'create'} className="p-2 px-4 shadow hover:shadow-gray-500 transition shadow-gray-300 border-gray-600  rounded-lg flex"> + Add Event 
+           </Link> </div>
+        }
         </Reorder.Group>
       </div>
     </div>

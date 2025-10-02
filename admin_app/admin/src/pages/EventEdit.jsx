@@ -1,10 +1,12 @@
 import { useContext, useState } from "react";
-import { FaCirclePlus } from "react-icons/fa6";
+import { FaCirclePlus, FaRegTrashCan } from "react-icons/fa6";
 import { Reorder } from "framer-motion";
-import * as EVENT_MIDDLEWARE from "../middleware/events_middleware.js"
-import { useNavigate } from "react-router-dom";
+import * as EVENT_MIDDLEWARE from "../middleware/events_middleware.js";
+import { useNavigate, useLocation } from "react-router-dom";
 import { UserContext } from "../components/user_context/context_provider.jsx";
-import { useLocation } from "react-router-dom";
+import { LuCloudUpload } from "react-icons/lu";
+import { RiCalendarScheduleFill } from "react-icons/ri";
+import { GrDocumentUpload } from "react-icons/gr";
 
 const EventEdit = () => {
 
@@ -12,31 +14,48 @@ const EventEdit = () => {
   const location = useLocation();
   const { editMode, eventObj } = location.state || { editMode: false, event: null };
 
-  // naviagtion hook
+  // navigation hook
   const navigate = useNavigate();
   // user context
   const {user, setUser} = useContext(UserContext);
 
-  const [event, setEvent] = useState({
-    id: null,
-    name: "",
-    date: "",
-    location: "",
-    description: "",
-    media: [],
-    start_time: "",
-    end_time: ""
+  // initialize event state
+  const [event, setEvent] = useState(() => {
+    if (editMode && eventObj) {
+      return {
+        id: eventObj.id || null,
+        name: eventObj.name || "",
+        date: eventObj.date || "",
+        location: eventObj.location || "",
+        description: eventObj.description || "",
+        media: eventObj.media || [],
+        start_time: eventObj.start_time || "",
+        end_time: eventObj.end_time || "",
+      };
+    } else {
+      return {
+        id: null,
+        name: "",
+        date: "",
+        location: "",
+        description: "",
+        media: [],
+        start_time: "",
+        end_time: "",
+      };
+    }
   });
 
   // handle input changes
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    let { name, value } = e.target;
+    if (name === "starttime") name = "start_time";
+    if (name === "endtime") name = "end_time";
+
     setEvent(prev => ({
       ...prev,
       [name]: value
     }));
-
-    console.log(event)
   };
 
   // handle media uploads
@@ -57,33 +76,22 @@ const EventEdit = () => {
   // utility to format time string for <input type="time">
   function formatTimeForInput(timeString) {
     if (!timeString) return "";
-    // split at the decimal if present and take first 3 decimals (milliseconds)
     const [time, fraction] = timeString.split(".");
-    if (!fraction) return time; // already HH:mm:ss
-    const ms = fraction.slice(0, 3); // take first 3 digits for milliseconds
-    return `${time}.${ms}`; // HH:mm:ss.SSS
+    if (!fraction) return time;
+    const ms = fraction.slice(0, 3);
+    return `${time}.${ms}`;
   }
-
 
   // request to add event 
   async function handleAppendEvent(){
       try {
-          // attempt to add is event is valid
-          console.log("checking event");
           if (EVENT_MIDDLEWARE.isValidEvent(event)){
-
-            console.log("Event is valid");
             const response = await EVENT_MIDDLEWARE.appendEvent(event, user);
-            console.log(response);
-
             if (response && response?.status === 200)
-              navigate("/events"); // return to events page
-
+              navigate("/events");
             else
-              console.error("Error when adding event"); // swap with rendering a pop up error telling user the issue
-
-          }else{
-            //FIXME: have a rendered pop up to let user whats is wrong with event form, what fields are incorrect/missing
+              console.error("Error when adding event");
+          } else {
             console.log("Event is not valid");
           }
       } catch (error) {
@@ -92,58 +100,79 @@ const EventEdit = () => {
   }
 
   // request to edit existing event 
-  async function handleEditEvent(){}
+  async function handleEditEvent(){
+      try {
+        console.log("Trying to edit:", event);
+        if (EVENT_MIDDLEWARE.isValidEvent(event)){
+          const response = await EVENT_MIDDLEWARE.updateEvent(event, user);
+          if (response && response?.status === 200)
+            navigate("/events");
+          else
+            console.error("Error when editing event:", response);
+        } else {
+          console.log("Event is not valid");
+        }
+    } catch (error) {
+      console.error("Could not fulfill request:", error);
+    }
+  }
+
+  // choose request to make based off state
+  async function handleSubmit(){
+    try {
+        if (editMode && event)  await handleEditEvent();
+        else                    await handleEditEvent();
+
+    } catch (error) {
+        console.error("Couldnt fulfill request:", error);
+    }
+  }
 
   return (
     <div className="text-gray-700 flex h-full bg-gray-50 text-sm">
-      {/* Main Form */}
       <div className="flex flex-col grow border-r border-gray-300 h-full p-10 overflow-y-scroll">
         <form className="space-y-6 max-w-2xl">
-          {/* Title */}
           <div className="flex flex-col">
             <label className="font-medium mb-1">Title</label>
             <input
               type="text"
               name="name"
-              value={editMode ? eventObj.name : event.name}
+              value={event.name}
               onChange={handleInputChange}
               placeholder="Enter event title"
               className="border rounded-lg px-3 py-2 focus:ring-2 outline-none"
             />
           </div>
 
-          {/* Date */}
           <div className="flex flex-col">
             <label className="font-medium mb-1">Date</label>
             <input
               type="date"
               name="date"
-              value={editMode ? eventObj.date : event.date}
+              value={event.date}
               onChange={handleInputChange}
               className="border rounded-lg px-3 py-2 focus:ring-2 outline-none"
             />
           </div>
 
-          {/* Location */}
           <div className="flex flex-col">
             <label className="font-medium mb-1">Location</label>
             <input
               type="text"
               name="location"
-              value={editMode ? eventObj.location : event.location}
+              value={event.location}
               onChange={handleInputChange}
               className="border rounded-lg px-3 py-2 focus:ring-2 outline-none"
             />
           </div>
 
-          {/* Time */}
           <div className="grid grid-cols-2 gap-4">
             <div className="flex flex-col">
               <label className="font-medium mb-1">Start Time</label>
               <input
                 type="time"
-                name="starttime"
-                value={editMode ? formatTimeForInput(eventObj.start_time) : event.start_time}
+                name="start_time"
+                value={formatTimeForInput(event.start_time)}
                 onChange={handleInputChange}
                 className="border rounded-lg px-3 py-2 focus:ring-2 outline-none"
               />
@@ -152,27 +181,31 @@ const EventEdit = () => {
               <label className="font-medium mb-1">End Time</label>
               <input
                 type="time"
-                name="endtime"
-                value={editMode ? formatTimeForInput(eventObj.end_time) : event.end_time}
+                name="end_time"
+                value={formatTimeForInput(event.end_time)}
                 onChange={handleInputChange}
                 className="border rounded-lg px-3 py-2 focus:ring-2 outline-none"
               />
             </div>
           </div>
 
-          {/* Description */}
           <div className="flex flex-col">
             <label className="font-medium mb-1">Description</label>
             <textarea
               name="description"
-              value={editMode ? eventObj.description : event.description}
+              value={event.description}
               onChange={handleInputChange}
               placeholder="Write a short description..."
               className="border rounded-lg px-3 py-2 focus:ring-2 outline-none h-28 resize-none"
             />
           </div>
+          <div className="w-full gap-4 flex">
+            <button className=" transition gap-4 text-md rounded-lg border hover:bg-gray-500 hover:text-white text-gray-500 border-gray-500 flex items-center p-3 w-full justify-center"> Schedule <RiCalendarScheduleFill/> </button>
+            <button className=" transition gap-4 text-md rounded-lg border hover:bg-blue-500 hover:text-white text-blue-500 border-blue-500 flex items-center p-3 w-full justify-center"> Upload <GrDocumentUpload/> </button>
+  
+            </div>
         </form>
-        <button onClick={handleAppendEvent} className="mt-10 border-2 p-[10px]">Add Event</button>
+        <button onClick={(editMode && eventObj) ? handleEditEvent : handleAppendEvent} className="mt-10 border-2 p-[10px]">Add Event</button>
       </div>
 
       {/* Media Section */}
@@ -199,11 +232,21 @@ const EventEdit = () => {
             setEvent(prev => ({ ...prev, media: newMedia }))
           }
         >
-          {/* FIXME: ADD logic for adding edit event media or empty media section if in create mode */}
           {event.media.length > 0 ? (
-            event.media.map((item) => (
+            event.media.map((item, idx) => (
               <Reorder.Item key={item.id} value={item}>
-                <div className="bg-gray-100 rounded-2xl w-full h-48 flex items-center justify-center">
+                <div className="bg-gray-100 rounded-2xl w-full h-48 flex items-center justify-center relative">
+                  <button
+                    onClick={() =>
+                      setEvent((prev) => ({
+                        ...prev,
+                        media: prev.media.filter((_, i) => i !== idx),
+                      }))
+                    }
+                    className="absolute hover:text-red-400 hover:rotate-12 -top-4 -right-4 bg-white text-gray-500  rounded-full p-2 text-lg"
+                  >
+                    <FaRegTrashCan/>
+                  </button>
                   {item.file.type.startsWith("image/") ? (
                     <img
                       draggable={false}

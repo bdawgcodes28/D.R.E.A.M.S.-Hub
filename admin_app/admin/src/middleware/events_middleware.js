@@ -99,3 +99,97 @@ export async function appendEvent(event, user) {
     };
   }
 }
+
+/**
+ * upadates pre-exisiting row in
+ * events table, by making request to server
+ * @param {*} event 
+ * @param {*} user 
+ * @returns status, updated row
+ */
+export async function updateEvent(event, user){
+  if (!event) return {status: 404, message: "No event was given"};
+  try {
+
+    const BASE_URL = import.meta.env.VITE_BASE_URL;
+    const serverResponse = await fetch(`${BASE_URL}/api/events/updateEvent`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ session: user, event: event })
+    });
+
+    const data = await serverResponse.json();
+
+    if (data.status && data.status == 200){
+      // return request success status
+      return {
+        status: 200,
+        message: "Event was updated successfully"
+      };
+
+    }else{
+        console.error("Response:", data);
+        return {
+          status: data.status || 404,
+          message: "Error when attempting to update event"
+        };
+    }
+
+  } catch (error) {
+
+    console.error("Could not fulfill request:", error);
+    // return request fail status
+    return {
+      status: 404,
+      message: "Error when attempting to update event"
+    };
+  }
+}
+
+/**
+ * sends delete request to
+ * remove an event at a certain id
+ * @param {*} event 
+ * @param {*} user 
+ * @returns status of request
+ */
+export async function deleteEvent(event, user){
+  if (!event) return {status: 404, message: "No event was given"};
+  try {
+    console.log("Sending delete request...");
+    const BASE_URL = import.meta.env.VITE_BASE_URL;
+    const serverResponse = await fetch(`${BASE_URL}/api/events/deleteEvent`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ session: user, event: event })
+    });
+
+    const data = await serverResponse.json();
+
+    if (data.status && data.status == 200){
+      console.log("delete request successful:", data);
+      // return request success status
+      return {
+        status: 200,
+        message: "Event was delete successfully"
+      };
+
+    }else{
+        console.error("Response:", data);
+        return {
+          status: data.status || 404,
+          message: "Error when attempting to delete event"
+        };
+    }
+
+  } catch (error) {
+
+    console.error("Could not fulfill request:", error);
+    // return request fail status
+    return {
+      status: 404,
+      message: "Error when attempting to delete event"
+    };
+  }
+
+} 
