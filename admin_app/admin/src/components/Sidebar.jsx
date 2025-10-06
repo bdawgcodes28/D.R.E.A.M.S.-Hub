@@ -64,6 +64,7 @@ const Sidebar = () => {
               }}
               src={user.token.picture || 'https://www.svgrepo.com/show/522440/profile.svg'}
               crossOrigin="anonymous"
+              referrerpolicy="no-referrer"
             />
         </button>
         <div className=" truncate grow">

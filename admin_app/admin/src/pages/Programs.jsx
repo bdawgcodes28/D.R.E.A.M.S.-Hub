@@ -13,8 +13,6 @@ import { Link, useNavigate } from "react-router-dom";
 import { UserContext } from "../components/user_context/context_provider.jsx";
 import * as EVENT_MIDDLEWARE from "../middleware/events_middleware.js";
 
-const BASE_URL = import.meta.env.VITE_BASE_URL;
-
 const FilterDropdown = ({
   anchorRef,
   filters,
@@ -24,7 +22,6 @@ const FilterDropdown = ({
   sortOrder,
   setSortOrder,
 }) => {
-  // position the dropdown below the anchorRef
   return (
     <div className="absolute z-50 mt-2 right-0 w-80 bg-white rounded-lg shadow-md border p-4 text-black">
       <h2 className="text-md font-semibold mb-2">Filter</h2>
@@ -32,7 +29,7 @@ const FilterDropdown = ({
       <div className="flex flex-col gap-2">
         <input
           type="text"
-          placeholder="Event Name"
+          placeholder="Program Name"
           value={filters.name}
           onChange={(e) => setFilters({ ...filters, name: e.target.value })}
           className="border p-2 rounded text-sm"
@@ -112,7 +109,6 @@ const FilterDropdown = ({
       <div className="flex justify-end gap-2 mt-4">
         <button
           onClick={() => {
-            // prepare cleared filters and sort order
             const cleared = {
               name: "",
               location: "",
@@ -122,10 +118,8 @@ const FilterDropdown = ({
               end_time: null,
             };
             const clearedSort = "asc";
-            // update UI state
             setFilters(cleared);
             setSortOrder(clearedSort);
-            // apply immediately using override to avoid stale state
             onApply(cleared, clearedSort);
           }}
           className="px-3 py-1 rounded border border-gray-300 text-gray-700 text-sm bg-white hover:bg-gray-50"
@@ -150,9 +144,9 @@ const FilterDropdown = ({
   );
 };
 
-const Events = () => {
-  const [events, setEvents] = useState([]);
-  const [allEvents, setAllEvents] = useState([]); // store original unfiltered list
+const Programs = () => {
+  const [programs, setPrograms] = useState([]);
+  const [allPrograms, setAllPrograms] = useState([]);
   const [filters, setFilters] = useState({
     name: "",
     location: "",
@@ -168,30 +162,25 @@ const Events = () => {
   const { user } = useContext(UserContext);
   const navigate = useNavigate();
 
-  // helper functions
-  function popEvent(idx) {
-    setEvents((prev) => prev.filter((_, i) => i !== idx));
+  function popProgram(idx) {
+    setPrograms((prev) => prev.filter((_, i) => i !== idx));
   }
 
-  // load events from server on render and on add to
-
   useEffect(() => {
-    const loadEvents = async () => {
+    const loadPrograms = async () => {
       const data = await EVENT_MIDDLEWARE.fetchEvents(user);
-      setEvents(data);
-      setAllEvents(data);
+      setPrograms(data);
+      setAllPrograms(data);
     };
-    loadEvents();
+    loadPrograms();
   }, []);
 
-  // close dropdown when clicking outside
   useEffect(() => {
     function handleClickOutside(e) {
       if (
         filterButtonRef.current &&
         !filterButtonRef.current.contains(e.target)
       ) {
-        // if clicking outside the filter button and dropdown is open, close it
         const dropdown = document.querySelector(".filter-dropdown");
         if (dropdown && !dropdown.contains(e.target)) {
           setShowFilterDropdown(false);
@@ -202,27 +191,44 @@ const Events = () => {
     return () => document.removeEventListener("mousedown", handleClickOutside);
   }, []);
 
-  const handleAddEventClick = (e) => {
+  const handleAddProgramClick = (e) => {
     e.preventDefault();
-    navigate("/events/create", {
-      state: { editMode: false, eventObj: null },
+    navigate("/programs/create", {
+      state: { editMode: false, programObj: null },
     });
   };
 
-  // navigate in edit mode
-  const handleEditEventClick = (event) => {
-    navigate("/events/create", {
-      state: { editMode: true, eventObj: event },
+  const handleEditProgramClick = (program) => {
+    navigate("/programs/create", {
+      state: { editMode: true, programObj: program },
     });
+  };
+
+  const handleDeleteProgram = async (program, idx) => {
+    try {
+      const response = await EVENT_MIDDLEWARE.deleteEvent(program, user);
+      if (response && response.status === 200) {
+        popProgram(idx);
+      } else {
+        console.log("Unable to complete request:", response);
+      }
+    } catch (error) {
+      console.error("Couldnt fulfill request:", error);
+    }
+  };
+
+  const toTimestamp = (dateStr, timeStr) => {
+    if (!dateStr) return null;
+    const t = timeStr || "00:00";
+    return new Date(`${dateStr}T${t}`).getTime();
   };
 
   const handleApplyFilters = (overrideFilters = null, overrideSort = null) => {
     const useFilters = overrideFilters || filters;
     const useSort = overrideSort || sortOrder;
 
-    let filtered = allEvents.slice();
+    let filtered = allPrograms.slice();
 
-    // text filters
     if (useFilters.name) {
       filtered = filtered.filter((e) =>
         (e.name || "").toLowerCase().includes(useFilters.name.toLowerCase())
@@ -235,30 +241,6 @@ const Events = () => {
           .includes(useFilters.location.toLowerCase())
       );
     }
-
-    // deleting events
-    const handleDeleteEvent = async (event, idx) => {
-      try {
-        // make request to database
-        const response = await EVENT_MIDDLEWARE.deleteEvent(event, user);
-
-        if (response && response.status === 200) {
-          // remove from local array only if deletion was successful
-          popEvent(idx);
-        } else {
-          console.log("Unable to complete request:", response);
-        }
-      } catch (error) {
-        console.error("Couldnt fulfill request:", error);
-      }
-    };
-
-    // date/time range filter - combine date with times if available
-    const toTimestamp = (dateStr, timeStr) => {
-      if (!dateStr) return null;
-      const t = timeStr || "00:00";
-      return new Date(`${dateStr}T${t}`).getTime();
-    };
 
     const startTs = toTimestamp(useFilters.start_date, useFilters.start_time);
     const endTs = toTimestamp(useFilters.end_date, useFilters.end_time);
@@ -276,7 +258,6 @@ const Events = () => {
       });
     }
 
-    // sort by date/time
     filtered.sort((a, b) => {
       const aTs =
         toTimestamp(
@@ -291,14 +272,14 @@ const Events = () => {
       return useSort === "asc" ? aTs - bTs : bTs - aTs;
     });
 
-    setEvents(filtered);
+    setPrograms(filtered);
     setShowFilterDropdown(false);
   };
 
   return (
     <div className="px-8 gap-2 flex flex-col py-8  h-full">
       <div className="w-full flex items-center text-gray-800">
-        <h1 className="text-4xl font-semibold grow"> Events</h1>
+        <h1 className="text-4xl font-semibold grow"> Programs</h1>
         <button className="flex items-center text-white text-sm gap-2 p-2 border border-gray-500 bg-gray-400 rounded-lg">
           <FaFileDownload />
           Download CSV
@@ -310,20 +291,22 @@ const Events = () => {
           <CiSearch />
           <input
             type="search"
-            placeholder="Search events..."
+            placeholder="Search programs..."
             className="w-full outline-0 text-xs"
             onChange={(e) => {
               const query = e.target.value.toLowerCase();
-              setEvents(
-                allEvents.filter((ev) => ev.name.toLowerCase().includes(query))
+              setPrograms(
+                allPrograms.filter((ev) =>
+                  ev.name.toLowerCase().includes(query)
+                )
               );
             }}
           />
         </div>
 
-        <Tooltip position="bottom" element={<h1>Add Event</h1>}>
+        <Tooltip position="bottom" element={<h1>Add Program</h1>}>
           <h1
-            onClick={handleAddEventClick}
+            onClick={handleAddProgramClick}
             className="h-8 w-10 flex items-center justify-center text-center border rounded-lg border-gray-500"
           >
             +
@@ -353,7 +336,7 @@ const Events = () => {
         </div>
       </div>
 
-      {/* Events list */}
+      {/* Programs list */}
       <div className="w-full h-[100%] border rounded-xl border-gray-500 overflow-hidden">
         <div className="text-sm grid font-semibold grid-cols-4 px-4 py-2 shadow-md text-gray-100 bg-gray-600">
           <h1>Name</h1>
@@ -361,20 +344,20 @@ const Events = () => {
           <h1>Location</h1>
         </div>
         <Reorder.Group
-          values={events || []}
-          onReorder={setEvents}
+          values={programs || []}
+          onReorder={setPrograms}
           className="w-full h-full flex flex-col overflow-y-scroll  "
         >
-          {events.length > 0 ? (
-            events.map((event, idx) => (
+          {programs.length > 0 ? (
+            programs.map((program, idx) => (
               <Reorder.Item
-                key={event.id}
-                value={event}
+                key={program.id}
+                value={program}
                 className="group grid grid-cols-4 border-b items-center px-4 p-2 shadow-md hover:shadow-lg  text-gray-500 bg-white"
               >
-                <p className="text-xs w-fit truncate">{event.name}</p>
-                <p className="text-xs text-gray-600">{event.date}</p>
-                <p className="text-xs text-gray-500">{event.location}</p>
+                <p className="text-xs w-fit truncate">{program.name}</p>
+                <p className="text-xs text-gray-600">{program.date}</p>
+                <p className="text-xs text-gray-500">{program.location}</p>
                 <div className="flex">
                   <h1 className="grow flex"></h1>
                   <div className="rounded-full flex text-lg items-center justify-center gap-4 w-fit opacity-0 group-hover:opacity-100 transition-opacity duration-200">
@@ -399,7 +382,7 @@ const Events = () => {
                         </h1>
                       }
                     >
-                      <button onClick={() => handleEditEventClick(event)}>
+                      <button onClick={() => handleEditProgramClick(program)}>
                         {" "}
                         <CiEdit />
                       </button>{" "}
@@ -413,7 +396,7 @@ const Events = () => {
                       }
                     >
                       <button
-                        onClick={() => handleDeleteEvent(event, idx)}
+                        onClick={() => handleDeleteProgram(program, idx)}
                         className="hover:text-red-600 hover:rotate-12 transition"
                       >
                         <FaRegTrashCan />
@@ -430,7 +413,7 @@ const Events = () => {
                 className="p-2 px-4 shadow hover:shadow-gray-500 transition shadow-gray-300 border-gray-600  rounded-lg flex"
               >
                 {" "}
-                + Add Event
+                + Add Program
               </Link>{" "}
             </div>
           )}
@@ -440,4 +423,4 @@ const Events = () => {
   );
 };
 
-export default Events;
+export default Programs;
