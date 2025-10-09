@@ -48,15 +48,16 @@ dotenv.config({ path: envPath });
 const PORT       = process.env.PORT;
 
 // import all route modules AFTER environment variables are loaded
-const eventsRoutes = require("./api_routes/events.js");
-const googleRoutes = require("./utils/google.js");
+const eventsRoutes  = require("./api_routes/events.js");
+const googleRoutes  = require("./utils/google.js");
+const mediaRoutes   = require("./api_routes/media.js");
 
 // create server runtime
 const app        = express();
 
 // set up middlewares
-app.use(bodyParser.urlencoded({extended:true}));                // allows for passing info through url
-app.use(express.json());                                        // allows for json request and responces
+app.use(bodyParser.urlencoded({extended:true, limit: '50mb'}));  // allows for passing info through url
+app.use(express.json({limit: '50mb'}));                         // allows for json request and responses
 
 const allowedOrigins = [
     'http://localhost:8080', // nodejs dev server
@@ -98,6 +99,9 @@ app.use("/api/events", eventsRoutes);
 
 // google routes
 app.use("/api/google", googleRoutes);
+
+// media routes
+app.use("/api/media", mediaRoutes);
 
 // END add routes for modules ------------------------
 

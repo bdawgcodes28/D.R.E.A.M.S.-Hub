@@ -7,7 +7,9 @@ import { UserContext } from "../components/user_context/context_provider.jsx";
 import { LuCloudUpload } from "react-icons/lu";
 import { RiCalendarScheduleFill } from "react-icons/ri";
 import { GrDocumentUpload } from "react-icons/gr";
+import * as MEDIA_MIDDLEWARE from "../middleware/media_middleware.js"
 
+//FIXME: do onclick function to trigger media delete 
 const EventEdit = () => {
 
   // get mode of page
@@ -22,6 +24,7 @@ const EventEdit = () => {
   // initialize event state
   const [event, setEvent] = useState(() => {
     if (editMode && eventObj) {
+      loadMedia(); // load media for event
       return {
         id: eventObj.id || null,
         name: eventObj.name || "",
@@ -45,6 +48,39 @@ const EventEdit = () => {
       };
     }
   });
+
+  async function loadMedia(){
+    // load events media if in edit mode
+    if(editMode && eventObj){
+      console.log("Loading media for:", eventObj.name);
+      // make call to server to fetch event media content
+      const response = await MEDIA_MIDDLEWARE.getMediaBy(user, "Event", eventObj.id);
+      if(response){
+        console.log("Media fetched:", response);
+        // set media content
+        const normalized = response.map((m)=>{
+          let preview = m.preview;
+          if (typeof preview === "string" && preview.startsWith("blob:")) {
+            preview = preview.replace(/^blob:/, "");
+          }
+          const isVideo = typeof preview === "string" && /\.(mp4|mov|webm)(\?|#|$)/i.test(preview);
+          return {
+            id: m.id || crypto.randomUUID(),
+            preview: preview,
+            type: isVideo ? "video" : "image"
+          };
+        });
+        setEvent(prev => ({
+          ...prev,
+          media: normalized
+        }));
+      }else{
+        console.error("Error when loading media content for:", eventObj.name);
+      }
+    }
+  }
+
+  
 
   // handle input changes
   const handleInputChange = (e) => {
@@ -71,7 +107,32 @@ const EventEdit = () => {
       ...prev,
       media: [...prev.media, ...newMedia]
     }));
+
+    console.log(event.media);
   };
+
+  const handleRemoveMedia = async (idx, mediaItem) => {
+    // remove from array
+    setEvent((prev) => ({
+      ...prev,
+      media: prev.media.filter((_, i) => i !== idx),
+    }));
+
+    // send delete request to API
+    console.log("Media item:", mediaItem);
+    try {
+      const response = await MEDIA_MIDDLEWARE.deleteMedia(user, mediaItem.preview);
+      
+      if (response){
+        console.log("Media removed:", response);
+      }else{
+        console.error("No media removed:", response);
+      }
+
+    } catch (error) {
+        console.error("Error on API request...");
+    }
+  }
 
   // utility to format time string for <input type="time">
   function formatTimeForInput(timeString) {
@@ -87,6 +148,7 @@ const EventEdit = () => {
       try {
           if (EVENT_MIDDLEWARE.isValidEvent(event)){
             const response = await EVENT_MIDDLEWARE.appendEvent(event, user);
+      
             if (response && response?.status === 200)
               navigate("/events");
             else
@@ -104,27 +166,34 @@ const EventEdit = () => {
       try {
         console.log("Trying to edit:", event);
         if (EVENT_MIDDLEWARE.isValidEvent(event)){
+          // First update the event
           const response = await EVENT_MIDDLEWARE.updateEvent(event, user);
-          if (response && response?.status === 200)
+          
+          if (response && response?.status === 200) {
+            // Check if there are new media files that need to be uploaded
+            const newMediaFiles = event.media.filter(mediaItem => mediaItem.file);
+            
+            if (newMediaFiles.length > 0) {
+              console.log("Uploading new media files:", newMediaFiles);
+              const mediaResponse = await MEDIA_MIDDLEWARE.registerMedia(newMediaFiles, event.id, user);
+              console.log("Media upload response:", mediaResponse);
+              
+              if (mediaResponse.status === 200) {
+                console.log("Event and new media updated successfully");
+              } else {
+                console.error("Event updated but media upload failed:", mediaResponse);
+              }
+            }
+            
             navigate("/events");
-          else
+          } else {
             console.error("Error when editing event:", response);
+          }
         } else {
           console.log("Event is not valid");
         }
     } catch (error) {
       console.error("Could not fulfill request:", error);
-    }
-  }
-
-  // choose request to make based off state
-  async function handleSubmit(){
-    try {
-        if (editMode && event)  await handleEditEvent();
-        else                    await handleEditEvent();
-
-    } catch (error) {
-        console.error("Couldnt fulfill request:", error);
     }
   }
 
@@ -237,17 +306,12 @@ const EventEdit = () => {
               <Reorder.Item key={item.id} value={item}>
                 <div className="bg-gray-100 rounded-2xl w-full h-48 flex items-center justify-center relative">
                   <button
-                    onClick={() =>
-                      setEvent((prev) => ({
-                        ...prev,
-                        media: prev.media.filter((_, i) => i !== idx),
-                      }))
-                    }
+                    onClick={() => handleRemoveMedia(idx, item)}
                     className="absolute hover:text-red-400 hover:rotate-12 -top-4 -right-4 bg-white text-gray-500  rounded-full p-2 text-lg"
                   >
                     <FaRegTrashCan/>
                   </button>
-                  {item.file.type.startsWith("image/") ? (
+                  {(item.file?.type ? item.file.type.startsWith("image/") : item.type !== "video") ? (
                     <img
                       draggable={false}
                       src={item.preview}

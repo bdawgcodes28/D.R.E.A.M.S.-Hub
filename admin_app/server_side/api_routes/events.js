@@ -15,17 +15,10 @@
 const express   = require("express");
 const router    = express.Router();
 const supabase  = require("../utils/supabase.js");
+const { STANDARD_RESPONSE, authorizeUse } = require("../utils/endpoint_helpers.js");
 
 
-// -----------------------------------------------------------------------
-
-// custom http responses
-function STANDARD_RESPONSE(status, message){
-    return {
-        status: status,
-        message: message
-    };
-} 
+// ----------------------------------------------------------------------- 
 
 // -----------------------------------------------------------------------
 //implement supabase client fucntions
@@ -74,7 +67,7 @@ async function addEvent(req, res, next){
         try {
             const { data, error } = await supabase
                     .from("events")
-                    .insert([
+                    .insert(
                         {
                         name: event.name || "",
                         date: event.date || null,
@@ -85,7 +78,7 @@ async function addEvent(req, res, next){
                         start_time: event.start_time || null,
                         end_time: event.end_time || null
                         },
-                    ])
+                    )
                     .select();
 
             if (data){
@@ -182,40 +175,6 @@ async function deleteEvent(req, res, next){
 
 //-----------------------------------------------------------------------------------------
 
-/**
- * makes sure that user session
- * has permission to do certain 
- * operations and access certain 
- * API requests
- * @param {*} allowList 
- * @returns 
- */
-function authorizeUse(allowList=[], hasReqBody=true){
-    return (req, res, next)=>{
-        // no restriction on permissons
-        if (allowList.length == 0)
-            return next();
-
-        let session;
-        // access session data
-        if (hasReqBody)
-            session = req.body.session.token;
-        else
-            session = req.headers["session"]["token"];
-
-        // checks if user exists
-        if (session)
-            // if user has permission
-            if (allowList.includes(session.role))
-                return next();
-            // handle user not permitted
-            else
-                return res.json(STANDARD_RESPONSE(403, "User not permitted to access route")); // not permitted to access route
-        // handle user not found error
-        else
-            return res.json(STANDARD_RESPONSE(404, "User not found")); // user not found
-    }
-}
 
 
 
@@ -225,7 +184,7 @@ router.post("/fetchEvents", authorizeUse(allowList= [],hasReqBody=true), async (
     try {
         // fetch data from supabase
         const data = await fetchEvent();
-        console.log("Found events:", data);
+        //console.log("Found events:", data);
         // return as json array
         return res.json(data || []);
     }catch(error){
@@ -250,7 +209,7 @@ router.put("/updateEvent", authorizeUse(allowList=["General", "Admin"], hasReqBo
 });
 
 router.delete("/deleteEvent", authorizeUse(allowList=['General',"Admin"], hasReqBody=true), deleteEvent, (req, res)=>{
-    return res.json( STANDARD_RESPONSE(200, "Event was updated successfully") );
+    return res.json( STANDARD_RESPONSE(200, "Event was deleted successfully") );
 });
 
 

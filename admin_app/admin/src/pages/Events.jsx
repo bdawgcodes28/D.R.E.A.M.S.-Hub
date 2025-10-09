@@ -73,9 +73,9 @@ const Events = () => {
         console.error("Couldnt fulfill request:", error);
     }
   }
-
  
   return (
+    
     <div className="px-8 gap-2 flex flex-col py-8">
       <div className="w-full flex items-center text-gray-800">
         <h1 className="text-4xl font-semibold grow"> Events</h1>

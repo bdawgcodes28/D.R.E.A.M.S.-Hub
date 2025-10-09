@@ -8,6 +8,17 @@
 
 //------------------------------------------------------------------
 
+import * as MEDIA_MIDDLEWARE from "./media_middleware.js"
+
+
+//------------------------------------------------------------------
+// configurations and constants
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+const EVENT_ROUTE_BASE_URL=`${BASE_URL}/api/events`
+
+
+//------------------------------------------------------------------
+
 /**
  * checks if minimum fields
  * are filled out before event is added
@@ -36,8 +47,7 @@ export function isValidEvent(event){
 export async function fetchEvents(user){
     
     try {
-      const BASE_URL = import.meta.env.VITE_BASE_URL;
-      const serverResponse = await fetch(`${BASE_URL}/api/events/fetchEvents`, {
+      const serverResponse = await fetch(`${EVENT_ROUTE_BASE_URL}/fetchEvents`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ session: user })
@@ -65,9 +75,7 @@ export async function fetchEvents(user){
 export async function appendEvent(event, user) {
   if (!event) return {status: 404, message: "No event was given"};
   try {
-
-    const BASE_URL = import.meta.env.VITE_BASE_URL;
-    const serverResponse = await fetch(`${BASE_URL}/api/events/addEvent`, {
+    const serverResponse = await fetch(`${EVENT_ROUTE_BASE_URL}/addEvent`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ session: user, event: event })
@@ -76,10 +84,17 @@ export async function appendEvent(event, user) {
     const data = await serverResponse.json();
 
     if (data.status && data.status == 200){
+      // register media content in media table
+      console.log("Registering media...", data);
+      const mediaContent  = event.media;
+      const mediaId       = data.new_event[0].id;
+      const mediaResponse = await MEDIA_MIDDLEWARE.registerMedia(mediaContent, mediaId, user);
+      console.log("Media Register Response:",mediaResponse);
+
       // return request success status
       return {
         status: 200,
-        message: "Event was added successfully"
+        message: "Event and media were added successfully"
       };
 
     }else{
@@ -110,9 +125,7 @@ export async function appendEvent(event, user) {
 export async function updateEvent(event, user){
   if (!event) return {status: 404, message: "No event was given"};
   try {
-
-    const BASE_URL = import.meta.env.VITE_BASE_URL;
-    const serverResponse = await fetch(`${BASE_URL}/api/events/updateEvent`, {
+    const serverResponse = await fetch(`${EVENT_ROUTE_BASE_URL}/updateEvent`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ session: user, event: event })
@@ -156,9 +169,9 @@ export async function updateEvent(event, user){
 export async function deleteEvent(event, user){
   if (!event) return {status: 404, message: "No event was given"};
   try {
+
     console.log("Sending delete request...");
-    const BASE_URL = import.meta.env.VITE_BASE_URL;
-    const serverResponse = await fetch(`${BASE_URL}/api/events/deleteEvent`, {
+    const serverResponse = await fetch(`${EVENT_ROUTE_BASE_URL}/deleteEvent`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ session: user, event: event })
