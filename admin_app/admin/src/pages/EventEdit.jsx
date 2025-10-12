@@ -200,12 +200,10 @@ const EventEdit = () => {
             />
           </div>
           <div className="w-full gap-4 flex">
-            <button className=" transition gap-4 text-md rounded-lg border hover:bg-gray-500 hover:text-white text-gray-500 border-gray-500 flex items-center p-3 w-full justify-center"> Schedule <RiCalendarScheduleFill/> </button>
-            <button className=" transition gap-4 text-md rounded-lg border hover:bg-blue-500 hover:text-white text-blue-500 border-blue-500 flex items-center p-3 w-full justify-center"> Upload <GrDocumentUpload/> </button>
+            <button type="button" onClick={(editMode && eventObj) ? handleEditEvent : handleAppendEvent}  className=" transition gap-4 text-md rounded-lg border hover:bg-blue-500 hover:text-white text-gray-500 bg-gray-300 border-gray-500 flex items-center p-3 w-full justify-center"> {(editMode && eventObj) ? 'Update Event' :' Add Event' } <GrDocumentUpload/> </button>
   
             </div>
         </form>
-        <button onClick={(editMode && eventObj) ? handleEditEvent : handleAppendEvent} className="mt-10 border-2 p-[10px]">Add Event</button>
       </div>
 
       {/* Media Section */}
