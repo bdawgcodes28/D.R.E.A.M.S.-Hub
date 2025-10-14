@@ -80,9 +80,6 @@ const Login = () => {
       console.error("Fetch error:", err);
     }
   }
-  
-
-
 
   // standard sign in with USERNAME AND PASSWORD
   const signInWithEmailAndPassword = async (e) => {

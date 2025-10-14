@@ -347,7 +347,7 @@ const Events = () => {
                         className="flex gap-2 items-center">Edit</h1>
                       }
                     >
-                      <button onClick={()=> handleEditEventClick(event)} onClick={() => handleEditEventClick(event)}>
+                      <button onClick={()=> handleEditEventClick(event)}>
                         <CiEdit />
                       </button>
                     </Tooltip>

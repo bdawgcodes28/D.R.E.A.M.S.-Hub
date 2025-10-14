@@ -55,7 +55,7 @@ function authorizeUse(allowList = [], hasReqBody = true) {
             session = req.headers["session"]["token"];
 
         // checks if user exists
-        if (session)
+        if (session && session.approved == true)
             // if user has permission
             if (allowList.includes(session.role))
                 return next();

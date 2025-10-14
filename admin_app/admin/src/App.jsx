@@ -4,8 +4,10 @@ import Dashboard from "./components/Dashboard";
 import Home from "./pages/Home";
 import Events from "./pages/Events";
 import EventEdit from "./pages/EventEdit";
-import { UserProvider } from "./components/user_context/context_provider";
 import ProtectedRoute from "./components/user_context/Protected_Routes";
+import RegisterCredentials from "./pages/RegisterCredentials";
+import { UserProvider } from "./components/user_context/context_provider";
+
 
 function App() {
   return (
@@ -13,6 +15,7 @@ function App() {
         <Routes>
           {/* Public Routes */}
           <Route path="/login" element={<Login />} />
+          <Route path="/register/request" element={<RegisterCredentials />} />
 
           {/* Protected Dashboard Routes */}
           <Route path="/" element={ <ProtectedRoute> <Dashboard /></ProtectedRoute>}>

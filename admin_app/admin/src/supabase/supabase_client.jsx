@@ -17,6 +17,9 @@ export const supabase = createClient(
   import.meta.env.VITE_SUPABASE_ANON_KEY
 );
 
+const BASE_URL = import.meta.env.VITE_BASE_URL;
+const USERS_ROUTE_BASE_URL=`${BASE_URL}/api/users`
+
 
 //---------------------------------------------------------------------------------------------------------
 
@@ -28,31 +31,35 @@ export const supabase = createClient(
  * @param {*} user 
  * @returns user object or null
  */
-export async function validUser(user) {
+export async function validUser(user_credentials) {
     // null value is passed as arg
-    if (!user) return null;
+    if (!user_credentials) return null;
 
     // Validate required fields
-    if (!user.email || !user.password) {
+    if (!user_credentials.email || !user_credentials.password) {
         console.error("Email and password are required");
         return null;
     }
 
     try{
-      // fetch data from table user credentials with proper filtering
-      let { data: users, error } = await supabase
-        .from('users')
-        .select('*')
-        .eq("email", user.email)
-        .eq("password", user.password);
+      // fetch data from table on server side
+      const serverResponse = await fetch(`${USERS_ROUTE_BASE_URL}/user/login/attempt`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ user: user_credentials })
+      });
 
-      if (error) {
-        console.error("Supabase error:", error);
+      const data = await serverResponse.json();
+
+      // check status
+      if (data.status != 200){
+        console.error("[ERROR] issue on http request", data.message);
         return null;
+      }else{
+        console.log("[SUCCESS] User successfully logged in");
+        return data.account;
       }
-
-      // returns the matching user or null if no match found
-      return users && users.length > 0 ? users[0] : null;
+      
     }catch(error){
       // supabase error catch and or server failure
       console.error("Couldn't complete request:", error);

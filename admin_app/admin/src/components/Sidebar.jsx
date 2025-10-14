@@ -2,6 +2,7 @@ import { useContext, useEffect, useState } from "react";
 import { FiUser } from "react-icons/fi";
 import { NavLink } from "react-router-dom";
 import { UserContext, useUser } from "./user_context/context_provider";
+import { MdAccountCircle } from "react-icons/md";
 
 const Link = ({ to, children }) => {
   return (
@@ -57,7 +58,23 @@ const Sidebar = () => {
       </div>
       <div className=" transform hover:bg-gray-200 duration-300 hover:cursor-pointer h-18 py-2 px-4 gap-4 items-center w-full border-t  border-gray-300 flex">
         <button className="p-1 border rounded-full">
+          {user.token.picture ?
+            // checks if user image is available
             <img
+            className="w-10 h-10 rounded-full object-cover"
+            onError={(e) => {
+              console.log("Image failed to load");
+              }}
+              src={user.token.picture}
+              crossOrigin="anonymous"
+              referrerpolicy="no-referrer"
+            />
+            :
+            // if not user image render generic account icon
+            <MdAccountCircle className="size-full"/>
+
+        }
+            {/* <img
               className="w-10 h-10 rounded-full object-cover"
               onError={(e) => {
                 console.log("Image failed to load");
@@ -65,7 +82,7 @@ const Sidebar = () => {
               src={user.token.picture || 'https://www.svgrepo.com/show/522440/profile.svg'}
               crossOrigin="anonymous"
               referrerpolicy="no-referrer"
-            />
+            /> */}
         </button>
         <div className=" truncate grow">
           <div className="capitalize flex gap-1">

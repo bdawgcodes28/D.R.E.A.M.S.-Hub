@@ -49,6 +49,7 @@ const PORT       = process.env.PORT;
 
 // import all route modules AFTER environment variables are loaded
 const eventsRoutes  = require("./api_routes/events.js");
+const usersRoutes   = require("./api_routes/users.js");
 const googleRoutes  = require("./utils/google.js");
 const mediaRoutes   = require("./api_routes/media.js");
 
@@ -96,6 +97,9 @@ const BUILD_PATH   = path.join(__dirname, "../admin/dist");
 
 // event routes
 app.use("/api/events", eventsRoutes);
+
+// user routes
+app.use("/api/users", usersRoutes);
 
 // google routes
 app.use("/api/google", googleRoutes);
