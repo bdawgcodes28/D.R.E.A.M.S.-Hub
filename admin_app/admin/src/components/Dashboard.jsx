@@ -13,6 +13,7 @@ const Dashboard = () => {
   return (
     <div className="w-full h-screen flex flex-col bg-amber-400">
       <Navbar toggleNotifications={() => setNotifPanelOpen((prev) => !prev)} />
+      <div className="flex overflow-hidden relative h-full">
       <div className="flex overflow-hidden h-full relative">
         <Sidebar />
         <Content />

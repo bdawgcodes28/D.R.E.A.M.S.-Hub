@@ -117,6 +117,10 @@ app.get("/", (req, res)=>{
     // home route, initial request
     res.sendFile(path.join(BUILD_PATH, "index.html"));
 });
+app.get("/user/:id", (req, res) => {
+  res.send(`User ID is ${req.params.id}`);
+});
+
 
 // catch all route
 app.use((req, res) => {
