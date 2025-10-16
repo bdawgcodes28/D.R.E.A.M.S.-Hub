@@ -15,7 +15,8 @@
 const express   = require("express");
 const router    = express.Router();
 const supabase  = require("../utils/supabase.js");
-const { STANDARD_RESPONSE, authorizeUse } = require("../utils/endpoint_helpers.js");
+const { RC_RESPONSE, authorizeUse } = require("../utils/endpoint_helpers.js");
+const { RC_CODES } = require("../utils/errors.js");
 const crypto    = require("crypto");
 
 /**
@@ -31,14 +32,22 @@ function verifyMedia(req, res, next){
 
     // catch bad media or no foreignKey
     if (!mediaObject || !foreignKey) 
-        return res.json(STANDARD_RESPONSE(404, "No media object or foreign key given"));
+        return res.json(RC_RESPONSE(RC_CODES.BAD_REQUEST, {
+            details: "Media object or foreign key missing",
+            hasMediaObject: !!mediaObject,
+            hasForeignKey: !!foreignKey
+        }));
 
     // clean up no id objects by generating new UUID
     if (!mediaObject.id) mediaObject.id = crypto.randomUUID();
 
     // catch no file data for new uploads or no preview for existing media
     if (!mediaObject.file && !mediaObject.preview) 
-        return res.json(STANDARD_RESPONSE(404,"No media file or preview given"));
+        return res.json(RC_RESPONSE(RC_CODES.BAD_REQUEST, {
+            details: "No media file or preview provided",
+            hasFile: !!mediaObject.file,
+            hasPreview: !!mediaObject.preview
+        }));
     
     console.log("Media Is Verified...")
     return next();
@@ -227,12 +236,17 @@ async function appendMedia(req, res, next){
             return next();
         }else{
             console.log("Data Could Not Be Appended....");
-            return res.json(STANDARD_RESPONSE(404, "Data Could Not Be Appended...."));
+            return res.json(RC_RESPONSE(RC_CODES.NOT_FOUND, {
+                details: "Media record could not be created in database"
+            }));
         }
         
     } catch (error) {
         console.error("Couldnt fulfill media append request:", error);
-        return res.json(STANDARD_RESPONSE(404, "Couldnt fulfill media append request"));
+        return res.json(RC_RESPONSE(RC_CODES.SERVER_ERROR, {
+            details: "Unexpected error during media upload",
+            error: error.message
+        }));
     }
 }
 
@@ -253,10 +267,17 @@ async function fetchMedia(req, res, next){
 
     // verify fields
     if (!mediaPK)
-        return res.json(STANDARD_RESPONSE(404, "Invalid field [MEDIA PK] given"));
+        return res.json(RC_RESPONSE(RC_CODES.BAD_REQUEST, {
+            details: "Media reference ID is required",
+            provided: !!mediaPK
+        }));
 
     if (!mediaType || !supportedTypes.includes(mediaType))
-        return res.json(STANDARD_RESPONSE(404, "Invalid field [MEDIA TYPE] given"));
+        return res.json(RC_RESPONSE(RC_CODES.BAD_REQUEST, {
+            details: "Invalid or unsupported media type",
+            provided: mediaType,
+            supported: supportedTypes
+        }));
 
     // fetch media content from database
     try {
@@ -267,7 +288,10 @@ async function fetchMedia(req, res, next){
 
         if (error) {
             console.error("Supabase error fetching media:", error);
-            return res.json(STANDARD_RESPONSE(404, "Error attempting to fetch media content"));
+            return res.json(RC_RESPONSE(RC_CODES.SERVER_ERROR, {
+                details: "Database query failed",
+                error: error.message
+            }));
         }
 
         //console.log("Fetched media:", event_media);
@@ -277,7 +301,10 @@ async function fetchMedia(req, res, next){
 
     } catch (error) {
         console.log("Error attempting to fetch media content:", error);
-        return res.json(STANDARD_RESPONSE(404, "Error attempting to fetch media content"));
+        return res.json(RC_RESPONSE(RC_CODES.SERVER_ERROR, {
+            details: "Unexpected error during media fetch",
+            error: error.message
+        }));
     }
 }
 
@@ -292,15 +319,22 @@ async function deleteMedia(req, res, next){
         "program"   : "program_media"
     };
 
-    if (!mediaType || !supportedTypes.has(mediaType)){
+    if (!mediaType || !supportedTypes[mediaType]){
         console.error("Unsupported media type:", mediaType);
+        return res.json(RC_RESPONSE(RC_CODES.BAD_REQUEST, {
+            details: "Unsupported media type",
+            provided: mediaType,
+            supported: Object.keys(supportedTypes)
+        }));
     }
 
 
     // make sure URL was passed to request body
     if (!mediaURL){
         console.error("No URL was extracted...");
-        return res.json(STANDARD_RESPONSE(404, "No URL given..."));
+        return res.json(RC_RESPONSE(RC_CODES.BAD_REQUEST, {
+            details: "Media URL is required for deletion"
+        }));
     }
 
     try {
@@ -312,7 +346,10 @@ async function deleteMedia(req, res, next){
         
         if (!filePath) {
             console.error("Could not extract file path from URL:", mediaURL);
-            return res.json(STANDARD_RESPONSE(404, "Invalid URL format - could not extract file path"));
+            return res.json(RC_RESPONSE(RC_CODES.BAD_REQUEST, {
+                details: "Invalid URL format - could not extract file path",
+                providedURL: mediaURL
+            }));
         }
         
         console.log("Extracted file path:", filePath);
@@ -354,7 +391,10 @@ async function deleteMedia(req, res, next){
             console.error("Error details:", JSON.stringify(error, null, 2));
             console.error("Error message:", error.message);
             console.error("Error status:", error.status);
-            return res.json(STANDARD_RESPONSE(404, `Error attempting to remove media from bucket: ${error.message || 'Unknown error'}`));
+            return res.json(RC_RESPONSE(RC_CODES.SERVER_ERROR, {
+                details: "Failed to remove media from storage bucket",
+                error: error.message || 'Unknown error'
+            }));
         } else {
             console.log("Storage removal successful! Removed files:", data);
         }
@@ -368,7 +408,10 @@ async function deleteMedia(req, res, next){
         // verify database deletion response
         if (deleteError){
             console.error("Error when trying to remove media from database:", deleteError);
-            return res.json(STANDARD_RESPONSE(404, `Error attempting to remove media from database: ${deleteError.message || 'Unknown error'}`));
+            return res.json(RC_RESPONSE(RC_CODES.SERVER_ERROR, {
+                details: "Failed to remove media record from database",
+                error: deleteError.message || 'Unknown error'
+            }));
         } else {
             console.log("Media removed successfully from both storage and database...");
             console.log("Storage removal result:", data);
@@ -378,27 +421,28 @@ async function deleteMedia(req, res, next){
     
     } catch (error) {
         console.error("Error attempting to remove media from bucket:", error);
-        return res.json(STANDARD_RESPONSE(500, "Error attempting to remove media from bucket..."));
+        return res.json(RC_RESPONSE(RC_CODES.SERVER_ERROR, {
+            details: "Unexpected error during media deletion",
+            error: error.message
+        }));
     }
 }
 
 //-----------------------------------------------------------------------------------------------------
 router.post("/registerMedia", authorizeUse(allowList=[]), verifyMedia, appendMedia, (req, res)=>{
-    res.json(STANDARD_RESPONSE(200, "Media registered successfully"));
+    res.json(RC_RESPONSE(RC_CODES.SUCCESS));
 });
 
 router.post("/fetchMedia", authorizeUse(allowList=[]), fetchMedia, (req, res)=>{
-    res.json({
-        ...STANDARD_RESPONSE(200, "Media fetched successfully"),
+    res.json(RC_RESPONSE(RC_CODES.SUCCESS, {
         media: req.media_fetched
-    });
+    }));
 });
 
 router.delete("/deleteMedia", authorizeUse(allowList=[]), deleteMedia, (req, res)=>{
-    res.json({
-        ...STANDARD_RESPONSE(200, "Media removed successfully"),
+    res.json(RC_RESPONSE(RC_CODES.SUCCESS, {
         removed_urls: req.removed_urls
-    });
+    }));
 });
 
 // Temporary debug endpoint to test storage operations
@@ -425,22 +469,19 @@ router.get("/debugStorage/:path", authorizeUse(allowList=[]), async (req, res) =
         
         console.log("Debug: Public URL for path:", publicData);
         
-        res.json({
-            status: 200,
-            message: "Debug info collected",
+        res.json(RC_RESPONSE(RC_CODES.SUCCESS, {
             listData,
             listError,
             publicData,
             requestedPath: path
-        });
+        }));
         
     } catch (error) {
         console.error("Debug error:", error);
-        res.json({
-            status: 500,
-            message: "Debug failed",
+        res.json(RC_RESPONSE(RC_CODES.SERVER_ERROR, {
+            details: "Debug operation failed",
             error: error.message
-        });
+        }));
     }
 });
 

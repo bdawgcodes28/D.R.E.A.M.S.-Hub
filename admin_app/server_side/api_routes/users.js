@@ -11,7 +11,8 @@ const express                             = require("express");
 const bcrypt                              = require("bcrypt");
 const router                              = express.Router();
 const supabase                            = require("../utils/supabase.js");
-const { STANDARD_RESPONSE, authorizeUse } = require("../utils/endpoint_helpers.js");
+const { RC_RESPONSE, authorizeUse } = require("../utils/endpoint_helpers.js");
+const { RC_CODES } = require("../utils/errors.js");
 const { use } = require("./users.js");
 
 //------------------------------------ helper functions ------------------------------------
@@ -25,7 +26,9 @@ async function hashPassword(req, res, next) {
     // extract raw from request
     const rawPassword       = req.body.rawPassword;
     if (!rawPassword)
-        return res.json(STANDARD_RESPONSE(404, "No raw password given"));
+        return res.json(RC_RESPONSE(RC_CODES.BAD_REQUEST, {
+            details: "No raw password provided"
+        }));
 
     // create multi-layer hash password
     const hashRounds        = 10; // 10 layers of hashing
@@ -66,7 +69,9 @@ async function appendUser(req, res, next){
 
     if (!user){
         console.error("No user passed to request:", user);
-        return res.json(STANDARD_RESPONSE(404, "No user passed to request"));
+        return res.json(RC_RESPONSE(RC_CODES.BAD_REQUEST, {
+            details: "No user data provided"
+        }));
     }
 
     // attempt to add a user to users table
@@ -78,7 +83,10 @@ async function appendUser(req, res, next){
 
         if (error) {
             console.error('Error inserting user:', error);
-            return res.json(STANDARD_RESPONSE(404, "Error on append request"));
+            return res.json(RC_RESPONSE(RC_CODES.SERVER_ERROR, {
+                details: "Database insertion failed",
+                error: error.message
+            }));
         } else {
             console.log('User inserted:', data);
             req.new_user = data;
@@ -87,7 +95,10 @@ async function appendUser(req, res, next){
         
     } catch (error) {
         console.error("Error on append request:", error);
-        return res.json(STANDARD_RESPONSE(404, "Error on append request"));
+        return res.json(RC_RESPONSE(RC_CODES.SERVER_ERROR, {
+            details: "Unexpected error during user creation",
+            error: error.message
+        }));
     }
 
 }
@@ -101,10 +112,10 @@ async function findUser(req, res, next){
         console.error("[ERROR] no email or password given:");
         console.log("Email:", email);
         console.log("Password:", password);
-        return res.json({
-            ...STANDARD_RESPONSE(404,"[ERROR] no email or password given"),
+        return res.json(RC_RESPONSE(RC_CODES.BAD_REQUEST, {
+            details: "Email and password are required",
             user_session: null
-        });
+        }));
     }
 
     // First, find the user by email only
@@ -115,10 +126,11 @@ async function findUser(req, res, next){
 
     if (error){
         console.error("[ERROR] Error on supabase select request:", error);
-        return res.json({
-            ...STANDARD_RESPONSE(500, "[ERROR] Error on supabase select request"),
+        return res.json(RC_RESPONSE(RC_CODES.SERVER_ERROR, {
+            details: "Database query failed",
+            error: error.message,
             session: null
-        });
+        }));
     }
 
     if (users && users.length > 0){
@@ -130,16 +142,16 @@ async function findUser(req, res, next){
             req.user_result = user;
             next();
         } else {
-            return res.json({
-                ...STANDARD_RESPONSE(401, "[ERROR] Invalid credentials"),
+            return res.json(RC_RESPONSE(RC_CODES.UNAUTHORIZED, {
+                details: "Invalid credentials or user not approved",
                 session: null
-            });
+            }));
         }
     }else{
-        return res.json({
-            ...STANDARD_RESPONSE(401, "[ERROR] Invalid credentials"),
+        return res.json(RC_RESPONSE(RC_CODES.UNAUTHORIZED, {
+            details: "User not found",
             session: null
-        });
+        }));
     }
 }
 
@@ -177,18 +189,16 @@ router.post("/fetchUsers", async (req, res)=>{
 router.post("/user/register/password", hashPassword, (req, res) => {
     console.log("Password is:", req.hashed_password);
     // send back hashed password
-    return res.json({
-        ...STANDARD_RESPONSE(200, 'Password sucessfully hashed...'),
+    return res.json(RC_RESPONSE(RC_CODES.SUCCESS, {
         hashPassword : req.hashed_password
-    });
+    }));
 });
 
 router.post("/user/register/add", appendUser, (req, res) => {
     console.log("User has been added to request queue successfully:", req.new_user);
-    return res.json({
-        ...STANDARD_RESPONSE(200, "User has been added to request queue successfully"),
+    return res.json(RC_RESPONSE(RC_CODES.SUCCESS, {
         user: req.new_user
-    });
+    }));
 });
 
 router.post("/user/login/attempt", findUser, (req, res) => {
@@ -208,10 +218,9 @@ router.post("/user/login/attempt", findUser, (req, res) => {
         }
     };
 
-    return res.json({
-        ...STANDARD_RESPONSE(200, "User has been found"),
+    return res.json(RC_RESPONSE(RC_CODES.SUCCESS, {
         account: normalizedUser
-    });
+    }));
 });
 
 

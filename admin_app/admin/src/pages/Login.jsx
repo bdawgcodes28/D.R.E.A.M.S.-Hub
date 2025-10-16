@@ -17,7 +17,7 @@ const Login = () => {
   const {user, setUser}   = useContext(UserContext);
 
   // Google client secret
-  const BASE_URL     = import.meta.env.VITE_BASE_URL;
+  const BASE_URL          = import.meta.env.VITE_BASE_URL;
   const GOOGLE_CLIENT_ID  = import.meta.env.VITE_GOOGLE_CLIENT_ID;
 
   // google authentication

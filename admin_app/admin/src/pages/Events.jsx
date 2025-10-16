@@ -217,6 +217,23 @@ const Events = () => {
     });
   };
 
+  // deleting events
+  const handleDeleteEvent = async (event, idx) => {
+    try {
+      // make request to database
+      const response = await EVENT_MIDDLEWARE.deleteEvent(event, user);
+
+      if (response && response.status === 200) {
+        // remove from local array only if deletion was successful
+        popEvent(idx);
+      } else {
+        console.log("Unable to complete request:", response);
+      }
+    } catch (error) {
+      console.error("Couldnt fulfill request:", error);
+    }
+  };
+
   const handleApplyFilters = (overrideFilters = null, overrideSort = null) => {
     const useFilters = overrideFilters || filters;
     const useSort = overrideSort || sortOrder;
@@ -236,23 +253,6 @@ const Events = () => {
           .includes(useFilters.location.toLowerCase())
       );
     }
-
-    // deleting events
-    const handleDeleteEvent = async (event, idx) => {
-      try {
-        // make request to database
-        const response = await EVENT_MIDDLEWARE.deleteEvent(event, user);
-
-        if (response && response.status === 200) {
-          // remove from local array only if deletion was successful
-          popEvent(idx);
-        } else {
-          console.log("Unable to complete request:", response);
-        }
-      } catch (error) {
-        console.error("Couldnt fulfill request:", error);
-      }
-    };
 
     // date/time range filter - combine date with times if available
     const toTimestamp = (dateStr, timeStr) => {

@@ -12,6 +12,8 @@ const router            = express.Router();
 const supabase          = require("../utils/supabase.js");
 const { OAuth2Client }  = require("google-auth-library");
 const jwt               = require('jsonwebtoken');
+const { RC_RESPONSE }   = require('./endpoint_helpers.js');
+const { RC_CODES }      = require('./errors.js');
 
 require("dotenv").config();
 
@@ -56,10 +58,10 @@ async function decodeToken(req, res, next){
 
     }catch(error){
         console.error("Couldnt verify google JWT:", error);
-        return res.json({
-            status: -1,
-            message: "Couldnt verify google JWT"
-        });
+        return res.json(RC_RESPONSE(RC_CODES.UNAUTHORIZED, {
+            details: "Google JWT verification failed",
+            error: error.message
+        }));
     }
 
 }
@@ -73,10 +75,9 @@ async function decodeToken(req, res, next){
  */
 async function userExists(req, res, next){
     if (!req.user) {
-        return res.json({
-            status: -1,
-            message: "User does not exist"
-        });
+        return res.json(RC_RESPONSE(RC_CODES.BAD_REQUEST, {
+            details: "User data not found in request"
+        }));
     }
 
     try{
@@ -90,35 +91,44 @@ async function userExists(req, res, next){
 
         if (error) {
             console.error("Supabase error:", error);
-            return res.json({
-                status: -1,
-                message: "Database error"
-            });
+            return res.json(RC_RESPONSE(RC_CODES.SERVER_ERROR, {
+                details: "Database query failed",
+                error: error.message
+            }));
         }
 
         // if any results
         if (users && users.length > 0){
             const user = users[0];
-            req.found_user = user;
-            req.user.uid   = user.id;
-            req.user.role  = user.role;
+            req.found_user      = user;
+            req.user.uid        = user.id;
+            req.user.role       = user.role;
+            req.user.approved   = user.approved;
             console.log("\nFound user:", user);
+
+            if (!user.approved){
+                return res.json(RC_RESPONSE(RC_CODES.FORBIDDEN, {
+                    details: "User account not approved",
+                    userApproved: user.approved
+                }));
+            }
+
             // sends to next callback()
             next();
         } else {
             console.log("No user found in database");
-            return res.json({
-                status: -1,
-                message: "User does not exist in database"
-            });
+            return res.json(RC_RESPONSE(RC_CODES.NOT_FOUND, {
+                details: "User not found in database",
+                email: req.user.email
+            }));
         }
 
     }catch(error){
         console.error("Error finding user in database:", error);
-        return res.json({
-            status: -1,
-            message: "User does not exist"
-        });
+        return res.json(RC_RESPONSE(RC_CODES.SERVER_ERROR, {
+            details: "Unexpected error during user lookup",
+            error: error.message
+        }));
     }
 }
 
@@ -142,7 +152,8 @@ function createJwtForUser(googlePayload){
         first_name:     googlePayload.firstName,
         lastName:       googlePayload.lastName,
         picture:        googlePayload.picture,
-        role:           googlePayload.role
+        role:           googlePayload.role,
+        approved:       googlePayload.approved,
       };
 
     const secret = process.env.JWT_SECRET || "development_secret";
@@ -162,14 +173,16 @@ router.post("/auth", decodeToken, userExists, (req, res)=>{
         console.log('token completed');
 
         // send back response
-        res.json({
-            status: 200,
+        res.json(RC_RESPONSE(RC_CODES.SUCCESS, {
             userToken: customToken
-        });
+        }));
 
     } catch(err){
         console.error("Error in /auth route:", err);
-        res.status(500).json({ status:-1, message:"Server error" });
+        res.json(RC_RESPONSE(RC_CODES.SERVER_ERROR, {
+            details: "Unexpected error during authentication",
+            error: err.message
+        }));
     }
 });
 

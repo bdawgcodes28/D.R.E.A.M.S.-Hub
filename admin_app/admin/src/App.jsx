@@ -7,7 +7,6 @@ import EventEdit from "./pages/EventEdit";
 import ProtectedRoute from "./components/user_context/Protected_Routes";
 import RegisterCredentials from "./pages/RegisterCredentials";
 import { UserProvider } from "./components/user_context/context_provider";
-import ProtectedRoute from "./components/user_context/Protected_Routes";
 import Programs from "./pages/Programs";
 
 

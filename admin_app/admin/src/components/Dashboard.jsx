@@ -11,10 +11,9 @@ const Dashboard = () => {
   const [notifPanelOpen, setNotifPanelOpen] = useState(false);
 
   return (
-    <div className="w-full h-screen flex flex-col bg-amber-400">
+    <div className="w-screen h-screen flex flex-col">
       <Navbar toggleNotifications={() => setNotifPanelOpen((prev) => !prev)} />
-      <div className="flex overflow-hidden relative h-full">
-      <div className="flex overflow-hidden h-full relative">
+      <div className="flex flex-1 overflow-hidden">
         <Sidebar />
         <Content />
         <NotificationPanel setOpen = {() => setNotifPanelOpen((prev) => !prev)} isOpen ={notifPanelOpen} />

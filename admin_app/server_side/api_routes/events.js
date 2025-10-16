@@ -15,7 +15,8 @@
 const express   = require("express");
 const router    = express.Router();
 const supabase  = require("../utils/supabase.js");
-const { STANDARD_RESPONSE, authorizeUse } = require("../utils/endpoint_helpers.js");
+const { RC_RESPONSE, authorizeUse } = require("../utils/endpoint_helpers.js");
+const { RC_CODES } = require("../utils/errors.js");
 
 
 // ----------------------------------------------------------------------- 
@@ -62,7 +63,11 @@ async function addEvent(req, res, next){
     
         const event = req.body.event;
 
-        if (!event) return null;
+        if (!event) {
+            return res.json(RC_RESPONSE(RC_CODES.BAD_REQUEST, {
+                details: "No event data provided"
+            }));
+        }
         // attempt to add to database
         try {
             const { data, error } = await supabase
@@ -80,17 +85,31 @@ async function addEvent(req, res, next){
                         },
                     )
                     .select();
+            
+            if (error){
+                console.error(error);
+                return res.json(RC_RESPONSE(RC_CODES.SERVER_ERROR, {
+                    details: "Database insertion failed",
+                    error: error.message
+                }));
+            }
 
             if (data){
                 req.inserted_event = data;
                 next();
             }else{
-                return res.json(STANDARD_RESPONSE(404, "Unable to add event to database: No row returned"));
+                console.error("Unable to add event to database: No row returned");
+                return res.json(RC_RESPONSE(RC_CODES.NOT_FOUND, {
+                    details: "Event creation failed - no data returned"
+                }));
             }   
 
         } catch (error) {
             console.error("Unable to add event to database:", error);
-            return res.json(STANDARD_RESPONSE(404, "Unable to add event to database"));
+            return res.json(RC_RESPONSE(RC_CODES.SERVER_ERROR, {
+                details: "Unexpected error during event creation",
+                error: error.message
+            }));
         }
 }
 
@@ -106,7 +125,11 @@ async function updateEvent(req, res, next){
     // get new event details
     const event = req.body.event;
     // check if event exists
-    if (!event) return res.json(STANDARD_RESPONSE(404, "No event was passed"));
+    if (!event) {
+        return res.json(RC_RESPONSE(RC_CODES.BAD_REQUEST, {
+            details: "No event data provided for update"
+        }));
+    }
 
     try {
         // sql code to update the row
@@ -131,11 +154,16 @@ async function updateEvent(req, res, next){
             next();
         }else{
             console.log("Unable to update row");
-            return res.json(STANDARD_RESPONSE(403, "Unable to update row"));
+            return res.json(RC_RESPONSE(RC_CODES.NOT_FOUND, {
+                details: "Event not found or update failed"
+            }));
         }
     } catch (error) {
         console.log("Unable to update row:", error);
-        return res.json(STANDARD_RESPONSE(404, "Unable to update row"));
+        return res.json(RC_RESPONSE(RC_CODES.SERVER_ERROR, {
+            details: "Unexpected error during event update",
+            error: error.message
+        }));
     }
 }
 
@@ -150,7 +178,11 @@ async function updateEvent(req, res, next){
 async function deleteEvent(req, res, next){
     const event = req.body.event;
     // no event was passed to HTTP body
-    if (!event || !event.id) return res.json(STANDARD_RESPONSE(403, "No event was passed to be deleted"));
+    if (!event || !event.id) {
+        return res.json(RC_RESPONSE(RC_CODES.BAD_REQUEST, {
+            details: "No event or event ID provided for deletion"
+        }));
+    }
 
     try {
         // uses supabase client to delete row at a specific uid
@@ -162,14 +194,20 @@ async function deleteEvent(req, res, next){
         // handle database errors
         if (error) {
             console.error("Supabase error:", error);
-            return res.json(STANDARD_RESPONSE(403, "Unable to delete row"));
+            return res.json(RC_RESPONSE(RC_CODES.SERVER_ERROR, {
+                details: "Database deletion failed",
+                error: error.message
+            }));
         }
         // send to next route handler
         next();
 
     } catch (error) {
         console.error("Error when attempting to delete event:", error);
-        return res.json(STANDARD_RESPONSE(403, "Error when attempting to delete event"));
+        return res.json(RC_RESPONSE(RC_CODES.SERVER_ERROR, {
+            details: "Unexpected error during event deletion",
+            error: error.message
+        }));
     }
 }
 
@@ -194,22 +232,20 @@ router.post("/fetchEvents", authorizeUse(allowList= [],hasReqBody=true), async (
     }
 });
 
-router.post("/addEvent", authorizeUse(allowList=["General"], hasReqBody=true), addEvent,(req, res)=>{
-    return res.json({
-        ...STANDARD_RESPONSE(200, "Event was added successfully"),
+router.post("/addEvent", authorizeUse(allowList=["General", "Owner", "Admin"], hasReqBody=true), addEvent,(req, res)=>{
+    return res.json(RC_RESPONSE(RC_CODES.SUCCESS, {
         new_event: req.inserted_event || null
-    });
+    }));
 });
 
-router.put("/updateEvent", authorizeUse(allowList=["General", "Admin"], hasReqBody=true), updateEvent, (req, res)=>{
-    return res.json({
-        ...STANDARD_RESPONSE(200, "Event was updated successfully"),
+router.put("/updateEvent", authorizeUse(allowList=["General", "Admin", "Owner"], hasReqBody=true), updateEvent, (req, res)=>{
+    return res.json(RC_RESPONSE(RC_CODES.SUCCESS, {
         updated_event: req.updated_event || null
-    });
+    }));
 });
 
-router.delete("/deleteEvent", authorizeUse(allowList=['General',"Admin"], hasReqBody=true), deleteEvent, (req, res)=>{
-    return res.json( STANDARD_RESPONSE(200, "Event was deleted successfully") );
+router.delete("/deleteEvent", authorizeUse(allowList=['General',"Admin", "Owner"], hasReqBody=true), deleteEvent, (req, res)=>{
+    return res.json(RC_RESPONSE(RC_CODES.SUCCESS));
 });
 
 

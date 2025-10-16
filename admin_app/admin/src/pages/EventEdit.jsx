@@ -148,7 +148,7 @@ const EventEdit = () => {
       try {
           if (EVENT_MIDDLEWARE.isValidEvent(event)){
             const response = await EVENT_MIDDLEWARE.appendEvent(event, user);
-      
+            console.log("Test:", response);
             if (response && response?.status === 200)
               navigate("/events");
             else

@@ -72,17 +72,7 @@ const Sidebar = () => {
             :
             // if not user image render generic account icon
             <MdAccountCircle className="size-full"/>
-
         }
-            {/* <img
-              className="w-10 h-10 rounded-full object-cover"
-              onError={(e) => {
-                console.log("Image failed to load");
-              }}
-              src={user.token.picture || 'https://www.svgrepo.com/show/522440/profile.svg'}
-              crossOrigin="anonymous"
-              referrerpolicy="no-referrer"
-            /> */}
         </button>
         <div className=" truncate grow">
           <div className="capitalize flex gap-1">
