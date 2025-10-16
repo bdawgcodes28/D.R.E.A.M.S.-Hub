@@ -1,0 +1,663 @@
+/**
+ * @author  Elias Lopes
+ * @date    10/16/2025
+ * @description
+ *  Complete API Documentation for Dreams Hub Admin App
+ *  This file serves as a comprehensive dictionary of all available API endpoints
+ * 
+ *  Base URL: http://localhost:8080
+ *  Format: JSON
+ *  Authentication: Required for most endpoints (see allowList per route)
+ * 
+ *  Return Code (RC) Format:
+ *  {
+ *    status: <HTTP_STATUS_CODE>,
+ *    code: <RC_CODE>,
+ *    message: "<RC_MESSAGE>",
+ *    causes: [<possible_causes>],
+ *    priority: "<LOG_LEVEL>",
+ *    timestamp: "<ISO_TIMESTAMP>",
+ *    data: { ... } // optional additional data
+ *  }
+ * 
+ *  Common RC Codes:
+ *  - 200: SUCCESS
+ *  - 400: BAD_REQUEST
+ *  - 401: UNAUTHORIZED
+ *  - 403: FORBIDDEN
+ *  - 404: NOT_FOUND
+ *  - 409: CONFLICT
+ *  - 422: VALIDATION_ERROR
+ *  - 500: SERVER_ERROR
+ *  - 503: SERVICE_UNAVAILABLE
+ */
+
+// ==========================================================================================================
+// USER API ENDPOINTS
+// ==========================================================================================================
+
+/**
+ * GET ALL USERS
+ * Endpoint: /api/users/fetchUsers
+ * Method: POST
+ * Authentication: None (allowList: [])
+ * 
+ * Request Body: None
+ * 
+ * Response: Array of user objects
+ * {
+ *   users: [
+ *     {
+ *       id: <uuid>,
+ *       email: <string>,
+ *       first_name: <string>,
+ *       last_name: <string>,
+ *       role: <string>, // "General", "Admin", "Owner"
+ *       approved: <boolean>,
+ *       password: <hashed_string>
+ *     }
+ *   ]
+ * }
+ * 
+ * Note: DEPRECATED - returns empty array on error
+ */
+
+/**
+ * HASH PASSWORD
+ * Endpoint: /api/users/user/register/password
+ * Method: POST
+ * Authentication: None (allowList: [])
+ * 
+ * Request Body:
+ * {
+ *   rawPassword: <string> // plain text password
+ * }
+ * 
+ * Response:
+ * {
+ *   status: 200,
+ *   code: 200,
+ *   message: "Request successful.",
+ *   data: {
+ *     hashPassword: <string> // bcrypt hashed password (10 rounds)
+ *   }
+ * }
+ * 
+ * Purpose: Converts plain text password to bcrypt hash for secure storage
+ */
+
+/**
+ * REGISTER NEW USER
+ * Endpoint: /api/users/user/register/add
+ * Method: POST
+ * Authentication: None (allowList: [])
+ * 
+ * Request Body:
+ * {
+ *   user_credentials: {
+ *     email: <string>,
+ *     password: <hashed_string>, // use /user/register/password first
+ *     first_name: <string>,
+ *     last_name: <string>,
+ *     role: <string>, // "General", "Admin", "Owner"
+ *     approved: <boolean>
+ *   }
+ * }
+ * 
+ * Response:
+ * {
+ *   status: 200,
+ *   code: 200,
+ *   message: "Request successful.",
+ *   data: {
+ *     user: [<created_user_object>]
+ *   }
+ * }
+ * 
+ * Errors:
+ * - 400: No user data provided
+ * - 500: Database insertion failed
+ */
+
+/**
+ * USER LOGIN
+ * Endpoint: /api/users/user/login/attempt
+ * Method: POST
+ * Authentication: None (allowList: [])
+ * 
+ * Request Body:
+ * {
+ *   user: {
+ *     email: <string>,
+ *     password: <string> // plain text password
+ *   }
+ * }
+ * 
+ * Response:
+ * {
+ *   status: 200,
+ *   code: 200,
+ *   message: "Request successful.",
+ *   data: {
+ *     account: {
+ *       token: {
+ *         first_name: <string>,
+ *         lastName: <string>,
+ *         email: <string>,
+ *         role: <string>,
+ *         picture: null,
+ *         id: <uuid>
+ *       }
+ *     }
+ *   }
+ * }
+ * 
+ * Errors:
+ * - 400: Email and password are required
+ * - 401: Invalid credentials or user not approved
+ * - 500: Database query failed
+ */
+
+// ==========================================================================================================
+// EVENT API ENDPOINTS
+// ==========================================================================================================
+
+/**
+ * FETCH ALL EVENTS
+ * Endpoint: /api/events/fetchEvents
+ * Method: POST
+ * Authentication: None (allowList: [])
+ * 
+ * Request Body: None
+ * 
+ * Response: Array of event objects
+ * [
+ *   {
+ *     id: <uuid>,
+ *     name: <string>,
+ *     date: <date>,
+ *     location: <string>,
+ *     description: <string>,
+ *     active: <boolean>,
+ *     media_id: <uuid>,
+ *     start_time: <time>,
+ *     end_time: <time>
+ *   }
+ * ]
+ * 
+ * Note: Returns empty array on error
+ */
+
+/**
+ * ADD NEW EVENT
+ * Endpoint: /api/events/addEvent
+ * Method: POST
+ * Authentication: Required (allowList: ["General", "Owner", "Admin"])
+ * 
+ * Request Body:
+ * {
+ *   event: {
+ *     name: <string>,
+ *     date: <date>, // ISO format
+ *     location: <string>,
+ *     description: <string>,
+ *     media_id: <uuid>, // optional
+ *     start_time: <time>, // optional
+ *     end_time: <time> // optional
+ *   }
+ * }
+ * 
+ * Response:
+ * {
+ *   status: 200,
+ *   code: 200,
+ *   message: "Request successful.",
+ *   data: {
+ *     new_event: [<created_event_object>]
+ *   }
+ * }
+ * 
+ * Errors:
+ * - 400: No event data provided
+ * - 404: Event creation failed - no data returned
+ * - 500: Database insertion failed
+ */
+
+/**
+ * UPDATE EVENT
+ * Endpoint: /api/events/updateEvent
+ * Method: PUT
+ * Authentication: Required (allowList: ["General", "Admin", "Owner"])
+ * 
+ * Request Body:
+ * {
+ *   event: {
+ *     id: <uuid>, // REQUIRED - identifies which event to update
+ *     name: <string>,
+ *     date: <date>,
+ *     location: <string>,
+ *     description: <string>,
+ *     media_id: <uuid>,
+ *     start_time: <time>,
+ *     end_time: <time>
+ *   }
+ * }
+ * 
+ * Response:
+ * {
+ *   status: 200,
+ *   code: 200,
+ *   message: "Request successful.",
+ *   data: {
+ *     updated_event: [<updated_event_object>]
+ *   }
+ * }
+ * 
+ * Errors:
+ * - 400: No event data provided for update
+ * - 404: Event not found or update failed
+ * - 500: Unexpected error during event update
+ */
+
+/**
+ * DELETE EVENT
+ * Endpoint: /api/events/deleteEvent
+ * Method: DELETE
+ * Authentication: Required (allowList: ["General", "Admin", "Owner"])
+ * 
+ * Request Body:
+ * {
+ *   event: {
+ *     id: <uuid> // REQUIRED
+ *   }
+ * }
+ * 
+ * Response:
+ * {
+ *   status: 200,
+ *   code: 200,
+ *   message: "Request successful."
+ * }
+ * 
+ * Errors:
+ * - 400: No event or event ID provided for deletion
+ * - 500: Database deletion failed
+ */
+
+// ==========================================================================================================
+// MEDIA API ENDPOINTS
+// ==========================================================================================================
+
+/**
+ * REGISTER/UPLOAD MEDIA
+ * Endpoint: /api/media/registerMedia
+ * Method: POST
+ * Authentication: None (allowList: [])
+ * 
+ * Request Body:
+ * {
+ *   media: {
+ *     id: <uuid>, // optional - auto-generated if not provided
+ *     file: <string>, // base64 encoded file or data URL (data:mime;base64,...)
+ *     preview: <string> // optional - URL to existing media
+ *   },
+ *   foreignKey: <uuid> // REQUIRED - ID of event/program this media belongs to
+ * }
+ * 
+ * Supported File Types:
+ * - Images: PNG, JPEG, JPG, WebP, GIF
+ * - Videos: MP4, MOV
+ * - Documents: PDF
+ * 
+ * Response:
+ * {
+ *   status: 200,
+ *   code: 200,
+ *   message: "Request successful."
+ * }
+ * 
+ * Errors:
+ * - 400: Media object or foreign key missing
+ * - 400: No media file or preview provided
+ * - 404: Media record could not be created in database
+ * - 500: Unexpected error during media upload
+ * 
+ * Note: Media is uploaded to Supabase storage bucket "media" and URL is stored in event_media table
+ */
+
+/**
+ * FETCH MEDIA
+ * Endpoint: /api/media/fetchMedia
+ * Method: POST
+ * Authentication: None (allowList: [])
+ * 
+ * Request Body:
+ * {
+ *   mediaType: <string>, // "Event" or "Program"
+ *   mediaRef: <uuid> // REQUIRED - ID of event/program to fetch media for
+ * }
+ * 
+ * Response:
+ * {
+ *   status: 200,
+ *   code: 200,
+ *   message: "Request successful.",
+ *   data: {
+ *     media: [
+ *       {
+ *         id: <uuid>,
+ *         media_reference: <uuid>,
+ *         preview: <url_string>
+ *       }
+ *     ]
+ *   }
+ * }
+ * 
+ * Errors:
+ * - 400: Media reference ID is required
+ * - 400: Invalid or unsupported media type
+ * - 500: Database query failed
+ */
+
+/**
+ * DELETE MEDIA
+ * Endpoint: /api/media/deleteMedia
+ * Method: DELETE
+ * Authentication: None (allowList: [])
+ * 
+ * Request Body:
+ * {
+ *   mediaURL: <string>, // REQUIRED - full URL of media to delete
+ *   mediaType: <string> // REQUIRED - "event" or "program"
+ * }
+ * 
+ * Response:
+ * {
+ *   status: 200,
+ *   code: 200,
+ *   message: "Request successful.",
+ *   data: {
+ *     removed_urls: [<string>] // array of removed file paths
+ *   }
+ * }
+ * 
+ * Errors:
+ * - 400: Unsupported media type
+ * - 400: Media URL is required for deletion
+ * - 400: Invalid URL format - could not extract file path
+ * - 500: Failed to remove media from storage bucket
+ * - 500: Failed to remove media record from database
+ * 
+ * Note: Deletes from both Supabase storage bucket and database table
+ */
+
+/**
+ * DEBUG STORAGE (Development Only)
+ * Endpoint: /api/media/debugStorage/:path
+ * Method: GET
+ * Authentication: None (allowList: [])
+ * 
+ * Request Parameters:
+ * - path: <string> // file path to debug
+ * 
+ * Response:
+ * {
+ *   status:    200,
+ *   code:      200,
+ *   message: "Request successful.",
+ *   data: {
+ *     listData: <array>, // files in uploads directory
+ *     listError: <error_object>,
+ *     publicData: <url_object>,
+ *     requestedPath: <string>
+ *   }
+ * }
+ * 
+ * Purpose: Debug endpoint to inspect storage bucket contents
+ */
+
+// ==========================================================================================================
+// GOOGLE AUTH API ENDPOINTS
+// ==========================================================================================================
+
+/**
+ * GOOGLE OAUTH AUTHENTICATION
+ * Endpoint: /api/google/auth
+ * Method: POST
+ * Authentication: None (allowList: [])
+ * 
+ * Request Body:
+ * {
+ *   token: <string> // Google ID token (JWT)
+ * }
+ * 
+ * Response:
+ * {
+ *   status:    200,
+ *   code:      200,
+ *   message: "Request successful.",
+ *   data: {
+ *     userToken: <string> // Custom JWT token (expires in 7 days)
+ *   }
+ * }
+ * 
+ * Errors:
+ * - 400: User data not found in request
+ * - 401: Google JWT verification failed
+ * - 403: User account not approved
+ * - 404: User not found in database
+ * - 500: Database query failed
+ * - 500: Unexpected error during authentication
+ * 
+ * Flow:
+ * 1. Verifies Google ID token
+ * 2. Checks if user exists in database
+ * 3. Verifies user is approved
+ * 4. Creates custom JWT for session management
+ * 5. Returns custom token to client
+ * 
+ * Custom JWT Payload:
+ * {
+ *   googleId: <string>,
+ *   uid: <uuid>,
+ *   email: <string>,
+ *   name: <string>,
+ *   first_name: <string>,
+ *   lastName: <string>,
+ *   picture: <url_string>,
+ *   role: <string>,
+ *   approved: <boolean>
+ * }
+ */
+
+// ==========================================================================================================
+// AUTHORIZATION NOTES
+// ==========================================================================================================
+
+/**
+ * AUTHORIZATION LEVELS:
+ * 
+ * - "General": Standard user with basic permissions
+ * - "Admin": Administrator with elevated permissions
+ * - "Owner": Full system access
+ * 
+ * Routes with allowList: [] require no authentication
+ * Routes with allowList: ["General", "Admin", "Owner"] require authentication
+ * 
+ * Authorization is handled by authorizeUse() middleware
+ */
+
+// ==========================================================================================================
+// DATABASE TABLES REFERENCE
+// ==========================================================================================================
+
+/**
+ * USERS TABLE:
+ * - id: uuid (primary key)
+ * - email: string (unique)
+ * - password: string (bcrypt hashed)
+ * - first_name: string
+ * - last_name: string
+ * - role: string ("General", "Admin", "Owner")
+ * - approved: boolean
+ * 
+ * EVENTS TABLE:
+ * - id: uuid (primary key)
+ * - name: string
+ * - date: date
+ * - location: string
+ * - description: string
+ * - active: boolean
+ * - media_id: uuid (foreign key)
+ * - start_time: time
+ * - end_time: time
+ * 
+ * EVENT_MEDIA TABLE:
+ * - id: uuid (primary key)
+ * - media_reference: uuid (foreign key to events/programs)
+ * - preview: string (URL to media file)
+ * 
+ * STORAGE BUCKETS:
+ * - media: Contains uploaded media files (images, videos, documents)
+ */
+
+// ==========================================================================================================
+// ERROR HANDLING
+// ==========================================================================================================
+
+/**
+ * All endpoints use standardized error responses via RC_CODES:
+ * 
+ * SUCCESS (200):
+ *   - Request completed successfully
+ * 
+ * BAD_REQUEST (400):
+ *   - Invalid parameters
+ *   - Missing required fields
+ *   - Malformed request body
+ * 
+ * UNAUTHORIZED (401):
+ *   - Missing or invalid token
+ *   - Invalid credentials
+ * 
+ * FORBIDDEN (403):
+ *   - Insufficient permissions
+ *   - User not approved
+ * 
+ * NOT_FOUND (404):
+ *   - Data not found
+ *   - Bad HTTP request
+ *   - Bad HTTP body sent
+ *   - Check HTTP method
+ * 
+ * CONFLICT (409):
+ *   - Duplicate data
+ *   - Resource already exists
+ * 
+ * VALIDATION_ERROR (422):
+ *   - Invalid input data
+ *   - Missing required fields
+ * 
+ * SERVER_ERROR (500):
+ *   - Unexpected failure
+ *   - Database errors
+ * 
+ * SERVICE_UNAVAILABLE (503):
+ *   - Database connection failed
+ *   - External service down
+ */
+
+// ==========================================================================================================
+// USAGE EXAMPLES
+// ==========================================================================================================
+
+/**
+ * EXAMPLE 1: Register a new user
+ * 
+ * Step 1: Hash password
+ * POST /api/users/user/register/password
+ * Body: { "rawPassword": "mySecurePassword123" }
+ * Response: { "status": 200, "data": { "hashPassword": "$2b$10$..." } }
+ * 
+ * Step 2: Register user
+ * POST /api/users/user/register/add
+ * Body: {
+ *   "user_credentials": {
+ *     "email": "user@example.com",
+ *     "password": "$2b$10$...",
+ *     "first_name": "John",
+ *     "last_name": "Doe",
+ *     "role": "General",
+ *     "approved": false
+ *   }
+ * }
+ * 
+ * EXAMPLE 2: Create event with media
+ * 
+ * Step 1: Upload media
+ * POST /api/media/registerMedia
+ * Body: {
+ *   "media": {
+ *     "file": "data:image/png;base64,iVBORw0KGgo..."
+ *   },
+ *   "foreignKey": "event-uuid-here"
+ * }
+ * 
+ * Step 2: Create event
+ * POST /api/events/addEvent
+ * Body: {
+ *   "event": {
+ *     "name": "Summer Festival",
+ *     "date": "2025-07-15",
+ *     "location": "Central Park",
+ *     "description": "Annual summer celebration",
+ *     "media_id": "media-uuid-here",
+ *     "start_time": "10:00:00",
+ *     "end_time": "22:00:00"
+ *   }
+ * }
+ * 
+ * EXAMPLE 3: Google OAuth login
+ * 
+ * POST /api/google/auth
+ * Body: { "token": "google-id-token-here" }
+ * Response: {
+ *   "status": 200,
+ *   "data": {
+ *     "userToken": "custom-jwt-token-here"
+ *   }
+ * }
+ * 
+ * Store userToken in localStorage/sessionStorage for authenticated requests
+ */
+
+// ==========================================================================================================
+// NOTES
+// ==========================================================================================================
+
+/**
+ * CORS CONFIGURATION:
+ * - Allowed Origins: localhost:8080, localhost:5173, localhost:3000
+ * - Methods: POST, GET, OPTIONS
+ * - Credentials: true
+ * 
+ * REQUEST SIZE LIMIT:
+ * - Body parser limit: 50mb (for media uploads)
+ * 
+ * SECURITY:
+ * - Passwords hashed with bcrypt (10 rounds)
+ * - JWT tokens expire after 7 days
+ * - Google OAuth verification required
+ * - CORS protection enabled
+ * 
+ * MEDIA UPLOAD:
+ * - Files stored in Supabase storage bucket "media"
+ * - File path format: uploads/{uuid}.{ext}
+ * - Supported formats: PNG, JPEG, WebP, GIF, MP4, MOV, PDF
+ * - Files uploaded as base64 encoded strings
+ * 
+ * DEVELOPMENT:
+ * - Server runs on port defined in .env file
+ * - React build served from /admin/dist
+ * - All routes prefixed with /api/{category}
+ */
