@@ -1,5 +1,5 @@
-import { FiPlus } from "react-icons/fi"
-import { NavLink } from "react-router-dom"
+import { FiPlus }   from "react-icons/fi"
+import { NavLink }  from "react-router-dom"
 const Home = () =>{
 
     return(

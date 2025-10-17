@@ -1,17 +1,15 @@
-import { useContext, useEffect, useState, useRef } from "react";
-import { BsCalendar2Event } from "react-icons/bs";
-import { IoLocation } from "react-icons/io5";
-import { FaEye } from "react-icons/fa";
-import { CiEdit } from "react-icons/ci";
-import { FaRegTrashCan } from "react-icons/fa6";
-import { CiSearch } from "react-icons/ci";
-import { FaFileDownload } from "react-icons/fa";
-import { LuExternalLink } from "react-icons/lu";
-import { Reorder } from "motion/react";
-import Tooltip from "../components/Tooltip";
-import { Link, useNavigate } from "react-router-dom";
-import { UserContext } from "../components/user_context/context_provider.jsx";
-import * as EVENT_MIDDLEWARE from "../middleware/events_middleware.js";
+import { useContext, useEffect, useState, useRef }  from "react";
+import { FaEye }                                    from "react-icons/fa";
+import { CiEdit }                                   from "react-icons/ci";
+import { FaRegTrashCan }                            from "react-icons/fa6";
+import { CiSearch }                                 from "react-icons/ci";
+import { FaFileDownload }                           from "react-icons/fa";
+import { LuExternalLink }                           from "react-icons/lu";
+import { Reorder }                                  from "motion/react";
+import Tooltip                                      from "../components/Tooltip";
+import { Link, useNavigate }                        from "react-router-dom";
+import { UserContext }                              from "../components/user_context/context_provider.jsx";
+import * as EVENT_MIDDLEWARE                        from "../middleware/events_middleware.js";
 
 const BASE_URL = import.meta.env.VITE_BASE_URL;
 

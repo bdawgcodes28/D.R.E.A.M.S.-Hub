@@ -7,14 +7,14 @@
  */
 
 // import modules
-const { createClient } = require('@supabase/supabase-js');
+const { createClient }  = require('@supabase/supabase-js');
 
 // fetch environement variables
-const supabaseUrl = process.env.SUPABASE_URL;
-const supabaseKey = process.env.SUPABASE_SECRET;
+const supabaseUrl       = process.env.SUPABASE_URL;
+const supabaseKey       = process.env.SUPABASE_SECRET;
 
 // create client object
-const supabase = createClient(supabaseUrl, supabaseKey);
+const supabase          = createClient(supabaseUrl, supabaseKey);
 
 
-module.exports = supabase;
+module.exports          = supabase;

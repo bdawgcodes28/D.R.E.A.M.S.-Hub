@@ -138,17 +138,25 @@ async function findUser(req, res, next){
         // Compare the provided password with the stored hash
         const isPasswordValid = await bcrypt.compare(password, user.password);
         
-        if (isPasswordValid && user.approved){
-            req.user_result = user;
-            next();
+        if (isPasswordValid){
+            // checks if user has been permited to be logged in or approved
+            if (user.approved){
+                req.user_result = user;
+                next();
+            }else{
+                return res.json(RC_RESPONSE(RC_CODES.UNAUTHORIZED, {
+                    details: "Invalid credentials or user not approved",
+                    session: null
+                }));
+            }
         } else {
-            return res.json(RC_RESPONSE(RC_CODES.UNAUTHORIZED, {
-                details: "Invalid credentials or user not approved",
+            return res.json(RC_RESPONSE(RC_CODES.NOT_FOUND, {
+                details: "Invalid credentials, user doesnt exist",
                 session: null
             }));
         }
     }else{
-        return res.json(RC_RESPONSE(RC_CODES.UNAUTHORIZED, {
+        return res.json(RC_RESPONSE(RC_CODES.NOT_FOUND, {
             details: "User not found",
             session: null
         }));

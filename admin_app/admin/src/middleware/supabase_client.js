@@ -31,7 +31,7 @@ const USERS_ROUTE_BASE_URL=`${BASE_URL}/api/users`
  * @param {*} user 
  * @returns user object or null
  */
-export async function validUser(user_credentials) {
+export async function loginAttempt(user_credentials) {
     // null value is passed as arg
     if (!user_credentials) return null;
 
@@ -52,12 +52,14 @@ export async function validUser(user_credentials) {
       const data = await serverResponse.json();
 
       // check status
-      if (data.status != 200){
+      if (!data || data.status != 200){
         console.error("[ERROR] issue on http request", data.message);
-        return null;
+        console.log("response:", data);
+        return data;
       }else{
         console.log("[SUCCESS] User successfully logged in");
-        return data.account;
+        console.log("response:", data);
+        return data;
       }
       
     }catch(error){
@@ -66,11 +68,6 @@ export async function validUser(user_credentials) {
       return null;
     }
 }
-
-
-
-
-
 
 
 

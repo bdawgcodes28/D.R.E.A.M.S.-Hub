@@ -12,9 +12,9 @@
  */
 
 // import modules
-const express   = require("express");
-const router    = express.Router();
-const supabase  = require("../utils/supabase.js");
+const express       = require("express");
+const router        = express.Router();
+const supabase      = require("../utils/supabase.js");
 const { RC_RESPONSE, authorizeUse } = require("../utils/endpoint_helpers.js");
 const { RC_CODES } = require("../utils/errors.js");
 

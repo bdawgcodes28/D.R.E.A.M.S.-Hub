@@ -1,13 +1,21 @@
 import { useState, useContext, useEffect } from "react";
-import { UserContext } from "../components/user_context/context_provider.jsx";
-import { FiUser, FiLock } from "react-icons/fi";
-import { useNavigate } from "react-router-dom";
-import * as SUPABASE_CLIENT from "../supabase/supabase_client.jsx"
-import { jwtDecode } from 'jwt-decode'
-import './Login.css'
+import { UserContext }                     from "../components/user_context/context_provider.jsx";
+import { FiUser, FiLock }                  from "react-icons/fi";
+import { useNavigate }                     from "react-router-dom";
+import * as SUPABASE_CLIENT                from "../middleware/supabase_client.js"
+import { jwtDecode }                       from 'jwt-decode'
+import                                          './Login.css'
 
 const Login = () => {
-  
+
+  // error state of login
+  const [error, setError] = useState({
+      emailError:           false,
+      passwordError:        false,
+      email_password_error: false,
+      userNotFoundError:    false,
+      userNotPermittedError:false
+  });
   // user input variables
   const [email, setEmail]       = useState("");
   const [password, setPassword] = useState("");
@@ -53,6 +61,11 @@ const Login = () => {
 
     initializeGoogleAuth();
   }, [GOOGLE_CLIENT_ID]);
+
+  // function to process non-success error codes and handle them (via pop ups, etc)
+  function handleNonSuccessError(response){
+
+  }
 
   // takes JWT from google and sends it it NODEJS server to get verified and decoded
   async function handleCredentialResponse(response) {
@@ -104,15 +117,16 @@ const Login = () => {
 
     try {
       // check if user is inside database and is authorized to login
-      const user = await SUPABASE_CLIENT.validUser(credentials);
-      if (user){
+      const user_response = await SUPABASE_CLIENT.loginAttempt(credentials);
+      if (user_response.status == 200){
         console.log("Login successful:");
-        setUser(user);
+        setUser(user_response.account);
         navigate('/');
-      } else {
-
+      } 
+      else {
         console.error("Invalid credentials");
         // TODO: Show error message to user
+        handleNonSuccessError(user_response);
       }
     } catch (error) {
       console.error("Login error:", error);

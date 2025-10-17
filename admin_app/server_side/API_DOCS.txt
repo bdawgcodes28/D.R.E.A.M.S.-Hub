@@ -5,19 +5,19 @@
  *  Complete API Documentation for Dreams Hub Admin App
  *  This file serves as a comprehensive dictionary of all available API endpoints
  * 
- *  Base URL: http://localhost:8080
+ *  Base URL: http://localhost:8080 // subject to change once web app is deployed
  *  Format: JSON
  *  Authentication: Required for most endpoints (see allowList per route)
  * 
  *  Return Code (RC) Format:
  *  {
- *    status: <HTTP_STATUS_CODE>,
- *    code: <RC_CODE>,
- *    message: "<RC_MESSAGE>",
- *    causes: [<possible_causes>],
- *    priority: "<LOG_LEVEL>",
- *    timestamp: "<ISO_TIMESTAMP>",
- *    data: { ... } // optional additional data
+ *    status:       <HTTP_STATUS_CODE>,
+ *    code:         <RC_CODE>,
+ *    message:      "<RC_MESSAGE>",
+ *    causes:       [<possible_causes>],
+ *    priority:     "<LOG_LEVEL>",
+ *    timestamp:    "<ISO_TIMESTAMP>",
+ *    data:         { ... } // optional additional data
  *  }
  * 
  *  Common RC Codes:

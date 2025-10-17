@@ -1,9 +1,8 @@
-import { motion } from "motion/react";
-import { useState, useRef, useEffect } from "react";
-import { IoIosCloseCircleOutline } from "react-icons/io";
-import { Reorder } from "motion/react";
-import { FaDotCircle } from "react-icons/fa";
-import { MdOutlineMessage } from "react-icons/md";
+import { useState, useRef, useEffect }  from "react";
+import { IoIosCloseCircleOutline }      from "react-icons/io";
+import { Reorder }                      from "motion/react";
+import { FaDotCircle }                  from "react-icons/fa";
+import { MdOutlineMessage }             from "react-icons/md";
 
 const NotificationPanel = ({ setOpen, isOpen }) => {
   const [notifications, setNotifications] = useState([
