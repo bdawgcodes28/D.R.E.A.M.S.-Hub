@@ -11,6 +11,7 @@ import { IoWarningOutline }             from "react-icons/io5";
  * this component expects a json object as props
  * popUpName:   "UserNotFound"
  * region:      "top or bottom or left or right or default"
+ * blur:        true/false
  * @param {*} param0 
  * @returns pop up componet with over lay
  */

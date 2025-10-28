@@ -40,7 +40,7 @@ const url        = require("url");
 const fs         = require("fs");
 const path       = require("path");
 const bodyParser = require("body-parser");
-const cors = require('cors');
+const cors       = require('cors');
 
 // load all environment variables FIRST
 const envPath    = path.join(__dirname, ".env");

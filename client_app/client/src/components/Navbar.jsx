@@ -8,6 +8,7 @@ import { useIsMobile }      from '../hooks/useIsMobile';
 import { IoMdMenu }         from "react-icons/io";
 import { IoMdClose }        from "react-icons/io";
 import { COLORS_CONSTANTS } from '../styles/StyleConstants';
+import DreamsLogo           from "../assets/dreamsLogo.png"
 
 export default function Navbar() {
 
@@ -145,7 +146,7 @@ export default function Navbar() {
                 <div className=" ml-auto w-fit mr-[100px] border-0 border-black p-[0px] max-w-[800px] flex gap-[25px] items-center pr-[10%]">
                     {socials.map((social, idx)=>{
                         return (
-                            <div key={idx} className="cursor-pointer hover:opacity-70 transition-opacity hover:mb-[1vh] duration-500">
+                            <div key={idx} className="cursor-pointer hover:opacity-70 hover:mb-[1vh] transition-all duration-300">
                                 {social.Icon}
                             </div>
                         );
@@ -156,8 +157,8 @@ export default function Navbar() {
             <div className=" w-full flex-1 border-0 h-[50%] max-h-[50px] pl-[10%] pr-[10%] flex" style={{ backgroundColor: COLORS_CONSTANTS.BLACK }}>
                 
                 {/* dreams logo  */}
-                <div className="h-full w-[200px] border-2 border-[black]">
-                   
+                <div className="h-full w-[200px] border-0 border-[white] flex justify-center items-center">
+                   <img src={DreamsLogo} alt="" className='w-full h-full object-cover' />
                 </div>
 
                 {/* list of navigation links  */}
@@ -166,17 +167,21 @@ export default function Navbar() {
                             return (
                                 <Link 
                                 key={idx}
-                                className='p-[5px]'
+                                className='p-[5px] transition-colors duration-300'
                                 style={{ color: COLORS_CONSTANTS.WHITE }}
                                 to={ link.Link } 
+                                onMouseEnter={(e) => e.target.style.color = '#aba8a8'}
+                                onMouseLeave={(e) => e.target.style.color = COLORS_CONSTANTS.WHITE}
                                 >{ link.Name }</Link>
                             );
                         })}
                 </div>
 
                 {/* join us button  */}
-                <div className="w-[20%] max-w-[120px] flex justify-center items-center border-b-[.5px] ml-[1vw]" style={{ backgroundColor: COLORS_CONSTANTS.WHITE, borderColor: COLORS_CONSTANTS.BLACK }}>
-                    <span style={{ color: COLORS_CONSTANTS.BLACK }}>Donate Now</span>
+                <div className="bg-[white] hover:bg-gray-300  
+                duration-300 min-w-[120px] h-full flex justify-center items-center 
+                border-0 border-black ml-[1vw] cursor-pointer" style={{ borderColor: COLORS_CONSTANTS.BLACK }}>
+                    <p style={{ color: COLORS_CONSTANTS.BLACK, fontWeight: 'bold', fontSize: '14px' }}>Donate Now</p>
                 </div>
 
             </div>

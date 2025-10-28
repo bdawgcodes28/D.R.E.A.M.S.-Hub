@@ -19,7 +19,7 @@ export default function Banner() {
     ];
 
     return (
-        <div className="relative w-full h-[80%] max-h-[800px] overflow-hidden block" style={{ backgroundColor: COLORS_CONSTANTS.BANNER_BG }}>
+        <div className="relative w-full h-[80%] min-h-fit max-h-[800px] overflow-hidden block" style={{ backgroundColor: COLORS_CONSTANTS.BANNER_BG }}>
             {/* image and overlay container */}
             <div className="absolute inset-0 w-full h-full">
                 {/* image of children  */}
