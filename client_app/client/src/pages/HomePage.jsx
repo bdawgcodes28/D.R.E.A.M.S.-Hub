@@ -3,6 +3,8 @@ import Navbar               from "../components/Navbar";
 import Banner               from "../components/Banner";
 import HomeMissionStatement from '../components/HomeMissionStatement';
 import HomeMetrics          from '../components/HomeMetrics';
+import { Footer } from '../components/Footer';
+import Testimonal from '../components/Testimonal';
 
 
 export default function HomePage() {
@@ -21,6 +23,11 @@ export default function HomePage() {
             <HomeMissionStatement/>
             {/* short peek at metrics  */}
             <HomeMetrics/>
+            {/* testimonals  */}
+            <Testimonal/>
+
+            {/* footer  */}
+            <Footer/>
         </div>
 
     </div>

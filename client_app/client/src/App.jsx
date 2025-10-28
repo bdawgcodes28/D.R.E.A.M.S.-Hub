@@ -4,6 +4,8 @@ import { Route, Routes } from "react-router-dom"
 import './App.css'
 import HomePage from "./pages/HomePage"
 import AboutPage from "./pages/AboutPage"
+import Events from "./pages/Events"
+
 function App() {
 
   return (
@@ -12,6 +14,7 @@ function App() {
         {/* home page | initial route */}
         <Route path="/" element={<HomePage/>}/>
         <Route path="/about" element={<AboutPage/>}/>
+        <Route path="/events" element={<Events/>}/>
 
         
 

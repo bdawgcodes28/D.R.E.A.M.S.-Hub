@@ -44,7 +44,7 @@ export default function Banner() {
 
             <div className={`z-10 ${isMobile? "w-full" : "w-[80%]"} h-full p-[10px] flex flex-col border-0 border-[white] justify-center ${isMobile? "items-center" : ""} `}>
 
-                <div className={`z-20 w-fit h-fit border-0 border-[white] p-[20px] ${isMobile? "" : "ml-[100px]"} animate-fade-in bg-black/85 rounded-lg`}>
+                <div className={`z-20 w-fit h-fit border-0 border-[white] p-[20px] ${isMobile? "" : "ml-[100px]"} animate-fade-in  rounded-lg`}>
                     <p className='font-weight-5 text-[20px] animate-fade-in-delay-1' style={{ color: COLORS_CONSTANTS.WHITE }}>Where Curiosity Meets Discovery.</p>
 
                     <p className={`${ isMobile? 'text-[45px]' : "text-[60px]"} font-weight-900 max-w-[700px] animate-fade-in-delay-2`} style={{ color: COLORS_CONSTANTS.WHITE }}>Empowering the Next Generation of Thinkers</p>

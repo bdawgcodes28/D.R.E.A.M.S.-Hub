@@ -29,8 +29,9 @@ export default function Navbar() {
     ];
 
     const navigationLinks = [
+        {Name: "home",     Link: "/"},
         {Name: "about",     Link: "/about"},
-        {Name: "events",    Link: "/"},
+        {Name: "events",    Link: "/events"},
         {Name: "programs",  Link: "/"},
         {Name: "contact",   Link: "/"},
     ];
@@ -158,7 +159,7 @@ export default function Navbar() {
                 
                 {/* dreams logo  */}
                 <div className="h-full w-[200px] border-0 border-[white] flex justify-center items-center">
-                   <img src={DreamsLogo} alt="" className='w-full h-full object-cover' />
+                   {/* <img src={DreamsLogo} alt="" className='w-full h-full object-cover' /> */}
                 </div>
 
                 {/* list of navigation links  */}
@@ -170,7 +171,7 @@ export default function Navbar() {
                                 className='p-[5px] transition-colors duration-300'
                                 style={{ color: COLORS_CONSTANTS.WHITE }}
                                 to={ link.Link } 
-                                onMouseEnter={(e) => e.target.style.color = '#aba8a8'}
+                                onMouseEnter={(e) => e.target.style.color = COLORS_CONSTANTS.DREAMS_PINK}
                                 onMouseLeave={(e) => e.target.style.color = COLORS_CONSTANTS.WHITE}
                                 >{ link.Name }</Link>
                             );

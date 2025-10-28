@@ -2,6 +2,7 @@ import React, { useState } from 'react'; // Import useState
 import Navbar from "../components/Navbar";
 // Fix import path to be consistent and standard for framer-motion
 import { motion } from "framer-motion"; // Assuming you meant framer-motion/react
+import { Footer } from '../components/Footer';
 
 // --- Team Data (No Changes) ---
 const teamMembers = [
@@ -117,10 +118,12 @@ const MeetTheTeam = () => {
 
 const AboutPage = () => {
   return (
-    // Use semantic <main> tag
-    <main className="w-full relative flex flex-col bg-white" role="main">
-      {/* Assuming Navbar has proper ARIA/semantic tags */}
+    // Use same container structure as HomePage for consistent navbar sizing
+    <div className="w-screen h-screen flex flex-col overflow-x-hidden">
+      {/* Navbar component with consistent sizing */}
       <Navbar />
+      {/* Scrollable content area */}
+      <div className="flex-1 overflow-y-auto">
 
       {/* Hero Section */}
       <section 
@@ -140,9 +143,9 @@ const AboutPage = () => {
           className="md:w-3/4 lg:w-2/3 flex flex-col gap-6 z-10 text-center md:text-left" // Centered text on mobile
         >
           <hgroup> {/* Use hgroup to group related headings */}
-            <p className="text-pink-400 text-base uppercase tracking-[0.25em] font-medium">About Us</p>
+            <p className="text-pink-400 text-base uppercase tracking-[0.25em] font-medium" style={{fontWeight:"bold"}}>About Us</p>
             {/* Changed <h2> to a more dominant <h1> for the main page title */}
-            <h1 className="text-black font-light text-4xl sm:text-5xl lg:text-6xl leading-snug mt-2">
+            <h1 className="text-black font-light text-4xl sm:text-5xl lg:text-6xl leading-snug mt-2" style={{fontWeight:"bold"}}>
               Empowering Future <br/> Innovators
             </h1>
           </hgroup>
@@ -200,7 +203,12 @@ const AboutPage = () => {
         </h2>
         <MeetTheTeam/>
       </section>
-    </main>
+
+        {/* footer  */}
+        <Footer/>
+
+      </div>
+    </div>
   )
 }
 
