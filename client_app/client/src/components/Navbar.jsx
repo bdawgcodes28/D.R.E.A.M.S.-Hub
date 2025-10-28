@@ -29,7 +29,7 @@ export default function Navbar() {
     ];
 
     const navigationLinks = [
-        {Name: "about",     Link: "/"},
+        {Name: "about",     Link: "/about"},
         {Name: "events",    Link: "/"},
         {Name: "programs",  Link: "/"},
         {Name: "contact",   Link: "/"},
