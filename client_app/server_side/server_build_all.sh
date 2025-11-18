@@ -10,7 +10,7 @@ if [ ! -d "node_modules" ]; then
 fi
 
 # Dependencies list - add more here as needed
-dependencies="express body-parser url path fs dotenv cors google-auth-library jsonwebtoken cors bcrypt"
+dependencies="express body-parser url path fs dotenv cors google-auth-library jsonwebtoken cors bcrypt redis"
 
 # Install dependencies
 echo "Installing server dependencies..."

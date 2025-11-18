@@ -1,6 +1,6 @@
 import { useContext, useEffect, useState }  from "react";
 import { NavLink }                          from "react-router-dom";
-import { UserContext, useUser }             from "./user_context/context_provider";
+import { UserContext, useUser }             from "../user_context/context_provider";
 import { MdAccountCircle }                  from "react-icons/md";
 
 const Link = ({ to, children }) => {

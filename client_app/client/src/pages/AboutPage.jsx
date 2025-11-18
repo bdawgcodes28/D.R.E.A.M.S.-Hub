@@ -1,8 +1,8 @@
 import React, { useState } from 'react'; // Import useState
-import Navbar from "../components/Navbar";
+import Navbar from "../components/layout/Navbar";
 // Fix import path to be consistent and standard for framer-motion
 import { motion } from "framer-motion"; // Assuming you meant framer-motion/react
-import { Footer } from '../components/Footer';
+import { Footer } from '../components/layout/Footer';
 
 // --- Team Data (No Changes) ---
 const teamMembers = [

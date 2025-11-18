@@ -2,6 +2,7 @@ export const COLORS_CONSTANTS = {
     // Brand Colors
     DREAMS_PINK: '#f72585',
     DREAMS_PINK_LIGHT: '#f15bb5',
+    DREAMS_PURPLE: "#7a4ce6",
     BLACK: '#000000',
     WHITE: '#ffffff',
     

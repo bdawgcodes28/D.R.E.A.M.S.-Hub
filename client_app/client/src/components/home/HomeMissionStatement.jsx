@@ -1,8 +1,8 @@
 import React                from 'react'
-import useIsMobile          from '../hooks/useIsMobile'
-import { COLORS_CONSTANTS } from '../styles/StyleConstants'
+import useIsMobile          from '../../hooks/useIsMobile'
+import { COLORS_CONSTANTS } from '../../styles/StyleConstants'
 import { Link }             from 'react-router-dom'
-import kidsHandsUp          from "../assets/kids-learning2.jpg"
+import kidsHandsUp          from "../../assets/kids-learning2.jpg"
 
 export default function HomeMissionStatement() {
 
@@ -32,7 +32,7 @@ export default function HomeMissionStatement() {
                 
                 {/* meet the team link/button  */}
                 <div className={`${isMobile? "w-full flex justify-center" : ""} w-full min-h-fit mt-[4vh] border-0 border-[black]`}>
-                    <Link className={`${isMobile? "w-full text-center" : ""} p-[12px] text-[white] mt-[0vh] `} style={{backgroundColor: COLORS_CONSTANTS.DREAMS_PINK}}>Meet the team</Link>
+                    <Link to={"/about"} className={`${isMobile? "w-full text-center" : ""} p-[12px] text-[white] `} style={{backgroundColor: COLORS_CONSTANTS.DREAMS_PINK}}>Meet the team</Link>
                 </div>
                 
             </div>

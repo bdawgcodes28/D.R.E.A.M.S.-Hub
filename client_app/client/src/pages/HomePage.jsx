@@ -1,10 +1,10 @@
 import React                from 'react'
-import Navbar               from "../components/Navbar";
-import Banner               from "../components/Banner";
-import HomeMissionStatement from '../components/HomeMissionStatement';
-import HomeMetrics          from '../components/HomeMetrics';
-import { Footer } from '../components/Footer';
-import Testimonal from '../components/Testimonal';
+import Navbar               from "../components/layout/Navbar";
+import Banner               from "../components/ui/Banner";
+import HomeMissionStatement from '../components/home/HomeMissionStatement';
+import HomeMetrics          from '../components/home/HomeMetrics';
+import { Footer } from '../components/layout/Footer';
+import Testimonal from '../components/ui/Testimonal';
 
 
 export default function HomePage() {

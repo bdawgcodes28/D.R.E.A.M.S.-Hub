@@ -1,8 +1,8 @@
 import React                    from 'react'
-import StemKids                 from "../assets/kids-stem-img.jpg"
+import StemKids                 from "../../assets/kids-stem-img.jpg"
 import { MdAccountCircle }      from "react-icons/md";
-import { COLORS_CONSTANTS }     from '../styles/StyleConstants';
-import useIsMobile              from '../hooks/useIsMobile';
+import { COLORS_CONSTANTS }     from '../../styles/StyleConstants';
+import useIsMobile              from '../../hooks/useIsMobile';
 
 export default function Banner() {
     //===========================================

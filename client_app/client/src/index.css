@@ -44,6 +44,73 @@ body{
   opacity: 0;
 }
 
+/* Fade in up animation */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(40px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.animate-fade-in-up {
+  animation: fadeInUp 0.8s ease-out forwards;
+  opacity: 0;
+}
+
+/* Arrow fade in going up animation */
+@keyframes fadeInUpArrow {
+  from {
+    opacity: 0;
+    transform: translateY(10vh);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Arrow infinite scroll indicator - moves down and back with slight fade */
+@keyframes scrollIndicator {
+  0% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+  50% {
+    transform: translateY(5vh);
+    opacity: 0.6;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.animate-arrow-scroll {
+  animation: 
+    fadeInUpArrow 0.8s ease-out 1s forwards,
+    scrollIndicator 2s ease-in-out 1.8s infinite;
+  opacity: 0;
+}
+
+/* Blinking cursor for typing animation */
+@keyframes blink {
+  0%, 50% {
+    opacity: 1;
+  }
+  51%, 100% {
+    opacity: 0;
+  }
+}
+
+.animate-blink {
+  animation: blink 1s step-end infinite;
+  margin-left: 2px;
+}
+
 /* Mobile dropdown animations */
 @keyframes slideDown {
   from {

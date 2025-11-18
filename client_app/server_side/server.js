@@ -11,9 +11,10 @@
 // IMPORT MODULES
 //===================================================================================
 const express       = require("express");
-const bodyParser   = require("body-parser");
+const bodyParser    = require("body-parser");
 const dotenv        = require("dotenv");
 const cors          = require("cors");
+const path          = require("path");
 
 // ====================================================
 // CHOOSE ENVIRONMENT VARIABLE
@@ -59,7 +60,11 @@ const DOMAIN        = process.env.DOMAIN;
 // ADD MIDDLEWARE
 // ====================================================
 app.use(bodyParser.urlencoded({extended:true, limit: '50mb'}));
-app.use(express.json({limit: '50mb'}));   
+app.use(express.json({limit: '50mb'}));  
+
+// path to dist directory with react build
+const BUILD_DIR = path.join(__dirname, "../client/dist");
+app.use(express.static(BUILD_DIR)); 
 
 const allowedOrigins = [
     'http://localhost:8080', // nodejs dev server
@@ -96,7 +101,9 @@ app.use((req, res, next) => {
 // ADD CATCH ALL ROUTE
 // ====================================================
 app.get("/", (req, res) => {
-    res.status(200).json({ message: "Server is running!" });
+
+    res.status(200).sendFile(path.join(BUILD_DIR, "index.html"));
+    //res.status(200).json({ message: "Server is running!" });
 });
 
 

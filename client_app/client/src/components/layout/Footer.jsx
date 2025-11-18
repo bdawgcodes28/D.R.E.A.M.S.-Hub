@@ -1,4 +1,4 @@
-import { COLORS_CONSTANTS } from "../styles/StyleConstants";
+import { COLORS_CONSTANTS } from "../../styles/StyleConstants";
 
 export function Footer() {
   return (

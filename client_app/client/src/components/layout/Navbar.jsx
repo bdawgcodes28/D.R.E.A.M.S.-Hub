@@ -4,11 +4,11 @@ import { FaInstagram }      from "react-icons/fa";
 import { FaLinkedin }       from "react-icons/fa";
 import { FaFacebook }       from "react-icons/fa";
 import { Link }             from 'react-router-dom';
-import { useIsMobile }      from '../hooks/useIsMobile';
+import { useIsMobile }      from '../../hooks/useIsMobile';
 import { IoMdMenu }         from "react-icons/io";
 import { IoMdClose }        from "react-icons/io";
-import { COLORS_CONSTANTS } from '../styles/StyleConstants';
-import DreamsLogo           from "../assets/dreamsLogo.png"
+import { COLORS_CONSTANTS } from '../../styles/StyleConstants';
+import DreamsLogo           from "../../assets/dreamsLogo.png"
 
 export default function Navbar() {
 
@@ -67,7 +67,7 @@ export default function Navbar() {
         return (
             <div className="relative w-full">
                 {/* Main navbar */}
-                <div className=" w-full h-[60px] flex items-center justify-between px-4" style={{ backgroundColor: COLORS_CONSTANTS.DREAMS_PINK }}>
+                <div className=" w-full h-[60px] flex items-center justify-evenly px-4" style={{ backgroundColor: COLORS_CONSTANTS.DREAMS_PINK }}>
                     {/* hamburger menu button */}
                     <button 
                         onClick={toggleDropdown}
@@ -81,7 +81,7 @@ export default function Navbar() {
                     </button>
                     
                     {/* Logo/Brand */}
-                    <div className="text-[white] font-bold text-lg">D.R.E.A.M.S Collective</div>
+                    <div className="text-[white] font-bold text-lg border-0 border-[white] w-full">D.R.E.A.M.S Collective</div>
                     
                     {/* Empty space for balance */}
                     <div className="w-[60px]"></div>

@@ -1,6 +1,6 @@
 import { useState }           from "react";
 import { FiBell }             from "react-icons/fi";
-import { useUser }            from "./user_context/context_provider";
+import { useUser }            from "../user_context/context_provider";
 
 const Navbar = ({toggleNotifications, ...props}) => {
   const [isOpen, setIsOpen] = useState(false);

@@ -6,7 +6,7 @@ import { CiSearch }                                 from "react-icons/ci";
 import { FaFileDownload }                           from "react-icons/fa";
 import { LuExternalLink }                           from "react-icons/lu";
 import { Reorder }                                  from "motion/react";
-import Tooltip                                      from "../components/Tooltip";
+import Tooltip                                      from "../components/ui/Tooltip";
 import { Link, useNavigate }                        from "react-router-dom";
 import { UserContext }                              from "../components/user_context/context_provider.jsx";
 import * as EVENT_MIDDLEWARE                        from "../middleware/events_middleware.js";

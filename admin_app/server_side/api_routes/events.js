@@ -112,7 +112,6 @@ async function addEvent(req, res, next){
             }));
         }
 }
-
 /**
  * updates an event at a certain 
  * id, in the database

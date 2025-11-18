@@ -1,0 +1,46 @@
+services:
+
+  # local database for dev mode only
+  development_database:
+    profiles:
+      - developement
+      - dev
+  # service for node server
+  backend:
+    build: ./server_side
+    ports:
+      - ${PORT:-3000}:${PORT:-3000}
+    env_file:
+      - ./server_side/.env
+      - ./server_side/.env.production
+      - ./server_side/.env.developement
+    environment:
+      - PORT=${PORT:-3000}
+      - NODE_ENV=${NODE_ENV:-developement}
+      - REDIS_HOST: redis
+      - REDIS_PORT: 6379
+
+    depends_on:
+      - frontend
+      - redis
+
+  # redis service for caching
+  redis:
+    image: redis:alpine
+    container_name: redis
+    ports:
+      - ${PORT:-6379}:${PORT:-6379}
+    volumes:
+      - redis_data:/data
+    command: ["redis-server", "--appendonly", "yes"]
+
+  # service to build react app
+  frontend:
+    build: ./client
+    ports:
+      - ${PORT:-5173}:${PORT:-5173}
+
+volumes:
+  redis_data:
+
+ 

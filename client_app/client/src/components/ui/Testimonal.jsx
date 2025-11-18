@@ -1,5 +1,5 @@
 import React from 'react'
-import { COLORS_CONSTANTS } from '../styles/StyleConstants'
+import { COLORS_CONSTANTS } from '../../styles/StyleConstants'
 
 export default function Testimonal() {
     return (

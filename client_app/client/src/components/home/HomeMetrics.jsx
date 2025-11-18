@@ -4,7 +4,7 @@ import { GiPartyFlags }             from "react-icons/gi";
 import { BsCalendar2DateFill }      from "react-icons/bs";
 import { FaUserGroup }              from "react-icons/fa6";
 import { BiSolidParty }             from "react-icons/bi";
-import useIsMobile                  from '../hooks/useIsMobile';
+import useIsMobile                  from '../../hooks/useIsMobile';
 
 export default function HomeMetrics() {
 

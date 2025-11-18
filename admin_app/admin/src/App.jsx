@@ -1,13 +1,13 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Login                            from "./pages/Login";
-import Dashboard                        from "./components/Dashboard";
+import Dashboard                        from "./components/layout/Dashboard";
 import Home                             from "./pages/Home";
 import Events                           from "./pages/Events";
 import EventEdit                        from "./pages/EventEdit";
 import ProtectedRoute                   from "./components/user_context/Protected_Routes";
 import RegisterCredentials              from "./pages/RegisterCredentials";
 import Programs                         from "./pages/Programs";
-import ErrorPopUps from "./components/ErrorPopUps";
+import ErrorPopUps from "./components/ui/ErrorPopUps";
 
 
 function App() {

@@ -2,8 +2,8 @@ import Sidebar                  from "./Sidebar";
 import Content                  from "./Content";
 import Navbar                   from "./Navbar";
 import { useContext, useState } from "react";
-import {UserContext }           from "./user_context/context_provider";
-import NotificationPanel        from "./NotifsPanel";
+import {UserContext }           from "../user_context/context_provider";
+import NotificationPanel        from "../ui/NotifsPanel";
 
 const Dashboard = () => {
 

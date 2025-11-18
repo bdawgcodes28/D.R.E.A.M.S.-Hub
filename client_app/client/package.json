@@ -11,6 +11,10 @@
   },
   "dependencies": {
     "@material-tailwind/react": "^2.1.10",
+    "@schedule-x/calendar": "^3.3.0",
+    "@schedule-x/events-service": "^3.3.0",
+    "@schedule-x/react": "^3.3.0",
+    "@schedule-x/theme-default": "^3.3.0",
     "@supabase/supabase-js": "^2.76.1",
     "@tailwindcss/vite": "^4.1.16",
     "bcrypt": "^6.0.0",
@@ -24,6 +28,7 @@
     "react-loading-skeleton": "^3.5.0",
     "react-router-dom": "^7.9.4",
     "tailwindcss": "^4.1.16",
+    "temporal-polyfill": "^0.3.0",
     "usehooks-ts": "^3.1.1"
   },
   "devDependencies": {
