@@ -21,15 +21,15 @@ const path          = require("path");
 // ====================================================
 // First check system-level NODE_ENV (set by system or process)
 // If not set, load default .env to get NODE_ENV, then reload with correct file
-let envFile = '.env'; // default env file path
+let envFile = './env/.env'; // default env file path
 
 // Check if NODE_ENV is already set at system level
 if (process.env.NODE_ENV) {
     // Use system-level NODE_ENV to choose environment file
     if (process.env.NODE_ENV === 'prod' || process.env.NODE_ENV === 'production') {
-        envFile = '.env.production';
+        envFile = './env/.env.production';
     } else if (process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'development') {
-        envFile = '.env.developement';
+        envFile = './env/.env.developement';
     }
 } else {
     // No system NODE_ENV, load default .env first to get NODE_ENV
@@ -37,9 +37,9 @@ if (process.env.NODE_ENV) {
     
     // Now choose environment file based on loaded NODE_ENV
     if (process.env.NODE_ENV === 'prod' || process.env.NODE_ENV === 'production') {
-        envFile = '.env.production';
+        envFile = './env/.env.production';
     } else if (process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'development') {
-        envFile = '.env.developement';
+        envFile = './env/.env.developement';
     }
     
     // Reload with the correct environment file
@@ -93,15 +93,18 @@ app.use((req, res, next) => {
     next();
 });
 // ====================================================
-// ADD MODULE ROUTES
+// IMPORT MODULE ROUTES
 // ====================================================
+const event_routes  = require("./routes/events.js");
 
-
+// ====================================================
+// USE MODULE ROUTES
+// ====================================================
+app.use("/api/events", event_routes);
 // ====================================================
 // ADD CATCH ALL ROUTE
 // ====================================================
 app.get("/", (req, res) => {
-
     res.status(200).sendFile(path.join(BUILD_DIR, "index.html"));
     //res.status(200).json({ message: "Server is running!" });
 });
