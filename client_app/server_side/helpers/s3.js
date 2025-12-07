@@ -7,10 +7,12 @@
 
 const { S3Client, 
         PutObjectCommand,
-        GetObjectCommand }            = require("@aws-sdk/client-s3");
-const fs                              = require("fs");
-const path                            = require("path");
-const { getSignedUrl }                = require("@aws-sdk/s3-request-presigner");
+        GetObjectCommand, 
+        DeleteObjectCommand}            = require("@aws-sdk/client-s3");
+const fs                                = require("fs");
+const path                              = require("path");
+const { getSignedUrl }                  = require("@aws-sdk/s3-request-presigner");
+const { error }                         = require("console");
 
 class S3Bucket 
 {
@@ -24,7 +26,22 @@ class S3Bucket
     {
         this.bucket         = bucket;
         this.folderPath     = folderPath? folderPath : "";
-        this.s3             = new S3Client({});
+        
+        // Configure S3Client with region and credentials
+        const s3Config = {
+            region: process.env.AWS_REGION || "us-east-2",
+        };
+        
+        // Add credentials if provided via environment variables
+        if (process.env.AWS_ACCESS_KEY_ID && process.env.AWS_SECRET_ACCESS_KEY) {
+            s3Config.credentials = {
+                accessKeyId: process.env.AWS_ACCESS_KEY_ID,
+                secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
+            };
+        }
+        // Otherwise, AWS SDK will use default credential provider chain
+        
+        this.s3 = new S3Client(s3Config);
     }
 
     //----------------------------------
@@ -32,13 +49,13 @@ class S3Bucket
     /**
      * upload a file (via file path) or a file object (via file input)
      * to s3 bucket in aws
-     * @param {string|object} filePath - Local file path (string) or file object from HTML input
-     * @param {Buffer|Stream|string} body - File content (optional if filePath is a local path or file object)
-     * @param {string} destination - Optional destination folder path in S3
-     * @param {boolean} fileObjectPassed - Set to true if filePath is a file object from HTML input
+     * @param {string|object}           filePath - Local file path (string) or file object from HTML input
+     * @param {Buffer|Stream|string}    body - File content (optional if filePath is a local path or file object)
+     * @param {string}                  destination - Optional destination folder path in S3
+     * @param {boolean}                 fileObjectPassed - Set to true if filePath is a file object from HTML input
      * @returns object of uploaded objects to bucket
      */
-    async uploadFile(filePath, body=null, destination=null, fileObjectPassed=false)
+    async uploadFile(filePath=null, body=null, destination=null, fileObjectPassed=false)
     {
         if (!filePath)
             return null;
@@ -187,37 +204,34 @@ class S3Bucket
 
     async removeUpload(bucket=this.bucket, key=null)
     {
-        
+        if (!key)
+        {
+            console.error("No key was given to upload");
+            return null;
+        }
+
+        const params = {
+            Bucket: bucket,
+            Key:    key
+        };
+
+        try {
+            // request to delete from bucket
+            const result = await this.s3.send(new DeleteObjectCommand(params));
+            return result;
+
+        } catch (error) {
+            console.error("Unable to remove object:", error);
+            return null;
+        }
+            
     }
 
+    //--------------------------------------------------------------
+    setBucket(bucketName){ this.bucket = bucketName; }
 
 }
 
 //------------------------------------------------------------------------
 
-// Example usage:
-const s3 = new S3Bucket();
-// 
-// For local file path (body is automatically read from disk):
-
-async function test_upload()
-{
-    const res = await s3.uploadFile("../../client/src/assets/test-stem-img1.jpg", null, "user-media");
-    console.log(res);
-}
-// Or simply (body defaults to null):
-// s3.uploadFile("../../client/src/assets/kids-stem-img.jpg", null, "user-media");
-//
-// For file object from HTML input:
-// s3.uploadFile(fileObject, null, "user-media", true);
-
-async function test_fetch()
-{
-    const res = await s3.getUpload(
-        s3.bucket,
-        "user-media/test-stem-img1.jpg"
-    );
-    console.log(res);
-}
-
-test_fetch();
+module.exports = { S3Bucket };

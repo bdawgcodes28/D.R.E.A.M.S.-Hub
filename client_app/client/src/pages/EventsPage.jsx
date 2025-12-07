@@ -6,10 +6,11 @@ import EventCardContent                         from '../components/events/Event
 import EventCarousel                            from '../components/events/EventCarousel';
 import EventTypeChooser                         from '../components/events/EventTypeChooser';
 import useIsMobile                              from '../hooks/useIsMobile';
-import CalendarApp from '../components/events/CalendarApp';
+import CalendarApp                              from '../components/events/CalendarApp';
+import * as EVENT_API                           from "../middlewares/events_middleware.js"
+import DEFAULT_EVENT_IMG                        from "../assets/default-dreams-img.png"
 
 export default function EventsPage() {
-
     // =========================================================
     // HOOKS
     // =========================================================
@@ -23,6 +24,8 @@ export default function EventsPage() {
     const [isAnimating, setIsAnimating]                 = useState(false);
     const [eventsLoaded, setEventsLoaded]               = useState(false);
     const carouselRef                                   = useRef(null);
+    const [events, setEvents]                           = useState([]);
+    const [eventMedia, setEventMedia]                   = useState({});
 
     // Trigger slide-in animation on component mount
     useEffect(() => {
@@ -148,7 +151,74 @@ export default function EventsPage() {
         }
     ]; // test events for now
 
-    const events = testEvents;
+    // Transform API events to carousel format
+    const transformApiEventToCarouselFormat = (apiEvent) => {
+        // Parse ISO date to custom format "MM. DD. YYYY."
+        const dateObj = new Date(apiEvent.date);
+        const month = String(dateObj.getMonth() + 1).padStart(2, '0');
+        const day = String(dateObj.getDate()).padStart(2, '0');
+        const year = dateObj.getFullYear();
+        const formattedDate = `${month}. ${day}. ${year}.`;
+        
+        // Convert 24-hour time to 12-hour format "HH:MM AM/PM - HH:MM AM/PM"
+        const formatTime = (time24) => {
+            if (!time24) return '';
+            const [hours, minutes] = time24.split(':');
+            const hour = parseInt(hours);
+            const period = hour >= 12 ? 'PM' : 'AM';
+            const hour12 = hour === 0 ? 12 : hour > 12 ? hour - 12 : hour;
+            return `${hour12}:${minutes} ${period}`;
+        };
+        
+        const startTime = formatTime(apiEvent.start_time);
+        const endTime = formatTime(apiEvent.end_time);
+        const formattedTime = startTime && endTime ? `${startTime} - ${endTime}` : '';
+        
+        return {
+            id: apiEvent.id,
+            name: apiEvent.name,
+            location: apiEvent.location,
+            description: apiEvent.description,
+            date: formattedDate,
+            time: formattedTime,
+            images: apiEvent.images || [
+                "/src/assets/kids-stem-img.jpg",
+                "/src/assets/kids-learning2.jpg",
+                "/src/assets/kids-hands-up.jpg"
+            ]
+        };
+    };
+
+    // fetch events
+    useEffect(() => {
+        // FECTHES EVENTS DATA
+        async function getEvents()
+        {
+           const data = await EVENT_API.loadEvents();
+           setEvents(data);
+           return data; // Return the data so we can use it immediately
+        } 
+
+        // FETCHES EVENT MEDIA FROM DB
+        async function getMedia(eventsData)
+        {
+            const ids = eventsData.map((e) => e.id);
+            const media = await EVENT_API.loadMedia(ids);
+            setEventMedia(media);
+        }
+
+        async function fetchData() {
+            const eventsData = await getEvents();
+            await getMedia(eventsData);
+        }
+
+        fetchData();
+    }, [])
+    
+    // Transform events for carousel display
+    const carouselEvents = events.length > 0 
+        ? events.map(transformApiEventToCarouselFormat)
+        : testEvents; // Fallback to test events if API events are empty
 
   return (
     // full screen container with proper scrolling
@@ -174,14 +244,15 @@ export default function EventsPage() {
 
                 {/* list of events in carousel */}
                 <EventCarousel ref={carouselRef} isLoaded={eventsLoaded}>
-                    {testEvents.map((event)=>{
+                    {carouselEvents.map((event)=>{
                         return <div 
                             key={event.id}
                             className={`relative border-0 ${isMobile ? "w-full h-full snap-center shrink-0" : "aspect-square w-[33vw]"} shadow-2xl block ${isMobile ? "" : "min-h-[400px]"}`}
                         >
+                            {/* set media image */}
                             <img 
                                 className="block object-cover w-full h-full"
-                                src={event.images[0]} 
+                                src={ eventMedia[event.id] && eventMedia[event.id].length > 0 ? eventMedia[event.id][0] : DEFAULT_EVENT_IMG } 
                                 alt="" 
                             />
                             <div className="absolute inset-0 z-10 bg-linear-to-t from-black/80 via-black/40 to-transparent opacity-90"></div>

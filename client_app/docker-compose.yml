@@ -19,7 +19,10 @@ services:
       - NODE_ENV=${NODE_ENV:-developement}
       - REDIS_HOST=redis
       - REDIS_PORT=6379
-
+      - AWS_REGION=${AWS_REGION:-us-east-2}
+      - AWS_PROFILE=dreams-dev
+    volumes:
+      - ~/.aws:/root/.aws:ro
     depends_on:
       - frontend
 

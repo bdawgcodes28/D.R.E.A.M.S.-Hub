@@ -143,7 +143,6 @@ class MySQLConnector
         const sql           = `SELECT * FROM ${table} WHERE active = 1`;
         const con           = await this._ensureConnection();
         const [result]      = await con.query(sql);
-        console.log("ROWS:", result);
         return result;
     }
 

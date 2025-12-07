@@ -84,13 +84,12 @@ export default function EventItemPage() {
             <GradientOverlay intensity={0.99} direction="bottom" />
 
             {/* event name */}
-        
             <div 
             className="flex flex-col absolute justify-center items-center 
             p-[20px] w-full h-full">
 
                 <h1
-                className='text-6xl text-[white]'
+                className='text-6xl text-[white] text-center'
                 style={{fontWeight: "bold"}}
                 >
                   {displayedText}

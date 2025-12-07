@@ -96,11 +96,13 @@ app.use((req, res, next) => {
 // IMPORT MODULE ROUTES
 // ====================================================
 const event_routes  = require("./routes/events.js");
+const media_routes  = require("./routes/media.js");
 
 // ====================================================
 // USE MODULE ROUTES
 // ====================================================
 app.use("/api/events", event_routes);
+app.use("/api/media", media_routes);
 // ====================================================
 // ADD CATCH ALL ROUTE
 // ====================================================
