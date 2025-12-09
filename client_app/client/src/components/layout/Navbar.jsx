@@ -23,16 +23,16 @@ export default function Navbar() {
     // NAVBAR HELPERS
     //===========================================
     const socials = [
-        {Name: "Instagram", Icon: <FaInstagram color={COLORS_CONSTANTS.WHITE} size={25}/>,    Link: "/"},
-        {Name: "LinkedIn",  Icon: <FaLinkedin  color={COLORS_CONSTANTS.WHITE} size={25}/>,    Link: "/"},
-        {Name: "Facebook",  Icon: <FaFacebook  color={COLORS_CONSTANTS.WHITE} size={25}/>,    Link: "/"},
+        {Name: "Instagram", Icon: <FaInstagram color={COLORS_CONSTANTS.WHITE} size={25}/>,    Link: "https://www.instagram.com/thedreamsstudios?igsh=YXZ4M3hmaGVwZmNr"},
+        {Name: "LinkedIn",  Icon: <FaLinkedin  color={COLORS_CONSTANTS.WHITE} size={25}/>,    Link: "https://www.linkedin.com/company/the-d-r-e-a-m-s-collective/"},
     ];
+
+    const donation_link = "https://www.zeffy.com/en-US/donation-form/support-a-dreamer";
 
     const navigationLinks = [
         {Name: "home",     Link: "/"},
         {Name: "about",     Link: "/about"},
         {Name: "events",    Link: "/events"},
-        {Name: "programs",  Link: "/"},
         {Name: "contact",   Link: "/"},
     ];
 
@@ -67,11 +67,11 @@ export default function Navbar() {
         return (
             <div className="relative w-full">
                 {/* Main navbar */}
-                <div className=" w-full h-[60px] flex items-center justify-evenly px-4" style={{ backgroundColor: COLORS_CONSTANTS.DREAMS_PINK }}>
+                <div className=" w-full h-[60px] flex items-center relative  px-4" style={{ backgroundColor: COLORS_CONSTANTS.DREAMS_PINK }}>
                     {/* hamburger menu button */}
                     <button 
                         onClick={toggleDropdown}
-                        className="ml-[20px] p-2 hover:opacity-70 transition-opacity duration-300"
+                        className=" p-0 hover:opacity-70 transition-opacity duration-300"
                     >
                         {isDropdownOpen ? (
                             <IoMdClose className='size-[30px] md:size-[35px]' style={{ color: COLORS_CONSTANTS.WHITE }}/>
@@ -81,10 +81,8 @@ export default function Navbar() {
                     </button>
                     
                     {/* Logo/Brand */}
-                    <div className="text-[white] font-bold text-lg border-0 border-[white] w-full">D.R.E.A.M.S Collective</div>
+                    <div className="text-[white] font-bold text-lg border-0 border-[white] w-full text-center">D.R.E.A.M.S Collective</div>
                     
-                    {/* Empty space for balance */}
-                    <div className="w-[60px]"></div>
                 </div>
 
                 {/* Dropdown Menu - Full Screen Pink Overlay */}
@@ -115,9 +113,15 @@ export default function Navbar() {
                             <div className="w-full p-[15px] flex gap-[40px] justify-center mt-[2vh]">
                                 {socials.map((social, idx)=>{
                                     return (
-                                        <div key={idx} className="cursor-pointer hover:opacity-70 transition-opacity duration-300">
+                                        <a 
+                                            key={idx} 
+                                            href={social.Link}
+                                            target="_blank"
+                                            rel="noopener noreferrer"
+                                            className="cursor-pointer hover:opacity-70 transition-opacity duration-300"
+                                        >
                                             {social.Icon}
-                                        </div>
+                                        </a>
                                     )
                                 })}
                             </div>
@@ -144,12 +148,18 @@ export default function Navbar() {
                 <p className='text-[13px]' style={{ color: COLORS_CONSTANTS.WHITE }}>Helping the youth discover things they never could imagine</p>
 
                 {/* socials section  */}
-                <div className=" ml-auto w-fit mr-[100px] border-0 border-black p-[0px] max-w-[800px] flex gap-[25px] items-center pr-[10%]">
+                <div className=" ml-auto w-fit mr-[100px] border-0 border-black max-w-[800px] flex gap-[45px] items-center pr-[10%]">
                     {socials.map((social, idx)=>{
                         return (
-                            <div key={idx} className="cursor-pointer hover:opacity-70 hover:mb-[1vh] transition-all duration-300">
+                            <a 
+                                key={idx} 
+                                href={social.Link}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="cursor-pointer hover:opacity-70 hover:-translate-y-1 transition-all duration-300 inline-block"
+                            >
                                 {social.Icon}
-                            </div>
+                            </a>
                         );
                     })}
                 </div>
@@ -179,11 +189,16 @@ export default function Navbar() {
                 </div>
 
                 {/* join us button  */}
-                <div className="bg-[white] hover:bg-gray-300  
-                duration-300 min-w-[120px] h-full flex justify-center items-center 
-                border-0 border-black ml-[1vw] cursor-pointer" style={{ borderColor: COLORS_CONSTANTS.BLACK }}>
-                    <p style={{ color: COLORS_CONSTANTS.BLACK, fontWeight: 'bold', fontSize: '14px' }}>Donate Now</p>
-                </div>
+                <a href={donation_link}>
+                    <div className="bg-[white] hover:bg-gray-300  
+                    duration-300 min-w-[120px] h-full flex justify-center items-center 
+                    border-0 border-black ml-[1vw] cursor-pointer" style={{ borderColor: COLORS_CONSTANTS.BLACK }}>
+
+                        <p style={{ color: COLORS_CONSTANTS.BLACK, fontWeight: 'bold', fontSize: '14px' }}>Donate Now</p>
+                        
+                    </div>
+                </a>
+                
 
             </div>
         </div>

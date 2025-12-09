@@ -13,8 +13,24 @@ export default function EventItemPage() {
   const location  = useLocation()
   const event     = location.state?.event
 
-  // check for media paths
-  const hasMedia = event.images.length > 0;
+  // Handle case where event data is missing
+  if (!event) {
+    return (
+      <div className="w-screen h-screen flex flex-col overflow-x-hidden">
+        <Navbar/>
+        <div className="flex-1 overflow-y-scroll flex items-center justify-center">
+          <div className="text-center">
+            <h1 className="text-2xl font-bold mb-4">Event Not Found</h1>
+            <p className="text-gray-600">The event information could not be loaded.</p>
+          </div>
+        </div>
+      </div>
+    )
+  }
+
+  // check for media paths - handle both array and single image formats
+  const images = event.images || (event.image ? [event.image] : []);
+  const hasMedia = Array.isArray(images) && images.length > 0;
   
   // Typing animation state
   const [displayedText, setDisplayedText] = useState('')
@@ -43,22 +59,6 @@ export default function EventItemPage() {
     
     return () => clearInterval(typingInterval)
   }, [event?.name])
-  
-
-  // Handle case where event data is missing
-  if (!event) {
-    return (
-      <div className="w-screen h-screen flex flex-col overflow-x-hidden">
-        <Navbar/>
-        <div className="flex-1 overflow-y-scroll flex items-center justify-center">
-          <div className="text-center">
-            <h1 className="text-2xl font-bold mb-4">Event Not Found</h1>
-            <p className="text-gray-600">The event information could not be loaded.</p>
-          </div>
-        </div>
-      </div>
-    )
-  }
 
   return (
     // full screen container with proper scrolling
@@ -77,8 +77,8 @@ export default function EventItemPage() {
             {/* background img */}
             <img 
             className='object-cover w-full h-full absolute'
-            src={!event.images.length > 0 ? event.images[0] : DEFAULT_IMG} 
-            alt="" />
+            src={hasMedia ? images[0] : DEFAULT_IMG} 
+            alt={event.name || "Event"} />
 
             {/* overlay - gradient fade */}
             <GradientOverlay intensity={0.99} direction="bottom" />
@@ -151,7 +151,7 @@ export default function EventItemPage() {
           >
 
                   <ImageCarousel 
-                  images={event.images}
+                  images={images}
                   autoPlay={true}
                   className={`${hasMedia? "block" : "hidden"}`}
                   />

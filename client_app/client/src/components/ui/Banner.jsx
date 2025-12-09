@@ -3,6 +3,7 @@ import StemKids                 from "../../assets/kids-stem-img.jpg"
 import { MdAccountCircle }      from "react-icons/md";
 import { COLORS_CONSTANTS }     from '../../styles/StyleConstants';
 import useIsMobile              from '../../hooks/useIsMobile';
+import { Link }                 from 'react-router-dom';
 
 export default function Banner() {
     //===========================================
@@ -53,13 +54,14 @@ export default function Banner() {
                 
                     {/* learn more button  */}
                     <div className="h-fit min-h-[50px] w-fit min-w-[150px] border-0 border-[white] mt-[30px] flex gap-[20px] items-center">
-                        <button
+                        <Link
+                        to="/about"
                         className={`flex justify-center items-center h-full min-h-[50px] w-full max-w-[150px]`}
                         style={{ 
                             color: COLORS_CONSTANTS.WHITE, 
                             backgroundColor: COLORS_CONSTANTS.DREAMS_PINK 
                         }}
-                        >Learn more</button>
+                        >Learn more</Link>
 
                         {/* load in images of the team  */}
 

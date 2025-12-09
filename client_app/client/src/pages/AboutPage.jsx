@@ -150,12 +150,12 @@ const AboutPage = () => {
             </h1>
           </hgroup>
           <p className="text-black text-lg leading-relaxed max-w-3xl mx-auto md:mx-0">
-            We believe that brilliance lives in every community — it just needs the tools to shine.
-            At <span className="font-bold text-pink-400">Dreams Collective</span>, we're on a mission
-            to make **STEM education accessible, exciting, and equitable** for students who are too often
-            left out of the conversation. Through mentorship, hands-on learning, and real-world exposure,
-            we help young innovators see themselves as the scientists, engineers, and creators of tomorrow.
+            We believe that every community is filled with talent and imagination, ready to thrive when given the chance.
+            At <span className="font-bold text-pink-400">Dreams Collective</span>, we are dedicated to making STEM education welcoming, inspiring, and truly accessible for students who deserve to be seen and supported.
+            Through mentorship, hands-on learning, and real opportunities to explore the world around them, we help young people confidently step into their roles as the scientists, engineers, and creators of the future.
           </p>
+
+
         </motion.div>
       </section>
 
@@ -172,10 +172,11 @@ const AboutPage = () => {
           >
             <h2 className="text-3xl font-bold mb-4 text-pink-500">Our Mission</h2>
             <p className="text-xl text-gray-300 leading-relaxed border-l-4 border-pink-500 pl-4">
-              We aim to close the opportunity gap in STEM by creating spaces where young people from
-              underrepresented backgrounds can explore technology, robotics, game design, and more —
-              all while building confidence, leadership, and community.
+              Our goal is to open doors in STEM by creating spaces where young people from underrepresented 
+              communities can discover technology, robotics, game design, and so much more, all while 
+              growing their confidence, leadership, and sense of belonging.
             </p>
+
           </motion.div>
 
           <motion.div
@@ -187,11 +188,12 @@ const AboutPage = () => {
           >
             <h2 className="text-3xl font-bold mb-4 text-pink-500">Our Approach</h2>
             <p className="text-xl text-gray-300 leading-relaxed border-l-4 border-pink-500 pl-4">
-              Through workshops, mentorship programs, and collaborative projects, we spark curiosity
-              and creativity while connecting students with industry professionals and higher education
-              pathways. Every experience is designed to show that innovation starts with imagination —
-              and that **every student belongs in STEM**.
+              Through workshops, mentorship programs, and collaborative projects, we inspire 
+              curiosity and creativity while connecting students with industry professionals 
+              and pathways to higher education. Every experience is crafted to show that innovation 
+              begins with imagination, and that every student has a place in STEM.
             </p>
+
           </motion.div>
         </div>
       </section>

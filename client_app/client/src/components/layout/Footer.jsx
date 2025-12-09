@@ -23,7 +23,7 @@ export function Footer() {
             about us
           </a>
         </li>
-        <li>
+        {/* <li>
           <a
             href="#"
             className="text-blue-gray-600 font-normal transition-colors"
@@ -34,8 +34,8 @@ export function Footer() {
           >
             license
           </a>
-        </li>
-        <li>
+        </li> */}
+        {/* <li>
           <a
             href="#"
             className="text-blue-gray-600 font-normal transition-colors"
@@ -46,7 +46,7 @@ export function Footer() {
           >
             contribute
           </a>
-        </li>
+        </li> */}
         <li>
           <a
             href="#"

@@ -1,22 +1,49 @@
 import 'temporal-polyfill/global'
 
 /**
- * Parses a date string in the format "02. 15. 2024." and returns an object with year, month, and day
- * @param {string} dateString - Date string in format "MM. DD. YYYY."
+ * Parses a date string in multiple formats:
+ * - "MM. DD. YYYY." (e.g., "02. 15. 2024.")
+ * - "YYYY-MM-DD" (MySQL date format, e.g., "2024-02-15")
+ * - "YYYY-MM-DD HH:MM:SS" (MySQL datetime format)
+ * @param {string} dateString - Date string in various formats
  * @returns {{year: number, month: number, day: number} | null} - Parsed date components or null if invalid
  */
 export function parseDateString(dateString) {
   if (!dateString) return null;
   
-  const dateMatch = dateString.match(/(\d+)\.\s*(\d+)\.\s*(\d+)\./);
-  if (!dateMatch) return null;
+  // Try format "MM. DD. YYYY." first (original format)
+  let dateMatch = dateString.match(/(\d+)\.\s*(\d+)\.\s*(\d+)\./);
+  if (dateMatch) {
+    const [, month, day, year] = dateMatch;
+    return {
+      year: parseInt(year),
+      month: parseInt(month),
+      day: parseInt(day),
+    };
+  }
   
-  const [, month, day, year] = dateMatch;
-  return {
-    year: parseInt(year),
-    month: parseInt(month),
-    day: parseInt(day),
-  };
+  // Try MySQL date format "YYYY-MM-DD" or "YYYY-MM-DD HH:MM:SS"
+  dateMatch = dateString.match(/(\d{4})-(\d{2})-(\d{2})(?:\s+\d{2}:\d{2}:\d{2})?/);
+  if (dateMatch) {
+    const [, year, month, day] = dateMatch;
+    return {
+      year: parseInt(year),
+      month: parseInt(month),
+      day: parseInt(day),
+    };
+  }
+  
+  // Try to parse as a standard Date object as fallback
+  const dateObj = new Date(dateString);
+  if (!isNaN(dateObj.getTime())) {
+    return {
+      year: dateObj.getFullYear(),
+      month: dateObj.getMonth() + 1, // JavaScript months are 0-indexed
+      day: dateObj.getDate(),
+    };
+  }
+  
+  return null;
 }
 
 /**
@@ -62,10 +89,15 @@ export function parseTimeString(timeString) {
  * @returns {Object | null} - Transformed event for ScheduleX with location and description or null if invalid
  */
 export function transformEventToCalendarFormat(event) {
+  if (!event || !event.date) {
+    console.warn(`Event missing date field:`, event);
+    return null;
+  }
+  
   // Parse date
   const dateComponents = parseDateString(event.date);
   if (!dateComponents) {
-    console.warn(`Invalid date format for event ${event.id}: ${event.date}`);
+    console.warn(`Invalid date format for event ${event.id || 'unknown'}: "${event.date}". Expected format: "MM. DD. YYYY."`);
     return null;
   }
   
