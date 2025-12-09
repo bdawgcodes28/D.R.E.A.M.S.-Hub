@@ -79,7 +79,7 @@ export async function loadMedia(ids=[])
         }
 
         const parsed_data = await response.json();
-        console.log("Media map:", parsed_data);
+        //console.log("Media map:", parsed_data);
         // cache on frontend?
 
         // return content

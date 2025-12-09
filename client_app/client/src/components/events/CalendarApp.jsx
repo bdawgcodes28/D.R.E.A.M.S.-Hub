@@ -19,8 +19,8 @@ function CalendarApp({ eventList = [] }) {
   const calendarEvents = useMemo(() => {
     if (!eventList || eventList.length === 0) return [];
     const transformed = transformEventsToCalendarFormat(eventList);
-    console.log('Original events:', eventList);
-    console.log('Transformed events:', transformed);
+    //console.log('Original events:', eventList);
+    //console.log('Transformed events:', transformed);
     return transformed;
   }, [eventList]);
 
@@ -49,7 +49,7 @@ function CalendarApp({ eventList = [] }) {
       
       // Add new events
       if (calendarEvents.length > 0) {
-        console.log('Adding events to calendar:', calendarEvents.length);
+        //console.log('Adding events to calendar:', calendarEvents.length);
         calendarEvents.forEach(event => {
           try {
             eventsService.add(event);

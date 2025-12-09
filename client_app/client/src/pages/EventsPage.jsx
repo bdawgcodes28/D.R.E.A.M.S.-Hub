@@ -6,6 +6,7 @@ import EventCardContent                         from '../components/events/Event
 import EventCarousel                            from '../components/events/EventCarousel';
 import EventTypeChooser                         from '../components/events/EventTypeChooser';
 import useIsMobile                              from '../hooks/useIsMobile';
+import { useEventsCache }                       from '../hooks/useEventsCache';
 import CalendarApp from '../components/events/CalendarApp';
 import { parseDateString }                      from '../components/events/eventTransformers';
 import * as EVENT_API                           from "../middlewares/events_middleware.js"
@@ -15,7 +16,8 @@ export default function EventsPage() {
     // =========================================================
     // HOOKS
     // =========================================================
-    const isMobile = useIsMobile(); 
+    const isMobile = useIsMobile();
+    const { events: cachedEvents, media: cachedMedia, isLoading: isLoadingFromCache, error: cacheError, refetch: refetchEvents } = useEventsCache(); 
 
 
     // used to toggle what kind of events / components are visible
@@ -129,7 +131,6 @@ export default function EventsPage() {
             }
         ];
     });
-    const [isLoadingEvents, setIsLoadingEvents]         = useState(true);
     const [eventMedia, setEventMedia]                   = useState({});
     const carouselRef                                   = useRef(null);
 
@@ -236,66 +237,22 @@ export default function EventsPage() {
         }
     ];
 
-    // Fetch events from server on component mount
+    // Update events and media from cache hook
     useEffect(() => {
-        const fetchEvents = async () => {
-            try {
-                setIsLoadingEvents(true);
-                // Use environment variable for API URL if set, otherwise use relative path (proxy will handle it)
-                const apiUrl = import.meta.env.VITE_API_URL;
-                const fetchUrl = apiUrl ? `${apiUrl}/api/events/fetch` : '/api/events/fetch';
-                
-                console.log('Fetching events from:', fetchUrl);
-                console.log('VITE_API_URL:', apiUrl || 'not set (using proxy)');
-                
-                const response = await fetch(fetchUrl);
-                
-                // Check content type to ensure we got JSON
-                const contentType = response.headers.get('content-type');
-                if (!contentType || !contentType.includes('application/json')) {
-                    const text = await response.text();
-                    console.error('Received non-JSON response:', text.substring(0, 200));
-                    setAllEvents(testEvents);
-                    return;
-                }
-                
-                if (response.ok) {
-                    const result = await response.json();
-                    console.log('Events fetched successfully:', result);
-                    // Check if the response has the expected structure
-                    if (result.data && Array.isArray(result.data) && result.data.length > 0) {
-                        setAllEvents(result.data);
-                        // Fetch media for events if middleware is available
-                        try {
-                            const ids = result.data.map((e) => e.id);
-                            if (ids.length > 0 && EVENT_API && EVENT_API.loadMedia) {
-                                const media = await EVENT_API.loadMedia(ids);
-                                setEventMedia(media);
-                            }
-                        } catch (mediaError) {
-                            console.warn('Could not fetch media, using event images:', mediaError);
-                        }
-                    } else {
-                        // Fallback to test events if server returns empty or invalid data
-                        console.warn('Server returned empty or invalid data, using test events');
-                        setAllEvents(testEvents);
-                    }
-                } else {
-                    // Fallback to test events if fetch fails
-                    console.warn(`Server returned status ${response.status}, using test events`);
-                    setAllEvents(testEvents);
-                }
-            } catch (error) {
-                console.error('Error fetching events:', error);
-                // Fallback to test events on error
-                setAllEvents(testEvents);
-            } finally {
-                setIsLoadingEvents(false);
-            }
-        };
+        if (cachedEvents && cachedEvents.length > 0) {
+            setAllEvents(cachedEvents);
+        } else if (!isLoadingFromCache && cachedEvents.length === 0) {
+            // If cache is loaded but empty, use test events as fallback
+            setAllEvents(testEvents);
+        }
+    }, [cachedEvents, isLoadingFromCache]);
 
-        fetchEvents();
-    }, []);
+    // Update media from cache hook
+    useEffect(() => {
+        if (cachedMedia && Object.keys(cachedMedia).length > 0) {
+            setEventMedia(cachedMedia);
+        }
+    }, [cachedMedia]);
 
     // Trigger slide-in animation on component mount
     useEffect(() => {
@@ -413,45 +370,55 @@ export default function EventsPage() {
                 </div>
 
                 {/* list of events in carousel */}
-                <EventCarousel ref={carouselRef} isLoaded={eventsLoaded && !isLoadingEvents}>
-                    {filteredEvents.length > 0 ? (
-                        filteredEvents.map((event, index)=>{
-                            // Handle both test data (with images array), server data, and S3 media
-                            const imageUrl = (eventMedia[event.id] && eventMedia[event.id].length > 0)
-                                ? eventMedia[event.id][0]
-                                : (event.images && event.images.length > 0 
-                                    ? event.images[0] 
-                                    : (event.image || "/src/assets/default-event-item-img.jpg"));
-                            
-                            return <div 
-                                key={`${event.id}-${eventTypeSelected}`}
-                                className={`relative border-0 ${isMobile ? "w-full h-full snap-center shrink-0" : "aspect-square w-[33vw]"} shadow-2xl block ${isMobile ? "" : "min-h-[400px]"}`}
+                <EventCarousel ref={carouselRef} isLoaded={eventsLoaded && !isLoadingFromCache}>
+                    {(() => {
+                        // Filter events to only include those with description and location
+                        const validEvents = filteredEvents.filter(event => 
+                            event.description && event.description.length > 0 && 
+                            event.location && event.location.length > 0 &&
+                            event.location != "NONE GIVEN" &&
+                            event.time != "NONE GIVEN"
+                        );
+                        
+                        return validEvents.length > 0 ? (
+                            validEvents.map((event, index)=>{
+                                // Handle both test data (with images array), server data, and S3 media
+                                const imageUrl = (eventMedia[event.id] && eventMedia[event.id].length > 0)
+                                    ? eventMedia[event.id][0]
+                                    : (event.images && event.images.length > 0 
+                                        ? event.images[0] 
+                                        : (event.image || "/src/assets/default-event-item-img.jpg"));
+                                
+                                return <div 
+                                    key={`${event.id}-${eventTypeSelected}`}
+                                    className={`relative border-0 ${isMobile ? "w-full h-full snap-center shrink-0" : "aspect-square w-[33vw]"} shadow-2xl block ${isMobile ? "" : "min-h-[400px]"}`}
+                                    style={{
+                                        animationDelay: `${index * 50}ms`,
+                                        animation: eventsFadeIn ? 'fadeInUp 0.6s ease-out forwards' : 'none',
+                                        opacity: eventsFadeIn ? 1 : 0
+                                    }}
+                                >
+                                    <img 
+                                        className="block object-cover w-full h-full"
+                                        src={imageUrl} 
+                                        alt={event.name || "Event"} 
+                                    />
+                                    <div className="absolute inset-0 z-10 bg-linear-to-t from-black/80 via-black/40 to-transparent opacity-90"></div>
+                                    <EventCardContent event={event} media={eventMedia[event.id]} />
+                                </div>
+                            })
+                        ) : (
+                            <div 
+                                className="w-full h-full flex items-center justify-center"
                                 style={{
-                                    animationDelay: `${index * 50}ms`,
                                     animation: eventsFadeIn ? 'fadeInUp 0.6s ease-out forwards' : 'none',
                                     opacity: eventsFadeIn ? 1 : 0
                                 }}
                             >
-                                <img 
-                                    className="block object-cover w-full h-full"
-                                    src={imageUrl} 
-                                    alt={event.name || "Event"} 
-                                />
-                                <div className="absolute inset-0 z-10 bg-linear-to-t from-black/80 via-black/40 to-transparent opacity-90"></div>
-                                <EventCardContent event={event} />
+                                <p className="text-gray-500 text-xl">No {eventTypeSelected.toLowerCase()} events found.</p>
                             </div>
-                        })
-                    ) : (
-                        <div 
-                            className="w-full h-full flex items-center justify-center"
-                            style={{
-                                animation: eventsFadeIn ? 'fadeInUp 0.6s ease-out forwards' : 'none',
-                                opacity: eventsFadeIn ? 1 : 0
-                            }}
-                        >
-                            <p className="text-gray-500 text-xl">No {eventTypeSelected.toLowerCase()} events found.</p>
-                        </div>
-                    )}
+                        );
+                    })()}
                 </EventCarousel>
             </div>
              {/* calendar view */}

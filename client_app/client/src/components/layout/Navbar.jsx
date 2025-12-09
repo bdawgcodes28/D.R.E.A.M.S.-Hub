@@ -33,7 +33,7 @@ export default function Navbar() {
         {Name: "home",     Link: "/"},
         {Name: "about",     Link: "/about"},
         {Name: "events",    Link: "/events"},
-        {Name: "contact",   Link: "/"},
+        {Name: "contact",   Link: "/contact"},
     ];
 
     // Mobile Navbar Component
@@ -195,7 +195,7 @@ export default function Navbar() {
                     border-0 border-black ml-[1vw] cursor-pointer" style={{ borderColor: COLORS_CONSTANTS.BLACK }}>
 
                         <p style={{ color: COLORS_CONSTANTS.BLACK, fontWeight: 'bold', fontSize: '14px' }}>Donate Now</p>
-                        
+
                     </div>
                 </a>
                 

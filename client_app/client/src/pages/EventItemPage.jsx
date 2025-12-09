@@ -15,6 +15,7 @@ export default function EventItemPage() {
   const event     = location.state?.event
   const media     = location.state?.media
 
+
   // Handle case where event data is missing
   if (!event) {
     return (

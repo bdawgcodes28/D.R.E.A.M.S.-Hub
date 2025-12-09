@@ -41,7 +41,7 @@ async function getEvents(req, res, next)
 
 async function getEventMedia(req, res, next)
 {
-    // get all events ids needed
+    // get all event_ids needed
     const id_list = req.body.id_list;
 
     if (!id_list || id_list.length == 0)
@@ -57,36 +57,27 @@ async function getEventMedia(req, res, next)
     {
         const id = id_list[i];
 
-        try {
-            // get images id
-            const image_ids = await client.invokeSQL(`
-                SELECT image_id FROM event_images
-                WHERE event_id = '${id}'    
-            `);
-
-            // get url for each image
+        try 
+        {
+            // // get url for each image
             let urls = new Set();
 
-            for(let j=0;j<image_ids.length; j++){
-                // Extract image_id from the row object
-                const image_id = image_ids[j].image_id;
-
-                // get the url for that image
-                const url_result = await client.invokeSQL(`
-                    SELECT url FROM images
-                    WHERE id = '${image_id}' 
-                `);
-                
-                // Extract url from the row object and add to set
-                if (url_result && url_result.length > 0) {
-                    urls.add(url_result[0].url);
-                }
-            }
+            // FIXME: testing join command
+            const event_urls = await client.invokeSQL(`
+                SELECT url
+                FROM event_images inner join images
+                ON event_images.image_id = images.id
+                WHERE event_id = "${id}"    
+            `);
+            
+            // filling set with the images
+            for (let i=0;i<event_urls.length;i++){ urls.add(event_urls[i].url); }
 
             // add set to array of urls to the hash map
-            hm[`${id}`] = urls.size > 0 ? Array.from(urls) : [];
+            hm[`${id}`] = (urls && urls.size > 0) ? Array.from(urls) : [];
 
-        } catch (error) {
+        } catch (error) 
+        {
                 console.error("Unable to get media:", error, "For event:", id);
         }
     }

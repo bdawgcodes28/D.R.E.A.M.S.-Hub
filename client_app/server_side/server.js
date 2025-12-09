@@ -98,6 +98,7 @@ app.use((req, res, next) => {
 const event_routes          = require("./routes/events.js");
 const media_routes          = require("./routes/media.js");
 const board_member_routes   = require("./routes/board_member.js");
+const contact_routes        = require("./routes/contact.js");
 
 // ====================================================
 // USE MODULE ROUTES
@@ -105,6 +106,7 @@ const board_member_routes   = require("./routes/board_member.js");
 app.use("/api/events", event_routes);
 app.use("/api/media", media_routes);
 app.use("/api/board_members", board_member_routes);
+app.use("/api/contact", contact_routes);
 // ====================================================
 // ADD CATCH ALL ROUTE
 // ====================================================

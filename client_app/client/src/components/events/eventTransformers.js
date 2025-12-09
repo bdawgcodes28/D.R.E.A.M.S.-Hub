@@ -248,7 +248,7 @@ export function transformEventsToCalendarFormat(events) {
     })
     .filter(event => event !== null);
   
-  console.log('transformEventsToCalendarFormat: successfully transformed', transformed.length, 'events');
+  //console.log('transformEventsToCalendarFormat: successfully transformed', transformed.length, 'events');
   return transformed;
 }
 

@@ -110,7 +110,7 @@ class MySQLConnector
         // invoke the sql commands
         const con       = await this._ensureConnection();
         const [result]  = await con.query(queries);
-        console.log("Results:", result);
+        //console.log("Results:", result);
         return result;
     }
 

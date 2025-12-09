@@ -2,6 +2,7 @@ import React, { useState }          from 'react'
 import { COLORS_CONSTANTS }         from '../../styles/StyleConstants'
 import { Link, useNavigate }        from 'react-router-dom';
 import useIsMobile                  from '../../hooks/useIsMobile';
+import { formatDateReadable }       from './eventTransformers';
 
 export default function EventCardContent({ event, media }) {
     // =========================================================
@@ -15,6 +16,9 @@ export default function EventCardContent({ event, media }) {
     // check for hovering
     const [hovering, setHovering] = useState(false);
 
+    // Format date for display
+    const formattedDate = formatDateReadable(event.date || '');
+
     return (
         <div
             className={"absolute inset-0 z-20 flex justify-end flex-col p-[20px] duration-300"}
@@ -26,7 +30,7 @@ export default function EventCardContent({ event, media }) {
                 <p 
                 style={{color:COLORS_CONSTANTS.DREAMS_PINK, fontWeight:"bold"}}
                 className={`flex  ${isMobile? "text-[14px] flex-col gap-[5px]" : "gap-[15px]"}`}>
-                    <span>{event.date}</span> 
+                    <span>{formattedDate || event.date}</span> 
                     <span className={`${isMobile? "hidden" : ""}`} style={{fontWeight:"bold"}}>/</span>
                     <span>{event.time}</span>
                 </p>
@@ -35,7 +39,7 @@ export default function EventCardContent({ event, media }) {
             {isMobile ? (
                 <Link
                     to='/events/item'
-                    state={{ event }}
+                    state={{ event, media }}
                     className={`w-full text-[white] text-2xl`}
                 >
                     {event.name}
