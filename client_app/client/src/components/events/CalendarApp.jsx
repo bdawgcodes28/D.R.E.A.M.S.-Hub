@@ -28,16 +28,39 @@ function CalendarApp({ eventList = [] }) {
   const calendarConfig = useMemo(() => ({
     views: [createViewDay(), createViewWeek(), createViewMonthGrid(), createViewMonthAgenda()],
     defaultView: 'month-grid',
-    events: calendarEvents,
+    // Events are managed through eventsService, not passed in config
     plugins: [eventsService],
     // Prevent automatic view switching on resize
     minDate: undefined,
     maxDate: undefined,
-  }), [calendarEvents, eventsService]);
+  }), [eventsService]);
 
   const calendar = useCalendarApp(calendarConfig)
   calendarRef.current = calendar
  
+  // Update events when they change
+  useEffect(() => {
+    if (eventsService) {
+      // Clear existing events
+      const existingEvents = eventsService.getAll();
+      existingEvents.forEach(event => {
+        eventsService.remove(event.id);
+      });
+      
+      // Add new events
+      if (calendarEvents.length > 0) {
+        console.log('Adding events to calendar:', calendarEvents.length);
+        calendarEvents.forEach(event => {
+          try {
+            eventsService.add(event);
+          } catch (error) {
+            console.error('Error adding event to calendar:', error, event);
+          }
+        });
+      }
+    }
+  }, [calendarEvents, eventsService]);
+
   // Navigate to today's date when calendar loads
   useEffect(() => {
     if (calendar && calendar.calendarState) {

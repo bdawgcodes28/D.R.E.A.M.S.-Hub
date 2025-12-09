@@ -3,8 +3,7 @@ import { COLORS_CONSTANTS }         from '../../styles/StyleConstants'
 import { Link, useNavigate }        from 'react-router-dom';
 import useIsMobile                  from '../../hooks/useIsMobile';
 
-export default function EventCardContent({ event }) {
-
+export default function EventCardContent({ event, media }) {
     // =========================================================
     // HOOKS
     // =========================================================
@@ -52,7 +51,7 @@ export default function EventCardContent({ event }) {
 
                 <Link
                 to='/events/item'
-                state={{ event }}
+                state={{ event, media }}
                 style={{color:"white", backgroundColor: COLORS_CONSTANTS.DREAMS_PINK}}
                 className={`min-w-fit w-[40%] max-w-[120px] p-[10px] ${isMobile? "hidden": ""}`}>
                 Learn more</Link>

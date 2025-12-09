@@ -1,41 +1,76 @@
-import React, { useState } from 'react'; // Import useState
-import Navbar from "../components/layout/Navbar";
+import React, { useEffect, useState } from 'react'; // Import useState
+import Navbar                         from "../components/layout/Navbar";
 // Fix import path to be consistent and standard for framer-motion
-import { motion } from "framer-motion"; // Assuming you meant framer-motion/react
-import { Footer } from '../components/layout/Footer';
+import { motion }                     from "framer-motion"; // Assuming you meant framer-motion/react
+import { Footer }                     from '../components/layout/Footer';
+import * as BOARD_MEMBER_MIDDLEWARE   from "../middlewares/board_web_profiles_middleware"
+import DEFAULT_DREAMS_IMG             from "../assets/default-dreams-img.png"
 
 // --- Team Data (No Changes) ---
-const teamMembers = [
+const t_teamMembers = [
   {
-    id: 1,
-    name: "Rocklyn Clarke",
-    position: "Co-Founder & Program Director",
+    id: "1",
+    first_name: "Rocklyn",
+    last_name: "Clarke",
+    role: "Co-Founder & Program Director",
     image: "src/assets/team_photos/blkperson.png",
-    short: "Passionate about empowering youth through technology.",
-    full: "Rocklyn oversees BYTE’s curriculum and leads workshops in game design and AI. His background in computer science and community leadership drives BYTE’s mission to make STEM accessible to all.",
+    website_quote: "Passionate about empowering youth through technology.",
+    website_bio: "Rocklyn oversees BYTE’s curriculum and leads workshops in game design and AI. His background in computer science and community leadership drives BYTE’s mission to make STEM accessible to all.",
   },
   {
-    id: 2,
-    name: "Jordan Smith",
-    position: "Lead Instructor",
+    id: "2",
+    first_name: "Jordan",
+    last_name: "Smith",
+    role: "Lead Instructor",
     image: "src/assets/team_photos/blkperson.png",
-    short: "Inspires creativity through coding and robotics.",
-    full: "Jordan brings hands-on experience in robotics and education, helping students see technology as a tool for creativity and innovation.",
+    website_quote: "Inspires creativity through coding and robotics.",
+    website_bio: "Jordan brings hands-on experience in robotics and education, helping students see technology as a tool for creativity and innovation.",
   },
   {
-    id: 3,
-    name: "Aaliyah Johnson",
-    position: "Outreach Coordinator",
+    id: "3",
+    first_name: "Aaliyah",
+    last_name: "Johnson",
+    role: "Outreach Coordinator",
     image: "src/assets/team_photos/blkperson.png",
-    short: "Connects communities with transformative STEM programs.",
-    full: "Aaliyah leads BYTE’s outreach efforts, ensuring schools and community centers have access to programs that ignite curiosity in the next generation of innovators.",
+    website_quote: "Connects communities with transformative STEM programs.",
+    website_bio: "Aaliyah leads BYTE’s outreach efforts, ensuring schools and community centers have access to programs that ignite curiosity in the next generation of innovators.",
   },
 ];
 // -----------------------------
 
 const MeetTheTeam = () => {
   // 1. STATE: Track which member's ID is currently open. Null means none are open.
-  const [openMemberId, setOpenMemberId] = useState(null);
+  const [ openMemberId , setOpenMemberId ] = useState(null);
+  const [ boardMembers , setBoardMembers ] = useState(null);
+
+  const members_to_map = () => {
+    if (boardMembers && boardMembers.length > 0){
+        return boardMembers;
+    }
+    return t_teamMembers;
+  }
+
+  // load in the board members data
+  useEffect(()=>
+  {
+    // fetches the profiles from the server
+    async function loadBoardProfiles()
+    {
+      try 
+      {
+        const response = await BOARD_MEMBER_MIDDLEWARE.loadBoardMemberProfiles();
+        console.log("Loaded board members:", response);
+        setBoardMembers(response);
+      } catch (error) 
+      {
+        console.error("Error loading board profiles:", error);
+        setBoardMembers([]);
+      }
+    }
+
+    loadBoardProfiles();
+    
+  }, []);
 
   // 2. HANDLER: Function to toggle the description
   const toggleDescription = (id) => {
@@ -48,7 +83,7 @@ const MeetTheTeam = () => {
       aria-labelledby="team-heading" 
       className="flex flex-wrap items-stretch justify-center gap-12 p-8"
     >
-      {teamMembers.map((member) => {
+      {members_to_map().map((member) => {
         // Determine if the current member's full description should be visible
         const isOpen = member.id === openMemberId;
 
@@ -70,24 +105,24 @@ const MeetTheTeam = () => {
             {/* Image Wrapper */}
             <div className="shrink-0 w-full md:w-72 h-80 bg-linear-to-tr from-pink-500 to-red-400 rounded-tl-[60px] rounded-br-[60px] overflow-hidden p-1">
               <img
-                src={member.image}
-                alt={`Photo of ${member.name}, ${member.position}`}
+                src={member.image? member.image : DEFAULT_DREAMS_IMG}
+                alt={`Photo of ${member.first_name}, ${member.role}`}
                 className="w-full h-full object-cover rounded-tl-[58px] rounded-br-[58px]"
               />
             </div>
 
             {/* Text Content */}
             <div className="flex flex-col justify-center text-left p-6 w-full md:min-w-64 md:max-w-md">
-              <h3 className="font-bold text-2xl mb-1 text-gray-800">{member.name}</h3>
+              <h3 className="font-bold text-2xl mb-1 text-gray-800">{member.first_name} {member.last_name}</h3>
               <p className="text-pink-600 text-sm font-semibold mb-2 uppercase tracking-wider">
-                {member.position}
+                {member.role}
               </p>
               
               {/* Added a divider for better visual separation */}
               <div className="h-0.5 w-12 bg-pink-500 mb-3"></div>
 
               {/* Short Description - Always visible */}
-              <p className="text-gray-700 text-base italic mb-3">"{member.short}"</p>
+              <p className="text-gray-700 text-base italic mb-3">"{member.website_quote}"</p>
               
               {/* Full Description - Conditionally rendered with Framer Motion for a smooth animation */}
               <motion.div
@@ -98,7 +133,7 @@ const MeetTheTeam = () => {
               >
                 {/* 3. CONDITIONAL RENDERING: Only show the full text if isOpen is true */}
                 <p className="text-gray-600 text-sm leading-relaxed pt-2 border-t border-gray-200">
-                  <span className="font-semibold text-pink-700">Full Bio:</span> {member.full}
+                  <span className="font-semibold text-pink-700">Full Bio:</span> {member.website_bio}
                 </p>
               </motion.div>
 

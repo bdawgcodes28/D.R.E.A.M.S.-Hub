@@ -8,6 +8,7 @@ import EventTypeChooser                         from '../components/events/Event
 import useIsMobile                              from '../hooks/useIsMobile';
 import CalendarApp from '../components/events/CalendarApp';
 import { parseDateString }                      from '../components/events/eventTransformers';
+import * as EVENT_API                           from "../middlewares/events_middleware.js"
 
 export default function EventsPage() {
 
@@ -129,105 +130,10 @@ export default function EventsPage() {
         ];
     });
     const [isLoadingEvents, setIsLoadingEvents]         = useState(true);
+    const [eventMedia, setEventMedia]                   = useState({});
     const carouselRef                                   = useRef(null);
 
-    // Fetch events from server on component mount
-    useEffect(() => {
-        const fetchEvents = async () => {
-            try {
-                setIsLoadingEvents(true);
-                // Use environment variable for API URL if set, otherwise use relative path (proxy will handle it)
-                const apiUrl = import.meta.env.VITE_API_URL;
-                const fetchUrl = apiUrl ? `${apiUrl}/api/events/fetch` : '/api/events/fetch';
-                
-                console.log('Fetching events from:', fetchUrl);
-                console.log('VITE_API_URL:', apiUrl || 'not set (using proxy)');
-                
-                const response = await fetch(fetchUrl);
-                
-                // Check content type to ensure we got JSON
-                const contentType = response.headers.get('content-type');
-                if (!contentType || !contentType.includes('application/json')) {
-                    const text = await response.text();
-                    console.error('Received non-JSON response:', text.substring(0, 200));
-                    setAllEvents(testEvents);
-                    return;
-                }
-                
-                if (response.ok) {
-                    const result = await response.json();
-                    console.log('Events fetched successfully:', result);
-                    // Check if the response has the expected structure
-                    if (result.data && Array.isArray(result.data) && result.data.length > 0) {
-                        setAllEvents(result.data);
-                    } else {
-                        // Fallback to test events if server returns empty or invalid data
-                        console.warn('Server returned empty or invalid data, using test events');
-                        setAllEvents(testEvents);
-                    }
-                } else {
-                    // Fallback to test events if fetch fails
-                    console.warn(`Server returned status ${response.status}, using test events`);
-                    setAllEvents(testEvents);
-                }
-            } catch (error) {
-                console.error('Error fetching events:', error);
-                // Fallback to test events on error
-                setAllEvents(testEvents);
-            } finally {
-                setIsLoadingEvents(false);
-            }
-        };
-
-        fetchEvents();
-    }, []);
-
-    // Trigger slide-in animation on component mount
-    useEffect(() => {
-        const timer = setTimeout(() => {
-            setEventsLoaded(true);
-        }, 100); // Small delay to ensure component is mounted
-        
-        return () => clearTimeout(timer);
-    }, []);
-
-    // Handle event type change with delayed text update
-    const handleEventTypeChange = (newType) => {
-        if (newType === eventTypeSelected) return; // Don't animate if same type
-        
-        setIsAnimating(true);
-        // Update the actual state immediately for button styling
-        setEventTypeSelected(newType);
-        
-        // Delay the displayed text change until after fade-out completes
-        setTimeout(() => {
-            setDisplayedEventType(newType);
-            // Start fade-in after text has changed
-            setTimeout(() => {
-                setIsAnimating(false);
-            }, 50); // Small delay to ensure text has updated
-        }, 250); // Half of animation duration for fade-out
-    };
-
-
-    // =========================================================
-    // CAROUSEL SCROLL FUNCTIONS
-    // =========================================================
-    const scrollLeft = () => {
-        if (carouselRef.current && typeof carouselRef.current.scrollLeft === 'function') {
-            carouselRef.current.scrollLeft(400);
-        }
-    };
-
-    const scrollRight = () => {
-        if (carouselRef.current && typeof carouselRef.current.scrollRight === 'function') {
-            carouselRef.current.scrollRight(400);
-        }
-    };
-
-    // =========================================================
-    // EVENT HELPERS
-    // =========================================================
+    // Test events for fallback
     const testEvents = [
         {
             id: 1,
@@ -328,7 +234,115 @@ export default function EventsPage() {
                 "/src/assets/kids-stem-img.jpg"
             ]
         }
-    ]; // test events for now
+    ];
+
+    // Fetch events from server on component mount
+    useEffect(() => {
+        const fetchEvents = async () => {
+            try {
+                setIsLoadingEvents(true);
+                // Use environment variable for API URL if set, otherwise use relative path (proxy will handle it)
+                const apiUrl = import.meta.env.VITE_API_URL;
+                const fetchUrl = apiUrl ? `${apiUrl}/api/events/fetch` : '/api/events/fetch';
+                
+                console.log('Fetching events from:', fetchUrl);
+                console.log('VITE_API_URL:', apiUrl || 'not set (using proxy)');
+                
+                const response = await fetch(fetchUrl);
+                
+                // Check content type to ensure we got JSON
+                const contentType = response.headers.get('content-type');
+                if (!contentType || !contentType.includes('application/json')) {
+                    const text = await response.text();
+                    console.error('Received non-JSON response:', text.substring(0, 200));
+                    setAllEvents(testEvents);
+                    return;
+                }
+                
+                if (response.ok) {
+                    const result = await response.json();
+                    console.log('Events fetched successfully:', result);
+                    // Check if the response has the expected structure
+                    if (result.data && Array.isArray(result.data) && result.data.length > 0) {
+                        setAllEvents(result.data);
+                        // Fetch media for events if middleware is available
+                        try {
+                            const ids = result.data.map((e) => e.id);
+                            if (ids.length > 0 && EVENT_API && EVENT_API.loadMedia) {
+                                const media = await EVENT_API.loadMedia(ids);
+                                setEventMedia(media);
+                            }
+                        } catch (mediaError) {
+                            console.warn('Could not fetch media, using event images:', mediaError);
+                        }
+                    } else {
+                        // Fallback to test events if server returns empty or invalid data
+                        console.warn('Server returned empty or invalid data, using test events');
+                        setAllEvents(testEvents);
+                    }
+                } else {
+                    // Fallback to test events if fetch fails
+                    console.warn(`Server returned status ${response.status}, using test events`);
+                    setAllEvents(testEvents);
+                }
+            } catch (error) {
+                console.error('Error fetching events:', error);
+                // Fallback to test events on error
+                setAllEvents(testEvents);
+            } finally {
+                setIsLoadingEvents(false);
+            }
+        };
+
+        fetchEvents();
+    }, []);
+
+    // Trigger slide-in animation on component mount
+    useEffect(() => {
+        const timer = setTimeout(() => {
+            setEventsLoaded(true);
+        }, 100); // Small delay to ensure component is mounted
+        
+        return () => clearTimeout(timer);
+    }, []);
+
+    // Handle event type change with delayed text update
+    const handleEventTypeChange = (newType) => {
+        if (newType === eventTypeSelected) return; // Don't animate if same type
+        
+        setIsAnimating(true);
+        // Update the actual state immediately for button styling
+        setEventTypeSelected(newType);
+        
+        // Delay the displayed text change until after fade-out completes
+        setTimeout(() => {
+            setDisplayedEventType(newType);
+            // Start fade-in after text has changed
+            setTimeout(() => {
+                setIsAnimating(false);
+            }, 50); // Small delay to ensure text has updated
+        }, 250); // Half of animation duration for fade-out
+    };
+
+
+    // =========================================================
+    // CAROUSEL SCROLL FUNCTIONS
+    // =========================================================
+    const scrollLeft = () => {
+        if (carouselRef.current && typeof carouselRef.current.scrollLeft === 'function') {
+            carouselRef.current.scrollLeft(400);
+        }
+    };
+
+    const scrollRight = () => {
+        if (carouselRef.current && typeof carouselRef.current.scrollRight === 'function') {
+            carouselRef.current.scrollRight(400);
+        }
+    };
+
+    // =========================================================
+    // EVENT HELPERS
+    // =========================================================
 
     /**
      * Filters events based on the selected type (All, Upcoming, Past)
@@ -402,10 +416,12 @@ export default function EventsPage() {
                 <EventCarousel ref={carouselRef} isLoaded={eventsLoaded && !isLoadingEvents}>
                     {filteredEvents.length > 0 ? (
                         filteredEvents.map((event, index)=>{
-                            // Handle both test data (with images array) and server data (may have different structure)
-                            const imageUrl = event.images && event.images.length > 0 
-                                ? event.images[0] 
-                                : (event.image || "/src/assets/default-event-item-img.jpg");
+                            // Handle both test data (with images array), server data, and S3 media
+                            const imageUrl = (eventMedia[event.id] && eventMedia[event.id].length > 0)
+                                ? eventMedia[event.id][0]
+                                : (event.images && event.images.length > 0 
+                                    ? event.images[0] 
+                                    : (event.image || "/src/assets/default-event-item-img.jpg"));
                             
                             return <div 
                                 key={`${event.id}-${eventTypeSelected}`}

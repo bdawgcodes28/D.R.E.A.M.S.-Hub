@@ -6,8 +6,9 @@ import HomePage                     from "./pages/HomePage"
 import AboutPage                    from "./pages/AboutPage"
 import EventsPage                   from "./pages/EventsPage"
 import EventItemPage                from "./pages/EventItemPage"
-import CalendarApp from "./components/events/CalendarApp"
-
+import CalendarApp                  from "./components/events/CalendarApp"
+import EventEndpoints               from "./api-testing/EventEndpoints"
+import Upload_media_form            from "./components/private-components/upload_media_form"
 
 function App() {
 
@@ -19,8 +20,9 @@ function App() {
         <Route path="/about" element={<AboutPage/>}/>
         <Route path="/events" element={<EventsPage/>}/>
         <Route path="/events/item" element={<EventItemPage/>}/>
-        <Route path="/calendar" element={<CalendarApp/>}/>
-
+        {/* api private routes */}
+        <Route path="/events/media/upload/private" element={<Upload_media_form/>} />
+        
       </Routes>
     </Router>
   )

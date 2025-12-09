@@ -6,12 +6,13 @@ import GradientOverlay                  from '../components/ui/GradientOverlay'
 import ImageCarousel                    from '../components/ui/ImageCarousel'
 import DEFAULT_IMG                      from "../assets/default-event-item-img.jpg"
 import { FaArrowDownLong }              from "react-icons/fa6";
-import { COLORS_CONSTANTS } from '../styles/StyleConstants'
+import { COLORS_CONSTANTS }             from '../styles/StyleConstants'
 
 export default function EventItemPage() {
   // Get event data from route state
   const location  = useLocation()
   const event     = location.state?.event
+  const media     = location.state?.media
 
   // Handle case where event data is missing
   if (!event) {
@@ -28,8 +29,12 @@ export default function EventItemPage() {
     )
   }
 
-  // check for media paths - handle both array and single image formats
-  const images = event.images || (event.image ? [event.image] : []);
+  // check for media paths - support both separate media prop and event.images
+  const images = media && media.length > 0 
+    ? media 
+    : (event.images && event.images.length > 0 
+        ? event.images 
+        : (event.image ? [event.image] : []));
   const hasMedia = Array.isArray(images) && images.length > 0;
   
   // Typing animation state
@@ -84,13 +89,12 @@ export default function EventItemPage() {
             <GradientOverlay intensity={0.99} direction="bottom" />
 
             {/* event name */}
-        
             <div 
             className="flex flex-col absolute justify-center items-center 
             p-[20px] w-full h-full">
 
                 <h1
-                className='text-6xl text-[white]'
+                className='text-6xl text-[white] text-center'
                 style={{fontWeight: "bold"}}
                 >
                   {displayedText}
@@ -146,16 +150,14 @@ export default function EventItemPage() {
         </div>
           {/* media carosel if has media files */}
           <div 
-            className="w-full h-[50vh] min-h-[500px] border-0 border-black "
+            className={` ${hasMedia? "" : "hidden"} w-full h-[50vh] min-h-[500px] border-0 border-black `}
             style={{ backgroundColor: COLORS_CONSTANTS.DREAMS_PURPLE }}
           >
-
                   <ImageCarousel 
-                  images={images}
+                  images={hasMedia ? images : [DEFAULT_IMG]}
                   autoPlay={true}
                   className={`${hasMedia? "block" : "hidden"}`}
                   />
-
           </div>
 
       </div>
