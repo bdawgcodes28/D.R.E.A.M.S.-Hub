@@ -6,15 +6,16 @@ import GradientOverlay                  from '../components/ui/GradientOverlay'
 import ImageCarousel                    from '../components/ui/ImageCarousel'
 import DEFAULT_IMG                      from "../assets/default-event-item-img.jpg"
 import { FaArrowDownLong }              from "react-icons/fa6";
-import { COLORS_CONSTANTS } from '../styles/StyleConstants'
+import { COLORS_CONSTANTS }             from '../styles/StyleConstants'
 
 export default function EventItemPage() {
   // Get event data from route state
   const location  = useLocation()
   const event     = location.state?.event
+  const media     = location.state?.media
 
   // check for media paths
-  const hasMedia = event.images.length > 0;
+  const hasMedia = media && media.length > 0;
   
   // Typing animation state
   const [displayedText, setDisplayedText] = useState('')
@@ -145,16 +146,14 @@ export default function EventItemPage() {
         </div>
           {/* media carosel if has media files */}
           <div 
-            className="w-full h-[50vh] min-h-[500px] border-0 border-black "
+            className={` ${hasMedia? "" : "hidden"} w-full h-[50vh] min-h-[500px] border-0 border-black `}
             style={{ backgroundColor: COLORS_CONSTANTS.DREAMS_PURPLE }}
           >
-
                   <ImageCarousel 
-                  images={event.images}
+                  images={hasMedia? media : [DEFAULT_IMG]}
                   autoPlay={true}
                   className={`${hasMedia? "block" : "hidden"}`}
                   />
-
           </div>
 
       </div>

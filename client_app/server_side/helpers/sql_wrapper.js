@@ -140,7 +140,7 @@ class MySQLConnector
             return [];
         }
 
-        const sql           = `SELECT * FROM ${table} WHERE active = 1`;
+        const sql           = `SELECT * FROM ${table}`;
         const con           = await this._ensureConnection();
         const [result]      = await con.query(sql);
         return result;

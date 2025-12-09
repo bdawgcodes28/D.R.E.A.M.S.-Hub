@@ -256,7 +256,7 @@ export default function EventsPage() {
                                 alt="" 
                             />
                             <div className="absolute inset-0 z-10 bg-linear-to-t from-black/80 via-black/40 to-transparent opacity-90"></div>
-                            <EventCardContent event={event} />
+                            <EventCardContent event={event} media={eventMedia[event.id]} />
                         </div>
                     })}
                 </EventCarousel>
