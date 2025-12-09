@@ -7,6 +7,7 @@ import ImageCarousel                    from '../components/ui/ImageCarousel'
 import DEFAULT_IMG                      from "../assets/default-event-item-img.jpg"
 import { FaArrowDownLong }              from "react-icons/fa6";
 import { COLORS_CONSTANTS }             from '../styles/StyleConstants'
+import { formatDateReadable, formatTimeReadable } from '../components/events/eventTransformers'
 
 export default function EventItemPage() {
   // Get event data from route state
@@ -36,6 +37,21 @@ export default function EventItemPage() {
         ? event.images 
         : (event.image ? [event.image] : []));
   const hasMedia = Array.isArray(images) && images.length > 0;
+  
+  // Format date and time for display
+  const formattedDate = formatDateReadable(event.date || '');
+  
+  // Handle time formatting - check for both time field and start_time/end_time fields
+  let formattedTime = '';
+  if (event.time) {
+    // If time field exists, use it (might already be formatted or need formatting)
+    formattedTime = formatTimeReadable(event.time, event.end_time || null);
+  } else if (event.start_time) {
+    // If start_time exists (API format), format both start and end times
+    formattedTime = formatTimeReadable(event.start_time, event.end_time || null);
+  } else {
+    formattedTime = event.time || '';
+  }
   
   // Typing animation state
   const [displayedText, setDisplayedText] = useState('')
@@ -132,12 +148,12 @@ export default function EventItemPage() {
             <div className=" w-[50%] max-w-[550px] flex flex-col justify-center gap-[5px]">
               
               <div 
-              className={`w-full flex-1 border-0 border-[border] rounded-[5px] flex items-center justify-center bg-[#444343] hover:bg-[#7a4ce6] transition-colors duration-300`}>
-                <h1 className='text-white text-5xl font-bold'>{event.date}</h1>
+              className={`w-full flex-1 border-0 border-[border] rounded-[5px] flex items-center justify-center bg-[#444343] hover:bg-[#7a4ce6] transition-colors duration-300 p-4`}>
+                <h1 className='text-white text-3xl md:text-4xl lg:text-5xl font-bold text-center'>{formattedDate || event.date}</h1>
               </div>
               <div 
-              className={`w-full flex-1 border-0 border-[border] rounded-[5px] flex items-center justify-center bg-[#444343] hover:bg-[#7a4ce6] transition-colors duration-300`}>
-                <h1 className='text-white text-5xl font-bold'>{event.time}</h1>
+              className={`w-full flex-1 border-0 border-[border] rounded-[5px] flex items-center justify-center bg-[#444343] hover:bg-[#7a4ce6] transition-colors duration-300 p-4`}>
+                <h1 className='text-white text-3xl md:text-4xl lg:text-5xl font-bold text-center'>{formattedTime || event.time}</h1>
               </div>
               <div 
               className={`w-full flex-1 border-0 border-[border] rounded-[5px] flex items-center justify-center bg-[#444343] hover:bg-[#7a4ce6] transition-colors duration-300`}>

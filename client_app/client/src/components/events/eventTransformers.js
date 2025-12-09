@@ -251,3 +251,71 @@ export function transformEventsToCalendarFormat(events) {
   console.log('transformEventsToCalendarFormat: successfully transformed', transformed.length, 'events');
   return transformed;
 }
+
+/**
+ * Formats a date string into custom format "MM. DD. YYYY."
+ * @param {string|Date} dateInput - Date string in various formats or Date object
+ * @returns {string} - Formatted date string like "11. 05. 2025."
+ */
+export function formatDateReadable(dateInput) {
+  if (!dateInput) return '';
+  
+  // If already in the custom format, return as is
+  if (String(dateInput).match(/(\d+)\.\s*(\d+)\.\s*(\d+)\./)) {
+    return String(dateInput);
+  }
+  
+  const dateComponents = parseDateString(dateInput);
+  if (!dateComponents) return String(dateInput); // Return original if can't parse
+  
+  const { year, month, day } = dateComponents;
+  
+  // Format as "MM. DD. YYYY."
+  const monthStr = String(month).padStart(2, '0');
+  const dayStr = String(day).padStart(2, '0');
+  
+  return `${monthStr}. ${dayStr}. ${year}.`;
+}
+
+/**
+ * Formats a time string into a readable format
+ * @param {string} timeInput - Time string in various formats
+ * @param {string} endTimeInput - Optional end time string
+ * @returns {string} - Formatted time string like "10:00 AM - 2:00 PM"
+ */
+export function formatTimeReadable(timeInput, endTimeInput = null) {
+  if (!timeInput) return '';
+  
+  // If it's already in 12-hour format with AM/PM, return as is
+  if (timeInput.includes('AM') || timeInput.includes('PM')) {
+    return timeInput;
+  }
+  
+  // Try to parse as 24-hour format
+  const timeComponents = parseTimeString(timeInput, endTimeInput);
+  if (!timeComponents) return timeInput; // Return original if can't parse
+  
+  const { startHour, startMin, endHour, endMin } = timeComponents;
+  
+  // Convert to 12-hour format
+  const formatHour = (hour24) => {
+    if (hour24 === 0) return 12;
+    if (hour24 > 12) return hour24 - 12;
+    return hour24;
+  };
+  
+  const formatPeriod = (hour24) => hour24 >= 12 ? 'PM' : 'AM';
+  
+  const startHour12 = formatHour(startHour);
+  const startPeriod = formatPeriod(startHour);
+  const startMinStr = String(startMin).padStart(2, '0');
+  
+  if (endHour !== undefined && endMin !== undefined) {
+    const endHour12 = formatHour(endHour);
+    const endPeriod = formatPeriod(endHour);
+    const endMinStr = String(endMin).padStart(2, '0');
+    return `${startHour12}:${startMinStr} ${startPeriod} - ${endHour12}:${endMinStr} ${endPeriod}`;
+  }
+  
+  return `${startHour12}:${startMinStr} ${startPeriod}`;
+}
