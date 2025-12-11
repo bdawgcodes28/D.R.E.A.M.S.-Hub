@@ -2,9 +2,78 @@ import { ChevronDownIcon }          from '@heroicons/react/16/solid'
 import Navbar                       from '../components/layout/Navbar'
 import { Footer }                   from '../components/layout/Footer'
 import { COLORS_CONSTANTS }         from '../styles/StyleConstants';
+import { useState, useEffect } from 'react';
 
 
 export default function ContactPage() {
+
+    // usestate for form info
+    const [policyCheck, setPolicyCheck] = useState(false);
+    const [formInfo, setFormInfo]       = useState({
+        first_name  :      null,
+        last_name   :      null,
+        company     :      null,
+        email       :      null,
+        phone_number:      null,
+        message     :      null,
+    });
+
+    //--------------------------------------------------------------------------
+    // methods to check the forms data before message is sent
+    async function checkNames()         { return true; }
+    async function checkPhoneNumber()   { return true; }
+    async function checkEmail()         { return true; }
+    async function checkMessage()       { return true; }
+
+    //--------------------------------------------------------------------------
+    const handleCheckboxChange = (e) => {
+        setPolicyCheck(e.target.checked);
+    };
+
+    const handle_input_change = (e) => {
+        // get data from input element
+        const {name, value} = e.target;
+
+        setFormInfo( prev => ({
+            ...prev,
+            [name] : value
+        }));
+    }
+
+    // make email request to server
+    async function handle_submit(e){   
+        // prevents a page refresh
+        e.preventDefault();
+
+        try {
+            // all checks should return true if valid
+            const results = await Promise.all([
+                checkNames(),
+                checkEmail(),
+                checkPhoneNumber(),
+                checkMessage(),
+            ]);
+        
+            const allValid = results.every(Boolean);
+        
+            if (!allValid) 
+            {
+                console.warn("Some input fields are invalid.");
+                return;
+            }
+
+
+            // make request to the server
+
+        
+            console.log("All validation passed!");
+        } 
+        catch (error) {
+           console.error("Error in one of the input checks:", error);
+        }
+    
+    }
+
 
 
   return (
@@ -26,8 +95,9 @@ export default function ContactPage() {
                 </label>
                 <div className="mt-2.5">
                 <input
+                    onChange={handle_input_change}
                     id="first-name"
-                    name="first-name"
+                    name="first_name"
                     type="text"
                     autoComplete="given-name"
                     className="block w-full rounded-md bg-white px-3.5 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600"
@@ -40,8 +110,9 @@ export default function ContactPage() {
                 </label>
                 <div className="mt-2.5">
                 <input
+                onChange={handle_input_change}
                     id="last-name"
-                    name="last-name"
+                    name="last_name"
                     type="text"
                     autoComplete="family-name"
                     className="block w-full rounded-md bg-white px-3.5 py-2 text-base text-gray-900 outline-1 -outline-offset-1 outline-gray-300 placeholder:text-gray-400 focus:outline-2 focus:-outline-offset-2 focus:outline-indigo-600"
@@ -54,6 +125,7 @@ export default function ContactPage() {
                 </label>
                 <div className="mt-2.5">
                 <input
+                    onChange={handle_input_change}
                     id="company"
                     name="company"
                     type="text"
@@ -68,6 +140,7 @@ export default function ContactPage() {
                 </label>
                 <div className="mt-2.5">
                 <input
+                    onChange={handle_input_change}
                     id="email"
                     name="email"
                     type="email"
@@ -100,8 +173,9 @@ export default function ContactPage() {
                     />
                     </div>
                     <input
+                    onChange={handle_input_change}
                     id="phone-number"
-                    name="phone-number"
+                    name="phone_number"
                     type="text"
                     placeholder="123-456-7890"
                     className="block min-w-0 grow py-1.5 pr-3 pl-1 text-base text-gray-900 placeholder:text-gray-400 focus:outline-none sm:text-sm/6"
@@ -128,15 +202,17 @@ export default function ContactPage() {
                 <div className="group relative inline-flex w-8 shrink-0 rounded-full bg-gray-200 p-px inset-ring inset-ring-gray-900/5 outline-offset-2 outline-indigo-600 transition-colors duration-200 ease-in-out has-checked:bg-indigo-600 has-focus-visible:outline-2">
                     <span className="size-4 rounded-full bg-white shadow-xs ring-1 ring-gray-900/5 transition-transform duration-200 ease-in-out group-has-checked:translate-x-3.5" />
                     <input
-                    id="agree-to-policies"
-                    name="agree-to-policies"
+                    checked={policyCheck}
+                    onChange={handleCheckboxChange}
+                    id="agree_to_policies"
+                    name="agree_to_policies"
                     type="checkbox"
                     aria-label="Agree to policies"
                     className="absolute inset-0 appearance-none focus:outline-hidden"
                     />
                 </div>
                 </div>
-                <label htmlFor="agree-to-policies" className="text-sm/6 text-gray-600">
+                <label htmlFor="agree_to_policies" className="text-sm/6 text-gray-600">
                 By selecting this, you agree to our{' '}
                 <a href="#" className="font-semibold whitespace-nowrap text-indigo-600">
                     privacy policy
@@ -147,6 +223,7 @@ export default function ContactPage() {
             </div>
             <div className="mt-10">
             <button
+                onClick={handle_submit}
                 style={{backgroundColor: COLORS_CONSTANTS.DREAMS_PINK}}
                 type="submit"
                 className="block w-full rounded-md px-3.5 py-2.5 text-center text-sm font-semibold text-white shadow-xs hover:opacity-90 transition-opacity focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"

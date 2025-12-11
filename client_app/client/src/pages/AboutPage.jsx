@@ -40,8 +40,8 @@ const t_teamMembers = [
 
 const MeetTheTeam = () => {
   // 1. STATE: Track which member's ID is currently open. Null means none are open.
-  const [ openMemberId , setOpenMemberId ] = useState(null);
-  const [ boardMembers , setBoardMembers ] = useState(null);
+  const [ openMemberId , setOpenMemberId ]         = useState(null);
+  const [ boardMembers , setBoardMembers ]         = useState(null);
 
   const members_to_map = () => {
     if (boardMembers && boardMembers.length > 0){
@@ -59,7 +59,7 @@ const MeetTheTeam = () => {
       try 
       {
         const response = await BOARD_MEMBER_MIDDLEWARE.loadBoardMemberProfiles();
-        console.log("Loaded board members:", response);
+
         setBoardMembers(response);
       } catch (error) 
       {
@@ -83,19 +83,21 @@ const MeetTheTeam = () => {
       aria-labelledby="team-heading" 
       className="flex flex-wrap items-stretch justify-center gap-12 p-8"
     >
-      {members_to_map().map((member) => {
+      {members_to_map().map((member, index) => {
+        // Use id if available, otherwise use index as unique identifier
+        const memberId = member.id || `member-${index}`;
         // Determine if the current member's full description should be visible
-        const isOpen = member.id === openMemberId;
+        const isOpen = memberId === openMemberId;
 
         return (
           <motion.div
-            key={member.id}
+            key={memberId}
             initial={{ opacity: 0, y: 30 }}
             whileInView={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5 }}
             viewport={{ once: true }}
             // 4. CLICK HANDLER: Add onClick to the entire div to toggle the description
-            onClick={() => toggleDescription(member.id)} 
+            onClick={() => toggleDescription(memberId)} 
             // 5. VISUALS: Add cursor-pointer and hover effects to signal clickability
             className={`flex flex-col md:flex-row items-center md:items-stretch  duration-300 overflow-hidden max-w-sm md:max-w-4xl w-full cursor-pointer rounded-tl-[58px] rounded-br-[58px] shadow-lg hover:shadow-xl hover:scale-[1.01] transition-all
               ${isOpen ? '' : ''} 

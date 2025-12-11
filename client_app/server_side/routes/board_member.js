@@ -48,11 +48,24 @@ async function getMemberData(req, res, next)
         const sql    = getSqlClient();
 
         // get all rows
-        const result = await sql.selectAllRows("board_member_website_profiles");
+        //const result = await sql.selectAllRows("board_member_website_profiles");
+
+        const result = await sql.invokeSQL(`
+            SELECT 
+                first_name,
+                last_name,
+                role,
+                website_quote,
+                website_bio,
+                image_url as image
+            FROM board_member_website_profiles LEFT JOIN board_member_images
+            ON board_member_website_profiles.id = board_member_images.board_member_id
+            ORDER BY return_order ASC;
+        `);
+
+
         // handle no data found
         if (result.length == 0){ return res.json(RC_RESPONSE(RC_CODES.NOT_FOUND)); }
-        
-        // get headshots images
 
 
         // add data to req packet

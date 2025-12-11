@@ -1,9 +1,10 @@
-import React                    from 'react'
+import React, { useEffect, useState }                    from 'react'
 import StemKids                 from "../../assets/kids-stem-img.jpg"
 import { MdAccountCircle }      from "react-icons/md";
 import { COLORS_CONSTANTS }     from '../../styles/StyleConstants';
 import useIsMobile              from '../../hooks/useIsMobile';
 import { Link }                 from 'react-router-dom';
+import * as BOARD_MEMBER_MIDDLEWARE  from "../../middlewares/board_web_profiles_middleware"
 
 export default function Banner() {
     //===========================================
@@ -12,12 +13,24 @@ export default function Banner() {
 
     const isMobile = useIsMobile();
 
-    const theTeam = [
-        {Name: null, Image: null},
-        {Name: null, Image: null},
-        {Name: null, Image: null},
-        {Name: null, Image: null},
-    ];
+    const [theTeam, setTheTeam] = useState([
+        {Name: null, image: null},
+        {Name: null, image: null},
+        {Name: null, image: null},
+        {Name: null, image: null},
+        {Name: null, image: null},
+        {Name: null, image: null},
+    ]);
+
+    useEffect(()=>{
+        async function getBoardMembers()
+        {
+            const response = await BOARD_MEMBER_MIDDLEWARE.loadBoardMemberProfiles();
+            setTheTeam(response);
+        }
+        getBoardMembers();
+    }, []);
+
 
     return (
         <div className="relative w-full h-[80%] min-h-fit max-h-[800px] overflow-hidden block" style={{ backgroundColor: COLORS_CONSTANTS.BANNER_BG }}>
@@ -63,13 +76,19 @@ export default function Banner() {
                         }}
                         >Learn more</Link>
 
-                        {/* load in images of the team  */}
-
-                        {!isMobile ? theTeam.map((member, idx)=>{
-                            return (member.Image) ? 
-                            <div key={idx} className="">{member.Image}</div>
-                            : <MdAccountCircle key={idx} color={COLORS_CONSTANTS.WHITE} size={70} className=''/>
-                        }) : null}
+                        <div className="flex border-[white] border-0 gap-[20px] h-full flex-1 ">
+                            {/* load in images of the team  */}
+                            {!isMobile ? theTeam.map((member, idx)=>{
+                                return (member && member.image) ? 
+                                <img 
+                                className='size-[75px] aspect-square rounded-full object-cover'
+                                key={idx} 
+                                src={member.image} 
+                                alt="" 
+                                srcset="" />
+                                : null
+                            }) : null}
+                        </div>
                     </div>
                 </div>
                 

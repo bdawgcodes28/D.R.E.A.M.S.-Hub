@@ -3,6 +3,7 @@
  * for the react app to abstract complexity
  */
 
+import * as CACHE from "../hooks/useEventsCache"
 
 //------------------------------------------------------
 // import env varibles to interact with server
@@ -20,6 +21,51 @@ if (!BASE_URL || BASE_URL === "undefined") {
     console.error("VITE_BASE_URL is not set correctly. Current value:", BASE_URL);
 }
 
+//------------------------------------------------------
+// Cache configuration
+//------------------------------------------------------
+const BOARD_PROFILES_CACHE_KEY              = 'dreams_board_profiles_cache';
+const BOARD_PROFILES_CACHE_TIMESTAMP_KEY    = 'dreams_board_profiles_cache_timestamp';
+const CACHE_DURATION = 5 * 60 * 1000; // 5 minutes in milliseconds
+
+/**
+ * Load board member profiles from localStorage cache
+ * @returns {Object|null} Cached data if valid, null otherwise
+ */
+function loadFromCache() {
+    try {
+        const cachedProfiles = localStorage.getItem(BOARD_PROFILES_CACHE_KEY);
+        const cacheTimestamp = localStorage.getItem(BOARD_PROFILES_CACHE_TIMESTAMP_KEY);
+
+        if (cachedProfiles && cacheTimestamp) {
+            const timestamp = parseInt(cacheTimestamp, 10);
+            const now = Date.now();
+            
+            // Check if cache is still valid (within cache duration)
+            if (now - timestamp < CACHE_DURATION) {
+                return JSON.parse(cachedProfiles);
+            }
+        }
+    } catch (err) {
+        console.warn('Error loading board profiles from cache:', err);
+    }
+    
+    return null;
+}
+
+/**
+ * Save board member profiles to localStorage cache
+ * @param {Array} profilesData - The profiles data to cache
+ */
+function saveToCache(profilesData) {
+    try {
+        localStorage.setItem(BOARD_PROFILES_CACHE_KEY, JSON.stringify(profilesData));
+        localStorage.setItem(BOARD_PROFILES_CACHE_TIMESTAMP_KEY, Date.now().toString());
+    } catch (err) {
+        console.warn('Error saving board profiles to cache:', err);
+    }
+}
+
 
 /**
  * fetches the profile data from server
@@ -28,6 +74,13 @@ if (!BASE_URL || BASE_URL === "undefined") {
  */
 export async function loadBoardMemberProfiles()
 {
+    // check cache before you make api request
+    const cachedData = loadFromCache();
+    if (cachedData) {
+        console.log("Loading board members from cache");
+        return cachedData;
+    }
+
     try 
     {
         const url = `${API_BASE_URL}${BOARD_WEB_PROFILES_API_ENTRY}/fetch/members`;
@@ -52,14 +105,29 @@ export async function loadBoardMemberProfiles()
         }
 
         const data = await response.json();
-        console.log("res:", data);
-        if (data.status == 200) { return data.data; }
+        if (data.status == 200) 
+        { 
+            // cache the data in local storage before return
+            saveToCache(data.data);
+
+            return data.data; 
+        }
         
         return [];
 
     } catch (error) 
     {
         console.error("Unable to fetch member data:", error);
+        // If API failed, try to return stale cache as fallback
+        try {
+            const staleCache = localStorage.getItem(BOARD_PROFILES_CACHE_KEY);
+            if (staleCache) {
+                console.log("API request failed, returning stale cache data");
+                return JSON.parse(staleCache);
+            }
+        } catch (cacheError) {
+            console.warn("Could not load stale cache:", cacheError);
+        }
         return [];
     }
 }

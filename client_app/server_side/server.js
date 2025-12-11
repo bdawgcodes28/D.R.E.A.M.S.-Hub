@@ -31,6 +31,8 @@ if (process.env.NODE_ENV) {
     } else if (process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'development') {
         envFile = './env/.env.developement';
     }
+    // Load the environment file (system NODE_ENV doesn't mean all vars are loaded)
+    dotenv.config({ path: envFile, override: false });
 } else {
     // No system NODE_ENV, load default .env first to get NODE_ENV
     dotenv.config();
@@ -98,15 +100,15 @@ app.use((req, res, next) => {
 const event_routes          = require("./routes/events.js");
 const media_routes          = require("./routes/media.js");
 const board_member_routes   = require("./routes/board_member.js");
-const contact_routes        = require("./routes/contact.js");
+const email_service_routes  = require("./routes/email_service.js");
 
 // ====================================================
 // USE MODULE ROUTES
 // ====================================================
-app.use("/api/events", event_routes);
-app.use("/api/media", media_routes);
+app.use("/api/events",        event_routes);
+app.use("/api/media",         media_routes);
 app.use("/api/board_members", board_member_routes);
-app.use("/api/contact", contact_routes);
+app.use("/api/email/service", email_service_routes);
 // ====================================================
 // ADD CATCH ALL ROUTE
 // ====================================================

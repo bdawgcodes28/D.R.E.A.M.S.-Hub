@@ -233,11 +233,11 @@ export function transformEventsToCalendarFormat(events) {
   }
   
   if (events.length === 0) {
-    console.log('transformEventsToCalendarFormat: events array is empty');
+    //console.log('transformEventsToCalendarFormat: events array is empty');
     return [];
   }
   
-  console.log('transformEventsToCalendarFormat: transforming', events.length, 'events');
+  //console.log('transformEventsToCalendarFormat: transforming', events.length, 'events');
   const transformed = events
     .map((event, index) => {
       const result = transformEventToCalendarFormat(event);

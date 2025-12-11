@@ -10,6 +10,7 @@ import { useEventsCache }                       from '../hooks/useEventsCache';
 import CalendarApp from '../components/events/CalendarApp';
 import { parseDateString }                      from '../components/events/eventTransformers';
 import * as EVENT_API                           from "../middlewares/events_middleware.js"
+import DEFAULT_EVENT_IMG                        from "../assets/default-dreams-img.png"
 
 export default function EventsPage() {
 
@@ -387,7 +388,7 @@ export default function EventsPage() {
                                     ? eventMedia[event.id][0]
                                     : (event.images && event.images.length > 0 
                                         ? event.images[0] 
-                                        : (event.image || "/src/assets/default-event-item-img.jpg"));
+                                        : (event.image || DEFAULT_EVENT_IMG));
                                 
                                 return <div 
                                     key={`${event.id}-${eventTypeSelected}`}
