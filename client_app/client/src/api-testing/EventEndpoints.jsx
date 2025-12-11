@@ -8,9 +8,7 @@ export default function EventEndpoints() {
   useEffect(() => {
     async function fetchEvents() {
       try {
-        console.log("api response: ");
         const data = await loadEvents();
-        console.log(data);
         setEvents(data);
       } catch (error) {
         console.error("Error fetching events:", error);

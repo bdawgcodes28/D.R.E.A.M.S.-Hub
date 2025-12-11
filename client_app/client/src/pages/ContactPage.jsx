@@ -1,14 +1,18 @@
-import { ChevronDownIcon }          from '@heroicons/react/16/solid'
-import Navbar                       from '../components/layout/Navbar'
-import { Footer }                   from '../components/layout/Footer'
-import { COLORS_CONSTANTS }         from '../styles/StyleConstants';
-import { useState, useEffect } from 'react';
-
+import { ChevronDownIcon }              from '@heroicons/react/16/solid'
+import Navbar                           from '../components/layout/Navbar'
+import { Footer }                       from '../components/layout/Footer'
+import { COLORS_CONSTANTS }             from '../styles/StyleConstants';
+import { useState, useEffect }          from 'react';
+import * as EMAIL_SERVICE_MIDDLEWARE    from "../middlewares/email_service_middleware"
 
 export default function ContactPage() {
 
     // usestate for form info
     const [policyCheck, setPolicyCheck] = useState(false);
+    const [errors, setErrors]           = useState({
+        POLICY_NOT_CHECKED: false,
+        SUCCESSFULLY_SENT:  false
+    });
     const [formInfo, setFormInfo]       = useState({
         first_name  :      null,
         last_name   :      null,
@@ -30,10 +34,16 @@ export default function ContactPage() {
         setPolicyCheck(e.target.checked);
     };
 
+    useEffect(()=>{
+        if (policyCheck){
+            setErrors(prev => ({...prev, POLICY_NOT_CHECKED : false}));
+        }
+    }, [policyCheck]);
+
     const handle_input_change = (e) => {
         // get data from input element
         const {name, value} = e.target;
-
+        setErrors(prev => ({...prev, SUCCESSFULLY_SENT: false}));
         setFormInfo( prev => ({
             ...prev,
             [name] : value
@@ -44,6 +54,12 @@ export default function ContactPage() {
     async function handle_submit(e){   
         // prevents a page refresh
         e.preventDefault();
+
+        if (!policyCheck)
+        {
+            setErrors(prev => ({...prev, POLICY_NOT_CHECKED : true}));
+            return;
+        }
 
         try {
             // all checks should return true if valid
@@ -61,10 +77,11 @@ export default function ContactPage() {
                 console.warn("Some input fields are invalid.");
                 return;
             }
-
-
             // make request to the server
-
+            const response = await EMAIL_SERVICE_MIDDLEWARE.sendEmail(formInfo);
+            if (response.status == 200){
+                setErrors(prev => ({...prev, SUCCESSFULLY_SENT: true}));
+            }
         
             console.log("All validation passed!");
         } 
@@ -189,6 +206,7 @@ export default function ContactPage() {
                 </label>
                 <div className="mt-2.5">
                 <textarea
+                    onChange={handle_input_change}
                     id="message"
                     name="message"
                     rows={4}
@@ -220,6 +238,12 @@ export default function ContactPage() {
                 .
                 </label>
             </div>
+            </div>
+            {/* policy error box  */}
+            <div className={` ${(errors.POLICY_NOT_CHECKED || errors.SUCCESSFULLY_SENT)? "block" : "hidden"} border-0 border-[black] w-full p-[5px] text-[15px] text-center`}>
+               {(errors.POLICY_NOT_CHECKED)? 
+               <p className='text-[red]'>Must accept our policy agreement...</p> : <p className='text-[green]'>Email successfully sent!</p>
+            }
             </div>
             <div className="mt-10">
             <button

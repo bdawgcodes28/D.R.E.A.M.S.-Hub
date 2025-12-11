@@ -169,7 +169,10 @@ function constructHtmlMessage(name, company, email, phone, message){
 }
 
 async function handleEmailRequest(req, res, next){
-    const {first_name, last_name, company, phone, email, message} = req.body.email;
+    // parse data from request packet
+    const { first_name, last_name, 
+            company, phone, email, message} = req.body.email;
+    
     try
     {
         const emailHTML = constructHtmlMessage(
@@ -182,32 +185,13 @@ async function handleEmailRequest(req, res, next){
         sendEmail(null, emailHTML);
         next();
 
-    }catch(error){
+    }catch(error)
+    {
         console.log("Error when trying to send email:", error);
         return res.json(RC_RESPONSE(RC_CODES.BAD_REQUEST));
     }
     
 }
-
-
-//-----------------------------------------------------------------------------
-// tests
-//-----------------------------------------------------------------------------
-// Simple test function to send an email with sample data
-(async () => {
-    const testName = "John Doe";
-    const testCompany = "Tech Solutions Inc.";
-    const testEmail = "john.doe@example.com";
-    const testPhone = "(555) 123-4567";
-    const testMessage = "Hello! This is a test message from the D.R.E.A.M.S Collective contact form. I'm interested in learning more about your programs and how I can get involved.";
-    
-    const testHtml = constructHtmlMessage(testName, testCompany, testEmail, testPhone, testMessage);
-    const testText = `Name: ${testName}\nEmail: ${testEmail}\nPhone: ${testPhone}\nCompany: ${testCompany}\n\nMessage:\n${testMessage}`;
-    
-    console.log("Sending test email...");
-    await sendEmail(testText, testHtml);
-    console.log("Test email sent successfully!");
-})();
 
 //-----------------------------------------------------------------------------
 // endpoints
@@ -215,9 +199,6 @@ async function handleEmailRequest(req, res, next){
 router.post("/send/email", handleEmailRequest, (req, res) =>{
     return res.json(RC_RESPONSE(RC_CODES.SUCCESS));
 });
-
-
-
 
 //-----------------------------------------------------------------------------
 // export endpoints

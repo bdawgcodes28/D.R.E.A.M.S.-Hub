@@ -10,27 +10,28 @@ export default function Testimonal() {
           <p
           className={`text-center mx-auto h-12 text-[${COLORS_CONSTANTS.DREAMS_PINK}]`}
           style={{color: COLORS_CONSTANTS.DREAMS_PINK, fontWeight:'bold'}}
-          >Words from the community.</p>
+          >Words from our community.</p>
 
           <figure className="mt-10">
             <blockquote className="text-center text-xl/8 font-semibold text-gray-900 sm:text-2xl/9">
               <p>
-                “Lorem ipsum dolor sit amet consectetur adipisicing elit. Nemo expedita voluptas culpa sapiente alias
-                molestiae. Numquam corrupti in laborum sed rerum et corporis.”
+              “Volunteering with D.R.E.A.M.S Collective has been inspiring 
+              and rewarding, giving me the chance to support youth and share 
+              the excitement of STEM.”
               </p>
             </blockquote>
             <figcaption className="mt-10">
               <img
                 alt=""
-                src="https://images.unsplash.com/photo-1494790108377-be9c29b29330?ixlib=rb-1.2.1&ixid=eyJhcHBfaWQiOjEyMDd9&auto=format&fit=facearea&facepad=2&w=256&h=256&q=80"
-                className="mx-auto size-10 rounded-full"
+                src="https://dreams-media-a.s3.us-east-2.amazonaws.com/user-media/undergraduates/Lopes%2C+Elias+TM126021624-098.jpg"
+                className="mx-auto size-10 rounded-full object-cover"
               />
               <div className="mt-4 flex items-center justify-center space-x-3 text-base">
-                <div className="font-semibold text-gray-900">Judith Black</div>
+                <div className="font-semibold text-gray-900 mr-[10px]">Elias Lopes</div>
                 <svg width={3} height={3} viewBox="0 0 2 2" aria-hidden="true" className="fill-gray-900">
                   <circle r={1} cx={1} cy={1} />
                 </svg>
-                <div className="text-gray-600">CEO of Workcation</div>
+                <div className="ml-[10px] text-gray-600">Honors Student at North Carolina A&T</div>
               </div>
             </figcaption>
           </figure>
