@@ -8,18 +8,16 @@ import * as CACHE from "../hooks/useEventsCache"
 //------------------------------------------------------
 // import env varibles to interact with server
 //------------------------------------------------------
-const BASE_URL                          = import.meta.env.VITE_BASE_URL || "http://localhost";
-const REST_PORT                         = import.meta.env.VITE_REST_API_PORT || "3000";
+const BASE_URL                          = import.meta.env.VITE_BASE_URL || "";
+const REST_PORT                         = import.meta.env.VITE_REST_API_PORT;
 const BOARD_WEB_PROFILES_API_ENTRY      = "/api/board_members";
 
-const API_BASE_URL = REST_PORT 
-    ? `${BASE_URL}:${REST_PORT}`
-    : BASE_URL;
-
-// Validate URL construction
-if (!BASE_URL || BASE_URL === "undefined") {
-    console.error("VITE_BASE_URL is not set correctly. Current value:", BASE_URL);
-}
+// Construct the full API URL
+// Use relative URLs if BASE_URL is empty (for production when served from same origin)
+// Handle both cases: BASE_URL with or without port
+const API_BASE_URL = BASE_URL 
+    ? (REST_PORT ? `${BASE_URL}:${REST_PORT}` : BASE_URL)
+    : "";
 
 //------------------------------------------------------
 // Cache configuration

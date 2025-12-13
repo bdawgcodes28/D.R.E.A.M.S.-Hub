@@ -7,15 +7,16 @@
 //------------------------------------------------------
 // import env varibles to interact with server
 //------------------------------------------------------
-const BASE_URL              = import.meta.env.VITE_BASE_URL;
+const BASE_URL              = import.meta.env.VITE_BASE_URL || "";
 const REST_PORT             = import.meta.env.VITE_REST_API_PORT;
 const EVENTS_API_ENTRY      = "/api/events";
 
 // Construct the full API URL
+// Use relative URLs if BASE_URL is empty (for production when served from same origin)
 // Handle both cases: BASE_URL with or without port
-const API_BASE_URL = REST_PORT 
-    ? `${BASE_URL}:${REST_PORT}`
-    : BASE_URL;
+const API_BASE_URL = BASE_URL 
+    ? (REST_PORT ? `${BASE_URL}:${REST_PORT}` : BASE_URL)
+    : "";
 
 //------------------------------------------------------
 // implement middleware

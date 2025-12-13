@@ -9,7 +9,7 @@ export default defineConfig({
     proxy: {
       // Proxy API requests to backend server
       '/api': {
-        target: process.env.VITE_API_URL || 'http://localhost:3000',
+        target: 'http://backend:3000',
         changeOrigin: true,
         secure: false,
         ws: true, // Enable WebSocket proxying

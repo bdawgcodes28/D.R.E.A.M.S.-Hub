@@ -7,6 +7,7 @@ services:
       - dev
   # service for node server
   backend:
+    container_name: backend
     build: ./server_side
     ports:
       - ${PORT:-3000}:${PORT:-3000}
@@ -23,18 +24,25 @@ services:
       - AWS_PROFILE=dreams-dev
     volumes:
       - ~/.aws:/root/.aws:ro
-    depends_on:
-      - frontend
-
-  # redis service for caching
+    networks:
+      - app-network
 
   # service to build react app
   frontend:
+    container_name: frontend
     build: ./client
     ports:
       - ${PORT:-5173}:${PORT:-5173}
+    depends_on:
+      - backend
+    networks:
+      - app-network
 
 volumes:
   redis_data:
+
+networks:
+  app-network:
+    driver: bridge
 
  
