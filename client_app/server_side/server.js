@@ -1,9 +1,12 @@
 /**
  * 
  * 
+ * this file is the server entry point
+ * for express
  * 
+ * route modules get imported here
  * 
- * 
+ * basic middleware is also set here
  * 
  */
 
@@ -15,38 +18,12 @@ const bodyParser    = require("body-parser");
 const dotenv        = require("dotenv");
 const cors          = require("cors");
 const path          = require("path");
+const {load_env}    = require("./helpers/env_variables.js")
 
 // ====================================================
 // CHOOSE ENVIRONMENT VARIABLE
 // ====================================================
-// First check system-level NODE_ENV (set by system or process)
-// If not set, load default .env to get NODE_ENV, then reload with correct file
-let envFile = './env/.env'; // default env file path
-
-// Check if NODE_ENV is already set at system level
-if (process.env.NODE_ENV) {
-    // Use system-level NODE_ENV to choose environment file
-    if (process.env.NODE_ENV === 'prod' || process.env.NODE_ENV === 'production') {
-        envFile = './env/.env.production';
-    } else if (process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'development') {
-        envFile = './env/.env.developement';
-    }
-    // Load the environment file (system NODE_ENV doesn't mean all vars are loaded)
-    dotenv.config({ path: envFile, override: false });
-} else {
-    // No system NODE_ENV, load default .env first to get NODE_ENV
-    dotenv.config();
-    
-    // Now choose environment file based on loaded NODE_ENV
-    if (process.env.NODE_ENV === 'prod' || process.env.NODE_ENV === 'production') {
-        envFile = './env/.env.production';
-    } else if (process.env.NODE_ENV === 'dev' || process.env.NODE_ENV === 'development') {
-        envFile = './env/.env.developement';
-    }
-    
-    // Reload with the correct environment file
-    dotenv.config({ path: envFile, override: true });
-}
+load_env();
 
 // Now check the final NODE_ENV to determine if we're in production
 const isProdEnv = (process.env.NODE_ENV && process.env.NODE_ENV == "prod") ? true : false;
@@ -55,7 +32,7 @@ const isProdEnv = (process.env.NODE_ENV && process.env.NODE_ENV == "prod") ? tru
 // CREATE APP INSTANCE
 // ====================================================
 const app           = express();
-const PORT          = process.env.PORT;
+const PORT          = process.env.PORT || 3000;
 const DOMAIN        = process.env.DOMAIN;
 
 // ====================================================
@@ -66,28 +43,69 @@ app.use(express.json({limit: '50mb'}));
 
 // path to dist directory with react build
 const BUILD_DIR = path.join(__dirname, "../client/dist");
-app.use(express.static(BUILD_DIR)); 
+
+// Health check endpoint (before static files, doesn't require client build)
+app.get("/health", (req, res) => {
+    res.status(200).json({ 
+        status: "ok", 
+        port: PORT, 
+        domain: DOMAIN,
+        buildDir: BUILD_DIR,
+        buildDirExists: require('fs').existsSync(BUILD_DIR)
+    });
+});
+
+// Serve static files if build directory exists
+if (require('fs').existsSync(BUILD_DIR)) {
+    app.use(express.static(BUILD_DIR));
+    console.log("Serving static files from:", BUILD_DIR);
+} else {
+    console.error("WARNING: Build directory not found:", BUILD_DIR);
+    app.get("/", (req, res) => {
+        res.status(500).send("Client build not found. Build directory missing: " + BUILD_DIR);
+    });
+} 
 
 const allowedOrigins = [
     'http://localhost:8080', // nodejs dev server
     'http://localhost:5173',                     
-    'http://localhost:3000',                      
+    'http://localhost:3000',
 ];
-  
-app.use(cors({
-origin: function(origin, callback) {
-    // Allow requests with no origin (like mobile apps or curl)
-    if (!origin) return callback(null, true);
 
-    if (allowedOrigins.includes(origin)) {
-    callback(null, true);
-    } else {
-    callback(new Error('Not allowed by CORS'));
+// Add LoadBalancer domain if set
+if (process.env.DOMAIN) {
+    const domainUrl = process.env.DOMAIN.replace(/\/$/, ''); // Remove trailing slash
+    allowedOrigins.push(domainUrl);
+    // Also add without http:// prefix in case it's needed
+    if (domainUrl.startsWith('http://')) {
+        allowedOrigins.push(domainUrl.replace('http://', 'https://'));
     }
-},
-methods: ['POST', 'GET', 'OPTIONS'],
-credentials: true
-}));
+}
+
+// In production, allow all origins since we're serving the client from the same origin
+// Also allow requests with no origin (same-origin requests, curl, etc.)
+const corsOptions = isProdEnv ? {
+    origin: true, // Allow all origins in production
+    methods: ['POST', 'GET', 'OPTIONS', 'PUT', 'DELETE'],
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization']
+} : {
+    origin: function(origin, callback) {
+        // Allow requests with no origin (like mobile apps, curl, or same-origin requests)
+        if (!origin) return callback(null, true);
+
+        if (allowedOrigins.includes(origin)) {
+            callback(null, true);
+        } else {
+            callback(new Error('Not allowed by CORS'));
+        }
+    },
+    methods: ['POST', 'GET', 'OPTIONS', 'PUT', 'DELETE'],
+    credentials: true,
+    allowedHeaders: ['Content-Type', 'Authorization']
+};
+  
+app.use(cors(corsOptions));
 
 app.use((req, res, next) => {
     res.setHeader("Cross-Origin-Opener-Policy", "same-origin-allow-popups");
@@ -113,18 +131,31 @@ app.use("/api/email/service", email_service_routes);
 // ADD CATCH ALL ROUTE
 // ====================================================
 app.get("/", (req, res) => {
-    res.status(200).sendFile(path.join(BUILD_DIR, "index.html"));
-    //res.status(200).json({ message: "Server is running!" });
+    const indexPath = path.join(BUILD_DIR, "index.html");
+    if (require('fs').existsSync(indexPath)) {
+        res.status(200).sendFile(indexPath);
+    } else {
+        res.status(500).send("index.html not found in build directory");
+    }
 });
 
 
 // ====================================================
 // SERVER LISTENER
 // ====================================================
-const server = app.listen(PORT, ()=>{
+if (!PORT) {
+    console.error("ERROR: PORT environment variable is not set!");
+    process.exit(1);
+}
+
+const server = app.listen(PORT, "0.0.0.0" ,()=>{
+    console.log("=========================================");
     console.log("Node server is listening on PORT |", PORT);
     console.log("Server Domain/IP                 |", DOMAIN);
     console.log("Production Mode Set To           |", isProdEnv);
+    console.log("Build Directory                  |", BUILD_DIR);
+    console.log("Build Directory Exists           |", require('fs').existsSync(BUILD_DIR));
+    console.log("=========================================");
 });
 
 // Add error handling

@@ -1,0 +1,19 @@
+# THIS FILE EXPOSES OUR DEPLOYMENT TO THE BROWSER
+apiVersion: v1
+kind: Service
+metadata:
+  # NAME OF THE K8 SERVICE
+  name: frontend-service
+  # NAME OF DEPLOYMENT WE MANAGE
+  labels:
+    app: dreams-website-deployment
+spec:
+  # GOOD WHEN K8 IS DEPLOYED TO THE CLOUD
+  type: LoadBalancer 
+  ports:
+    - port: 80
+      targetPort: 3000
+      protocol: TCP
+      name: http
+  selector:
+    app: dreams-website-deployment

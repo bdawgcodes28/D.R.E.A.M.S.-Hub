@@ -1,14 +1,8 @@
 services:
-
-  # local database for dev mode only
-  development_database:
-    profiles:
-      - developement
-      - dev
   # service for node server
-  backend:
-    container_name: backend
-    build: ./server_side
+  app:
+    container_name: dreams-web-app
+    build: .
     ports:
       - ${PORT:-3000}:${PORT:-3000}
     env_file:
@@ -24,25 +18,12 @@ services:
       - AWS_PROFILE=dreams-dev
     volumes:
       - ~/.aws:/root/.aws:ro
-    networks:
-      - app-network
+    deploy:
+      resources:
+        limits:
+          cpus: '2.0'
+          memory: 2G
+        reservations:
+          cpus: '0.5'
+          memory: 512M
 
-  # service to build react app
-  frontend:
-    container_name: frontend
-    build: ./client
-    ports:
-      - ${PORT:-5173}:${PORT:-5173}
-    depends_on:
-      - backend
-    networks:
-      - app-network
-
-volumes:
-  redis_data:
-
-networks:
-  app-network:
-    driver: bridge
-
- 

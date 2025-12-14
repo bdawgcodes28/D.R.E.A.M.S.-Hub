@@ -1,0 +1,44 @@
+# SINGLE IMAGE DEPLOYMENT FOR THE DREAMS WEBSITE
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  # NAME OF DEPLOYMENT
+  name: dreams-website-deployment
+  labels:
+    app: dreams-website-deployment
+spec:
+  # 2 REPLICA PODS ALWAYS RUNNING
+  replicas: 2
+  selector:
+    # ALL PODS BEING MANAGED WILL WILL HAVE THE SAME NAME
+    matchLabels:
+      app: dreams-website-deployment
+  template:
+    metadata:
+      labels:
+        app: dreams-website-deployment
+    spec:
+      # SPECIFIES THE CONFIG OF THE PODS
+      containers:
+      - name: dreams-website-app
+        # DOCKER IMAGE PUSHED TO THE AWS ECR REPOSITORY
+        image: 534804646908.dkr.ecr.us-east-2.amazonaws.com/dreams-website:latest
+        ports:
+        - containerPort: 3000
+        # LOAD ENVIRONMENT VARIABLES FROM CONFIGMAP AND SECRETS
+        envFrom:
+          - configMapRef:
+              name: dreams-app-config
+          - secretRef:
+              name: dreams-app-secrets
+        # FOR GOOD PRACTICE - SPECIFYING THE CONTAINERS NEEDED COMPUTE RESOURCES
+        resources:
+          limits:
+            memory: 512Mi
+            cpu: "1"
+          requests:
+            memory: 256Mi
+            cpu: "0.2"
+
+ 
+

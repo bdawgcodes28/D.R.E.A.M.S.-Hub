@@ -1,0 +1,23 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: dreams-app-config
+  labels:
+    app: dreams-website-deployment
+data:
+  # Server Configuration
+  PORT: "3000"
+  NODE_ENV: "production"
+  AWS_REGION: "us-east-2"
+  REDIS_HOST: "redis-service"  # Update with your Redis service name if using Redis
+  REDIS_PORT: "6379"
+  
+  # Domain Configuration
+  # For LoadBalancer: Use http://<EXTERNAL-IP>:80 (get after service is created)
+  # Update this after you get the LoadBalancer external IP
+  DOMAIN: "http://a30390caec6ab4023be734117e3055a9-866096662.us-east-2.elb.amazonaws.com"  # UPDATE THIS with your actual domain after deployment
+  
+  # Client Configuration (Vite environment variables)
+  # In production, these can be empty since client is served from same origin
+  VITE_BASE_URL: ""  # Empty for same-origin, or set to your domain
+  VITE_REST_API_PORT: ""  # Empty if using same port, or set to "3000"
