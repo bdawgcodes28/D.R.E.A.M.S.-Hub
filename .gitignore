@@ -1,0 +1,6 @@
+# ignore all environment files
+/client_app/server_side/env/.env*
+
+
+# ignore all kubernetes yaml files with secrets
+/client_app/k8/secrets.yml
