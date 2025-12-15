@@ -130,6 +130,26 @@ app.use("/api/email/service", email_service_routes);
 // ====================================================
 // ADD CATCH ALL ROUTE
 // ====================================================
+// ====================================================
+// ADD CATCH ALL ROUTE FOR SPA
+// ====================================================
+// Serve index.html for all non-API routes (SPA routing)
+app.use((req, res, next) => {
+    // Skip API routes
+    if (req.path.startsWith('/api/')) {
+        return next();
+    }
+    
+    // Skip if it's a static file request (Express static middleware handles these)
+    const indexPath = path.join(BUILD_DIR, "index.html");
+    if (require('fs').existsSync(indexPath)) {
+        res.status(200).sendFile(indexPath);
+    } else {
+        res.status(500).send("index.html not found in build directory");
+    }
+});
+
+// home route
 app.get("/", (req, res) => {
     const indexPath = path.join(BUILD_DIR, "index.html");
     if (require('fs').existsSync(indexPath)) {

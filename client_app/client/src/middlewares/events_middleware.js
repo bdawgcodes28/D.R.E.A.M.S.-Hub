@@ -41,6 +41,7 @@ export async function loadEvents()
         }
 
         const data = await response.json();
+    
         if (data.status == 200)
         {
             return data.data;
@@ -82,7 +83,6 @@ export async function loadMedia(ids=[])
         const parsed_data = await response.json();
         //console.log("Media map:", parsed_data);
         // cache on frontend?
-
         // return content
         return parsed_data.data;
         
