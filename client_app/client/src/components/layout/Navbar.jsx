@@ -141,7 +141,7 @@ export default function Navbar() {
                 {/* call section  */}
                 <div className="flex gap-[10px] items-center p-[5px] border-black w-fit ml-[10px]" style={{ color: COLORS_CONSTANTS.WHITE }}>
                     <FaPhoneAlt size={15} color={COLORS_CONSTANTS.WHITE}/>
-                    <p className=' text-[13px]' style={{ color: COLORS_CONSTANTS.WHITE }}>+1 888-575-2222</p>
+                    <p className=' text-[13px]' style={{ color: COLORS_CONSTANTS.WHITE }}>+1 919-841-8472</p>
                 </div>
 
                 {/* slogan / short phrase  */}

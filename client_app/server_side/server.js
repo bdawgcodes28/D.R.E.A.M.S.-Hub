@@ -26,7 +26,7 @@ const {load_env}    = require("./helpers/env_variables.js")
 load_env();
 
 // Now check the final NODE_ENV to determine if we're in production
-const isProdEnv = (process.env.NODE_ENV && process.env.NODE_ENV == "prod") ? true : false;
+const isProdEnv = (process.env.NODE_ENV && (process.env.NODE_ENV == "prod" || process.env.NODE_ENV == "production")) ? true : false;
 
 // ====================================================
 // CREATE APP INSTANCE
@@ -81,6 +81,12 @@ if (process.env.DOMAIN) {
         allowedOrigins.push(domainUrl.replace('http://', 'https://'));
     }
 }
+
+// Adding GoDaddy domain (www.thedreamscollective.org) to allowed origins
+allowedOrigins.push('http://www.thedreamscollective.org');
+allowedOrigins.push('https://www.thedreamscollective.org');
+allowedOrigins.push('http://thedreamscollective.org');
+allowedOrigins.push('https://thedreamscollective.org');
 
 // In production, allow all origins since we're serving the client from the same origin
 // Also allow requests with no origin (same-origin requests, curl, etc.)
