@@ -36,7 +36,9 @@ class MySQLConnector
         const config = {
             host: this.host,
             user: this.user,
-            password: this.password
+            password: this.password,
+            enableKeepAlive: true,
+            keepAliveInitialDelay: 10000
         };
     
         if (db) {
