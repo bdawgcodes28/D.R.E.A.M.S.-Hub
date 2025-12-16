@@ -101,7 +101,7 @@ class MySQLConnector
         return result;
     }
 
-    async invokeSQL(queries=null)
+    async invokeSQL(queries=null, params=null)
     {
         // no sql code given
         if (!queries)
@@ -109,7 +109,8 @@ class MySQLConnector
 
         // invoke the sql commands
         const con       = await this._ensureConnection();
-        const [result]  = await con.query(queries);
+        // Support parameterized queries if params are provided
+        const [result]  = params ? await con.query(queries, params) : await con.query(queries);
         //console.log("Results:", result);
         return result;
     }

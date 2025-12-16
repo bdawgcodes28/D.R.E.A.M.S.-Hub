@@ -41,48 +41,81 @@ async function getEvents(req, res, next)
 
 async function getEventMedia(req, res, next)
 {
-    // get all event_ids needed
-    const id_list = req.body.id_list;
-
-    if (!id_list || id_list.length == 0)
-    {
-        console.error("No event ids given:", id_list);
-        return res.json(RC_RESPONSE(RC_CODES.BAD_REQUEST));
-    }
-
-    let hm = {};
-    const client = getSqlClient();
-    // get media for each event
-    for (let i=0;i<id_list.length;i++)
-    {
-        const id = id_list[i];
-
-        try 
-        {
-            // // get url for each image
-            let urls = new Set();
-
-            // FIXME: testing join command
-            const event_urls = await client.invokeSQL(`
-                SELECT url
-                FROM event_images inner join images
-                ON event_images.image_id = images.id
-                WHERE event_id = "${id}"    
-            `);
-            
-            // filling set with the images
-            for (let i=0;i<event_urls.length;i++){ urls.add(event_urls[i].url); }
-
-            // add set to array of urls to the hash map
-            hm[`${id}`] = (urls && urls.size > 0) ? Array.from(urls) : [];
-
-        } catch (error) 
-        {
-                console.error("Unable to get media:", error, "For event:", id);
+    try {
+        // Ensure request body is parsed correctly
+        if (!req.body) {
+            console.error("Request body is missing or not parsed");
+            return res.json(RC_RESPONSE(RC_CODES.BAD_REQUEST, {
+                error: "Request body is missing or could not be parsed"
+            }));
         }
+
+        // get all event_ids needed
+        const id_list = req.body.id_list;
+
+        if (!id_list || !Array.isArray(id_list) || id_list.length == 0)
+        {
+            console.error("No event ids given or invalid format:", id_list);
+            return res.json(RC_RESPONSE(RC_CODES.BAD_REQUEST, {
+                error: "id_list is required and must be a non-empty array",
+                received: id_list
+            }));
+        }
+
+        let hm = {};
+        const client = getSqlClient();
+        
+        // get media for each event
+        for (let i=0;i<id_list.length;i++)
+        {
+            const id = id_list[i];
+
+            try 
+            {
+                // Validate id is a non-empty string
+                if (!id || typeof id !== 'string' || id.trim().length === 0) {
+                    console.error("Invalid event id (empty or not a string):", id);
+                    hm[`${id}`] = [];
+                    continue;
+                }
+
+                // get url for each image using parameterized query
+                let urls = new Set();
+
+                // Use parameterized query to prevent SQL injection (works with UUIDs/varchar)
+                const event_urls = await client.invokeSQL(`
+                    SELECT url
+                    FROM event_images inner join images
+                    ON event_images.image_id = images.id
+                    WHERE event_id = ?
+                `, [id]);
+                
+                // filling set with the images
+                if (event_urls && Array.isArray(event_urls)) {
+                    for (let j=0;j<event_urls.length;j++){ 
+                        urls.add(event_urls[j].url); 
+                    }
+                }
+
+                // add set to array of urls to the hash map
+                hm[`${id}`] = (urls && urls.size > 0) ? Array.from(urls) : [];
+
+            } catch (error) 
+            {
+                console.error("Unable to get media:", error, "For event:", id);
+                // Set empty array for this event on error
+                hm[`${id}`] = [];
+            }
+        }
+        req.media_map = hm;
+        next();
+    } catch (error) {
+        // Catch any unhandled errors (like SQL connection failures)
+        console.error("Error in getEventMedia:", error);
+        return res.json(RC_RESPONSE(RC_CODES.SERVER_ERROR, {
+            error: error.message || "Failed to retrieve event media"
+        }));
     }
-    req.media_map = hm;
-    next();
 }
 
 //-----------------------------------------------------------------------------
