@@ -18,7 +18,7 @@ const bodyParser    = require("body-parser");
 const dotenv        = require("dotenv");
 const cors          = require("cors");
 const path          = require("path");
-const {load_env}    = require("./helpers/env_variables.js")
+const { load_env }  = require("./helpers/env_variables.js")
 
 // ====================================================
 // CHOOSE ENVIRONMENT VARIABLE
@@ -56,10 +56,12 @@ app.get("/health", (req, res) => {
 });
 
 // Serve static files if build directory exists
-if (require('fs').existsSync(BUILD_DIR)) {
+if (require('fs').existsSync(BUILD_DIR)) 
+{
     app.use(express.static(BUILD_DIR));
     console.log("Serving static files from:", BUILD_DIR);
-} else {
+} else 
+{
     console.error("WARNING: Build directory not found:", BUILD_DIR);
     app.get("/", (req, res) => {
         res.status(500).send("Client build not found. Build directory missing: " + BUILD_DIR);
@@ -73,7 +75,8 @@ const allowedOrigins = [
 ];
 
 // Add LoadBalancer domain if set
-if (process.env.DOMAIN) {
+if (process.env.DOMAIN) 
+{
     const domainUrl = process.env.DOMAIN.replace(/\/$/, ''); // Remove trailing slash
     allowedOrigins.push(domainUrl);
     // Also add without http:// prefix in case it's needed
@@ -134,9 +137,6 @@ app.use("/api/media",         media_routes);
 app.use("/api/board_members", board_member_routes);
 app.use("/api/email/service", email_service_routes);
 // ====================================================
-// ADD CATCH ALL ROUTE
-// ====================================================
-// ====================================================
 // ADD CATCH ALL ROUTE FOR SPA
 // ====================================================
 // Serve index.html for all non-API routes (SPA routing)
@@ -169,12 +169,13 @@ app.get("/", (req, res) => {
 // ====================================================
 // SERVER LISTENER
 // ====================================================
-if (!PORT) {
+if (!PORT) 
+{
     console.error("ERROR: PORT environment variable is not set!");
     process.exit(1);
 }
 
-const server = app.listen(PORT, "0.0.0.0" ,()=>{
+const server = app.listen(PORT, "0.0.0.0" ,()=> {
     console.log("=========================================");
     console.log("Node server is listening on PORT |", PORT);
     console.log("Server Domain/IP                 |", DOMAIN);

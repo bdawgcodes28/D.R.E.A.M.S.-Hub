@@ -44,13 +44,51 @@ class MySQLConnector
         if (db) {
             config.database = db;
         }
-        this.con = await mysql.createConnection(config);
-        return this.con;
+        
+        const connection = await mysql.createConnection(config);
+        
+        // Handle connection errors and auto-reconnect
+        connection.on('error', (err) => {
+            console.error('MySQL connection error:', err);
+            if (err.code === 'PROTOCOL_CONNECTION_LOST' || err.code === 'ECONNRESET') {
+                console.log('Connection lost, will reconnect on next query');
+                this.con = null; // Mark connection as dead
+            }
+        });
+        
+        // Handle connection end
+        connection.on('end', () => {
+            console.log('MySQL connection ended');
+            this.con = null;
+        });
+        
+        this.con = connection;
+        return connection;
     }
 
     async _ensureConnection() {
+        // Check if connection exists and is still alive
         if (!this.con) {
-            await this._connectionPromise;
+            // No connection, create new one
+            this._connectionPromise = this._initConnection(this.db);
+            this.con = await this._connectionPromise;
+        } else {
+            // Connection exists, but check if it's still alive
+            try {
+                // Try a simple query to check if connection is alive
+                await this.con.query('SELECT 1');
+            } catch (err) {
+                // Connection is dead, recreate it
+                console.log('Connection is dead, recreating...');
+                try {
+                    await this.con.end(); // Clean up old connection
+                } catch (e) {
+                    // Ignore errors when closing dead connection
+                }
+                this.con = null;
+                this._connectionPromise = this._initConnection(this.db);
+                this.con = await this._connectionPromise;
+            }
         }
         return this.con;
     }    
@@ -109,12 +147,28 @@ class MySQLConnector
         if (!queries)
             return null;
 
-        // invoke the sql commands
-        const con       = await this._ensureConnection();
-        // Support parameterized queries if params are provided
-        const [result]  = params ? await con.query(queries, params) : await con.query(queries);
-        //console.log("Results:", result);
-        return result;
+        try {
+            // invoke the sql commands
+            const con       = await this._ensureConnection();
+            // Support parameterized queries if params are provided
+            const [result]  = params ? await con.query(queries, params) : await con.query(queries);
+            //console.log("Results:", result);
+            return result;
+        } catch (err) {
+            // If connection error, try to reconnect once
+            if (err.code === 'PROTOCOL_CONNECTION_LOST' || 
+                err.code === 'ECONNRESET' || 
+                err.message && err.message.includes('closed state')) {
+                console.log('Connection lost during query, reconnecting and retrying...');
+                this.con = null; // Mark connection as dead
+                const con = await this._ensureConnection();
+                // Retry the query once
+                const [result] = params ? await con.query(queries, params) : await con.query(queries);
+                return result;
+            }
+            // Re-throw other errors
+            throw err;
+        }
     }
 
     async insertIntoTable(table, columns=null, values=[]) 
@@ -129,10 +183,25 @@ class MySQLConnector
             sql = `INSERT INTO ${table} VALUES ?`;
         }
     
-        const con       = await this._ensureConnection();
-        const [result]  = await con.query(sql, [values]);
-        console.log("Rows inserted: " + result.affectedRows);
-        return result;
+        try {
+            const con       = await this._ensureConnection();
+            const [result]  = await con.query(sql, [values]);
+            console.log("Rows inserted: " + result.affectedRows);
+            return result;
+        } catch (err) {
+            // If connection error, try to reconnect once
+            if (err.code === 'PROTOCOL_CONNECTION_LOST' || 
+                err.code === 'ECONNRESET' || 
+                err.message && err.message.includes('closed state')) {
+                console.log('Connection lost during insertIntoTable, reconnecting and retrying...');
+                this.con = null;
+                const con = await this._ensureConnection();
+                const [result] = await con.query(sql, [values]);
+                console.log("Rows inserted: " + result.affectedRows);
+                return result;
+            }
+            throw err;
+        }
     }
 
     async selectAllRows(table)
@@ -143,10 +212,24 @@ class MySQLConnector
             return [];
         }
 
-        const sql           = `SELECT * FROM ${table}`;
-        const con           = await this._ensureConnection();
-        const [result]      = await con.query(sql);
-        return result;
+        try {
+            const sql           = `SELECT * FROM ${table}`;
+            const con           = await this._ensureConnection();
+            const [result]      = await con.query(sql);
+            return result;
+        } catch (err) {
+            // If connection error, try to reconnect once
+            if (err.code === 'PROTOCOL_CONNECTION_LOST' || 
+                err.code === 'ECONNRESET' || 
+                err.message && err.message.includes('closed state')) {
+                console.log('Connection lost during selectAllRows, reconnecting and retrying...');
+                this.con = null;
+                const con = await this._ensureConnection();
+                const [result] = await con.query(`SELECT * FROM ${table}`);
+                return result;
+            }
+            throw err;
+        }
     }
 
     async clearTable(table)
